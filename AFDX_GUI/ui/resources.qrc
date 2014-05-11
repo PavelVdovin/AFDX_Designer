@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="pics">
+    <file>pics/router_selected.png</file>
+    <file>pics/computer_selected.png</file>
+    <file>pics/add.png</file>
+    <file>pics/delete.png</file>
+    <file>pics/topology.png</file>
+    <file>pics/edge.png</file>
+    <file>pics/router.png</file>
+    <file>pics/computer.png</file>
+    <file>pics/end_system_selected.png</file>
+    <file>pics/select.png</file>
+    <file>pics/folder.png</file>
+    <file>pics/cd.png</file>
+    <file>pics/end_system.png</file>
+    <file>pics/page.png</file>
+  </qresource>
+</RCC>
