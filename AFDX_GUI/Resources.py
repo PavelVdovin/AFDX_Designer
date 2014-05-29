@@ -1,4 +1,25 @@
 import xml.dom.minidom
+from PyQt4 import QtGui
+from PyQt4.QtGui import QDialog
+from ui.Ui_PortTypeDialog import Ui_PortTypeDialog
+
+class Priority:
+    ''' Enum representing link priority on outgoing port'''
+    LOW = 0
+    HIGH = 1
+    
+    
+class PortTypeDialog(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.ui = Ui_PortTypeDialog()
+        self.ui.setupUi(self)
+        
+    def Load(self, port):
+        self.ui.priority.setCurrentIndex(0)
+        
+    def SetResult(self, result):
+        result["priority"] = Priority.LOW if (self.ui.priority.currentText() == "Low") else Priority.HIGH
 
 class AbstractVertex:
     def __init__(self, id):
@@ -13,7 +34,6 @@ class AbstractVertex:
         if ( port in self.ports ):
             self.ports.remove(port)
 
-        
 class PortType:
     ''' Enum representing current editing mode '''
     FIFO = 0
@@ -75,22 +95,35 @@ class Path:
         pass #TODO: dejkstra analog of building path
     
     # appending to existing path
-    def appendLink(self, link):
+    def appendLink(self, link, priority = None):
         firstElem = self.source
-        lastElem = self.path[-1]
+        lastElem = self.getElem(-1)
         
         if lastElem == None or firstElem == None:
             return False
             
         nextElem = None
+        isPrioritized = False # identify whether outgoing port is prioritized
         if lastElem == link.e1:
             nextElem = link.e2
+            isPrioritized = (link.port1.type == PortType.PRIORITIZED)
         elif lastElem == link.e2:
             nextElem = link.e1
+            isPrioritized = (link.port2.type == PortType.PRIORITIZED)
         
         if nextElem != None and (isinstance(nextElem, Switch) or isinstance(nextElem, EndSystem) and nextElem == self.dest):
-            self.path.append(link)
-            self.path.append(nextElem)
+            result = {}
+            result["elem"] = link
+            if isPrioritized:
+                result["priority"] = priority or Priority.LOW
+                if priority == None:
+                    d = PortTypeDialog()
+                    d.Load(result)
+                    d.exec_()
+                    if d.result() == QDialog.Accepted:
+                        d.SetResult(result)
+            self.path.append(result)
+            self.path.append({"elem": nextElem})
             return True
         
         return False
@@ -99,31 +132,51 @@ class Path:
     def removeLink(self, link):
         if len(self.path) < 3:
             return False
-        lastLink = self.path[-2]
+        lastLink = self.getElem(-2)
         
         if lastLink == link:
             #removing two last elements
-            self.path.remove(self.path[-1])
-            self.path.remove(self.path[-1])
+            del self.path[-1]
+            del self.path[-1]
+            #self.path.remove(self.path[-1])
+            #self.path.remove(self.path[-1])
             return True
         return False
     
-    def appendVertex(self, v, network):
+    def appendVertex(self, v, network, priority = None):
         if self.source == None:
             return False
         
         for l in network.links:
-            if (l.e1 == v or l.e2 == v) and self.appendLink(l):
+            if (l.e1 == v or l.e2 == v) and self.appendLink(l, priority):
                 return True
         return False
     
     def removeVertex(self, v, network):
-        if v != self.path[-1]:
+        if v != self.path[-1]["elem"]:
             return False
         for l in network.links:
             if (l.e1 == v or l.e2 == v) and self.removeLink(l):
                 return True
         return False
+    
+    def getElem(self, index):
+        if len(self.path) > index:
+            return self.path[index]["elem"]
+        return None
+    
+    def isLastVertex(self, v):
+        return self.path[-1]["elem"] == v
+    
+    def isPriorityLink(self, link):
+        for elem in self.path:
+            if elem["elem"] == link:
+                if "priority" in elem:
+                    #print "Elem found, priority = " + elem["priority"] 
+                    return elem["priority"] == Priority.HIGH
+                return False
+        return False
+                
     
 class VirtualLink:
     def __init__(self, id):
@@ -190,8 +243,18 @@ class VirtualLink:
         path = Path()
         path.source = self.source
         path.dest = dest
-        path.path.append(path.source)
+        path.path.append({"elem":path.source})
         self.route.append(path)
+        
+    def isPriorityLink(self, link):
+        for path in self.route:
+            for elem in path.path:
+                if elem["elem"] == link:
+                    if "priority" in elem:
+                        #print "Elem found, priority = " + elem["priority"] 
+                        return elem["priority"] == Priority.HIGH
+                    return False
+        return False
 
 class DataFlow:
     

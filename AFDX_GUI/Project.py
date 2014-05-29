@@ -1,6 +1,6 @@
 from Resources import Network
 import xml.dom.minidom
-from Resources import Link, VirtualLink, Path, DataFlow
+from Resources import Link, VirtualLink, Path, DataFlow, Priority
 
 class Project:
     resources = None
@@ -53,10 +53,14 @@ class Project:
                 p.setAttribute("dest", str(path.dest and path.dest.number))
                 text = ""
                 for i in range(len(path.path) - 1):
-                    elem = path.path[i]
+                    elem = path.path[i]["elem"]
                     if not isinstance(elem, Link):
-                        text += str(elem.number) + ","
-                text += str(path.path[-1].number)
+                        text += str(elem.number)
+                    else:
+                        if "priority" in path.path[i]:
+                            text += "h" if path.path[i]["priority"] == Priority.HIGH else "l"
+                        text += ","
+                text += str(path.path[-1]["elem"].number)
                 p.setAttribute("path", text)
                 tag.appendChild(p)
 
@@ -155,10 +159,17 @@ class Project:
                     if elem != path.source:
                         raise "Assertion: source in path is not equal to source in xml"
                     
-                    path.path.append(elem)
+                    path.path.append({"elem": elem})
+                    prevPriority = 0
                     for index in range(1, len(elems)):
+                        priority = 0
+                        if elems[index][-1] == 'h' or elems[index][-1] == 'l':
+                            priority = Priority.HIGH if elems[index][-1] == 'h' else Priority.LOW
+                            elems[index] = elems[index][:-1]
+                        
                         elem = self.resources.vertices[int(elems[index]) - 1]
-                        path.appendVertex(elem, self.resources)
+                        path.appendVertex(elem, self.resources, prevPriority)
+                        prevPriority = priority
                     
                     vl.route.append(path)
                     

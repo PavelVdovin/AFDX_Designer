@@ -91,6 +91,8 @@ class NetworkCanvas(QWidget):
               "selected_vl_source": QColor(1, 200, 1),
               "selected_vl_vertex": QColor(132, 112, 255),
               "selected_vl_link": QColor(255, 112, 255),
+              "selected_vl_link_low": QColor(255, 112, 255),
+              "selected_vl_link_high": QColor(150, 0, 0),
               "selected_df_source": QColor(1, 200, 1),
               "selected_df_dest": QColor(132, 112, 255),
               }
@@ -136,6 +138,15 @@ class NetworkCanvas(QWidget):
         self.selectedDataFlowDest = []
         self.Clear()
         self.Visualize(self.resources)
+    
+    def getLinkColor(self, link):
+        if self.selectedVL == None:
+            return "line"
+        
+        if self.selectedVL.isPriorityLink(link):
+            return "selected_vl_link_high"
+        else:
+            return "selected_vl_link"
         
     def paintEvent(self, event):
         if not self.resources:
@@ -144,13 +155,13 @@ class NetworkCanvas(QWidget):
         
         for e in (self.resources.links + self.connections):
             if (self.state == State.VirtualLink and e in self.selectedVLAllElems) or (self.state == State.VirtualLinkPath and e in self.selectedVLElems):
-                paint.setPen(self.colors["selected_vl_link"])
+                paint.setPen(self.colors[self.getLinkColor(e)])
             elif self.state == State.DataFlow and self.selectedVL != None and e in self.selectedVLAllElems:
-                paint.setPen(self.colors["selected_vl_link"])
-            elif self.state == State.DataFlow and self.selectedVL != None and e == self.selectedDataFlow.source.connection:
+                paint.setPen(self.colors[self.getLinkColor(e)])
+            elif self.state == State.DataFlow and self.selectedVL != None and self.selectedDataFlow != None and e == self.selectedDataFlow.source.connection:
                 paint.setPen(self.colors["selected_df_source"])
-            elif self.state == State.DataFlow and self.selectedVL != None and (e.e1 in self.selectedDataFlow.dest or e.e2 in self.selectedDataFlow.dest):
-                paint.setPen(self.colors["selected_vl_link"])
+            elif self.state == State.DataFlow and self.selectedVL != None and self.selectedDataFlow != None and (e.e1 in self.selectedDataFlow.dest or e.e2 in self.selectedDataFlow.dest):
+                paint.setPen(self.colors[self.getLinkColor(e)])
             elif e == self.selectedLink:
                 paint.setPen(self.colors["selected"])
             else:
@@ -379,8 +390,8 @@ class NetworkCanvas(QWidget):
             for v in self.vertices.keys():
                 if self.vertices[v].contains(e.pos()):
                     #self.selectedVertex = self.vertices[v]
-                    if v in self.selectedPath.path and len(self.selectedPath.path) > 2:
-                        link = self.selectedPath.path[-2]
+                    if self.selectedPath.isLastVertex(v) and len(self.selectedPath.path) > 2:
+                        link = self.selectedPath.getElem(-2)
                         removed = self.selectedPath.removeVertex(v, self.resources)
                         if removed:
                             self.selectedVLElems.remove(link)
@@ -388,7 +399,8 @@ class NetworkCanvas(QWidget):
                     else:
                         added = self.selectedPath.appendVertex(v, self.resources)
                         if added:
-                            self.selectedVLElems.append(self.selectedPath.path[-2])
+                            
+                            self.selectedVLElems.append(self.selectedPath.getElem(-2))
                             self.selectedVLElems.append(v)
                         if isinstance(v, EndSystem) and not added:
                             QMessageBox.critical(self, self.tr("Error"), self.tr("Wrong destination"))
@@ -542,17 +554,19 @@ class NetworkCanvas(QWidget):
         del self.selectedVLAllElems[:]
         for path in virtualLink.route:
             for elem in path.path[1:]:
-                self.selectedVLAllElems.append(elem)
-            
+                self.selectedVLAllElems.append(elem["elem"])
+        
+        self.selectedLink = None
         self.selectedVL = virtualLink
         self.repaint()
         
     def selectVirtualLinkPath(self, path):
         del self.selectedVLElems[:]
         for elem in path.path[1:]:
-            self.selectedVLElems.append(elem)
+            self.selectedVLElems.append(elem["elem"])
         self.selectedVLElems.append(path.dest)
         self.selectedPath = path
+        self.selectedLink = None
         self.repaint()
         
     def selectDataFlow(self, dataFlow):
@@ -575,12 +589,13 @@ class NetworkCanvas(QWidget):
             del self.selectedVLAllElems[:]
             for path in dataFlow.vl.route:
                 for elem in path.path[1:]:
-                    self.selectedVLAllElems.append(elem)
+                    self.selectedVLAllElems.append(elem["elem"])
         else:
             self.selectedVL = None
             del self.selectedVLAllElems[:]
             
-            
+        
+        self.selectedLink = None
         self.selectedDataFlow = dataFlow
         self.repaint()
 
