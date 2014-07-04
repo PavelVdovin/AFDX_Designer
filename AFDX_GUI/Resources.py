@@ -408,10 +408,6 @@ class Network:
             if isinstance(v, EndSystem):
                 tag = dom.createElement("endSystem")
                 self.AddXmlPorts(v, tag)
-                #tag.setAttribute("speed", str(v.speed))
-                #tag.setAttribute("ramcapacity", str(v.ram))
-                #tag.setAttribute("used", str(v.intervals[r].usedSpeed) if r != None else "0")
-                #tag.setAttribute("usedram", str(v.intervals[r].usedRam) if r != None else "0")
             elif isinstance(v, Partition):
                 tag = dom.createElement("partition")
                 if ( v.connectedTo != None):

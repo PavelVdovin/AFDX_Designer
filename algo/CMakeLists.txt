@@ -9,9 +9,13 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}
       interface/
       model/
+      operations/
+      verifier/
       )
 SET ( COMPONENTS
       interface
+      operations
+      verifier
       )
 
 FOREACH(COMPONENT ${COMPONENTS})

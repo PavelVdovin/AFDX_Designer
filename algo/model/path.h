@@ -33,6 +33,10 @@ public:
         return dest;
     }
 
+    inline std::list<PathNode>& getPath() {
+        return path;
+    }
+
 private:
     NetElement* source;
     NetElement* dest;

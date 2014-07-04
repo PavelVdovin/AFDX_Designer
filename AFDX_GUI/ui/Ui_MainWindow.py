@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindow.ui'
+# Form implementation generated from reading ui file './MainWindow.ui'
 #
-# Created: Sun May 11 00:47:01 2014
+# Created: Fri Jul  4 10:45:55 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,6 +75,10 @@ class Ui_MainWindow(object):
         self.toolBar = QtGui.QToolBar(MainWindow)
         self.toolBar.setObjectName(_fromUtf8("toolBar"))
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+        self.toolBar_2 = QtGui.QToolBar(MainWindow)
+        self.toolBar_2.setObjectName(_fromUtf8("toolBar_2"))
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar_2)
+        MainWindow.insertToolBarBreak(self.toolBar_2)
         self.actionOpen = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/pics/pics/folder.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -141,6 +145,8 @@ class Ui_MainWindow(object):
         self.actionRemoveDataFlow = QtGui.QAction(MainWindow)
         self.actionRemoveDataFlow.setIcon(icon9)
         self.actionRemoveDataFlow.setObjectName(_fromUtf8("actionRemoveDataFlow"))
+        self.actionVerify = QtGui.QAction(MainWindow)
+        self.actionVerify.setObjectName(_fromUtf8("actionVerify"))
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -162,6 +168,7 @@ class Ui_MainWindow(object):
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionDataFlow)
         self.toolBar.addAction(self.actionRemoveDataFlow)
+        self.toolBar_2.addAction(self.actionVerify)
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.actionEndSystem, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggleEndSystem)
@@ -181,6 +188,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.treeWidgetVirtualLinks, QtCore.SIGNAL(_fromUtf8("itemDoubleClicked(QTreeWidgetItem*,int)")), MainWindow.toggleVirtualLinkDoubleClicked)
         QtCore.QObject.connect(self.treeWidgetDataFlows, QtCore.SIGNAL(_fromUtf8("itemClicked(QTreeWidgetItem*,int)")), MainWindow.toggleDataFlowItem)
         QtCore.QObject.connect(self.treeWidgetDataFlows, QtCore.SIGNAL(_fromUtf8("itemDoubleClicked(QTreeWidgetItem*,int)")), MainWindow.toggleDataFlowDoubleClicked)
+        QtCore.QObject.connect(self.actionVerify, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.verify)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -189,6 +197,7 @@ class Ui_MainWindow(object):
         self.treeWidgetDataFlows.headerItem().setText(0, _translate("MainWindow", "Data flows", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar", None))
+        self.toolBar_2.setWindowTitle(_translate("MainWindow", "toolBar_2", None))
         self.actionOpen.setText(_translate("MainWindow", "Open", None))
         self.actionSave.setText(_translate("MainWindow", "Save", None))
         self.actionExit.setText(_translate("MainWindow", "Exit", None))
@@ -211,5 +220,7 @@ class Ui_MainWindow(object):
         self.actionDataFlow.setToolTip(_translate("MainWindow", "Add new data flow", None))
         self.actionRemoveDataFlow.setText(_translate("MainWindow", "removeDataFlow", None))
         self.actionRemoveDataFlow.setToolTip(_translate("MainWindow", "Remove data flow", None))
+        self.actionVerify.setText(_translate("MainWindow", "verify", None))
+        self.actionVerify.setToolTip(_translate("MainWindow", "Verify capacity constraints", None))
 
 import resources_rc

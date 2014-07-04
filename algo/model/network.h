@@ -6,11 +6,11 @@
 class Network {
 	friend class XmlReader;
 public:
-	inline Links getLinks() const {
+	inline Links& getLinks() {
 		return links;
 	}
 
-	inline NetElements getNetElements() const {
+	inline NetElements& getNetElements() {
 		return netElements;
 	}
 

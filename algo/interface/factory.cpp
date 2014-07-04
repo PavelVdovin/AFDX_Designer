@@ -119,6 +119,8 @@ Link* Factory::generateLink(const QDomElement& element) {
     Port* port2 = portsStorage[to];
 
     link = new Link(port1, port2, capacity);
+    port1->assosiatedLink = link;
+    port2->assosiatedLink = link;
 
     if ( fromTypeStr.length() > 0 ) {
         int fromType = fromTypeStr.toInt();
@@ -195,15 +197,16 @@ VirtualLink* Factory::generateVirtualLink(QDomElement& element) {
     if ( bagStr.length() > 0 ) {
         int bag = bagStr.toInt();
         if ( bag == 1 || bag == 2 || bag == 4 || bag == 8 || bag == 16 || bag == 32 || bag == 64 || bag == 128 ) {
-            virtualLink->bag = bag;
+            virtualLink->setBag(bag);
         } else
             printf("Error during bag parsing.\n");
     }
 
     if ( lmaxStr.length() > 0 ) {
         int lmax = lmaxStr.toInt();
-        if ( lmax >= 64 && lmax <= 1518 )
-            virtualLink->lMax = lmax;
+        if ( lmax >= 64 && lmax <= 1518 ) {
+            virtualLink->setLMax(lmax);
+        }
         else
             printf("Error during lmax parsing.\n");
     }

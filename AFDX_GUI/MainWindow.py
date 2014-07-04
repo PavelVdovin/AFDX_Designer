@@ -4,6 +4,7 @@ from NetworkCanvas import NetworkCanvas, State
 from Project import Project
 from VirtualLinksEditor import VirtualLinksEditor
 from DataFlowsEditor import DataFlowsEditor
+import os, sys
 
 class MainWindow(QMainWindow):
     project = None
@@ -192,3 +193,17 @@ class MainWindow(QMainWindow):
             self.project.Save(self.projectFile)
         self.setWindowTitle(self.projectFile.split('/').pop().split('.')[0] + " - " + self.basename)
 
+    def verify(self):
+        file = "tmp/tmp.afdxxml"
+        self.project.Save(file)
+        if sys.platform.startswith("win"):
+            name = "algo/AFDX_DESIGN.exe"
+        else:
+            name = "algo/AFDX_DESIGN"
+        if not os.path.isfile(name):
+            QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
+        else:
+        #os.system(name + " \"" + os.path.relpath(file) + "\" ")
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" ").read()
+            QMessageBox.information(self, "Verification result", result.split('\n')[-2])
+        

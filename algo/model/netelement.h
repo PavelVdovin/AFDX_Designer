@@ -2,6 +2,8 @@
 #define NETELEMENT
 
 #include "defs.h"
+#include "port.h"
+#include <assert.h>
 
 /*
  * Class defines the element which takes part in communication: end system or switch.
@@ -43,9 +45,24 @@ public:
         return (Switch *)this;
     }
 
+    inline void assignOutgoingVirtualLink(VirtualLink* virtualLink, Port* outgoingPort, bool highPriority = false) {
+        outgoingPort->assignVirtualLink(virtualLink, highPriority);
+    }
+
+    inline void removeOutgoingVirtualLink(VirtualLink* virtualLink, Port* outgoingPort) {
+        outgoingPort->removeVirtualLink(virtualLink);
+    }
+
+    inline VirtualLinks& getAssignedVirtualLinks(Port* port, bool highPriority = false) {
+        if ( !highPriority )
+            return port->getAssignedLowPriority();
+        return port->getAssignedHighPriority();
+    }
+
 protected:
 	// Outgoing ports
 	Ports ports;
+	AssignedVirtualLinks assignedVirtualLinks;
 
 	TYPE type;
 };

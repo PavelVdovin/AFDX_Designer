@@ -1,5 +1,8 @@
 #include "xmlreader.h"
 #include "network.h"
+#include "verifier.h"
+#include <string>
+#include <iostream>
 
 int main(int argc, char** argv) {
     if ( argc != 2 )
@@ -26,10 +29,14 @@ int main(int argc, char** argv) {
 
     XmlReader xmlReader(root);
 
-    const Network * network = xmlReader.getNetwork();
+    Network * network = xmlReader.getNetwork();
     printf("Network has %d net-elements.\n", network->getNetElements().size());
+    printf("Network has %d links.\n", network->getLinks().size());
     printf("There are %d partitions.\n", xmlReader.getPartitions().size());
     printf("There are %d virtual links.\n", xmlReader.getVirtualLinks().size());
     printf("There are %d data flows.\n", xmlReader.getDataFlows().size());
+
+    std::string status = Verifier::verify(network, xmlReader.getVirtualLinks());
+    std::cout << status << std::endl;
     return 0;
 }

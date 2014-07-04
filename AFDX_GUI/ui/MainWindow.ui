@@ -149,6 +149,18 @@
    <addaction name="actionDataFlow"/>
    <addaction name="actionRemoveDataFlow"/>
   </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="actionVerify"/>
+  </widget>
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -305,6 +317,14 @@
    </property>
    <property name="toolTip">
     <string>Remove data flow</string>
+   </property>
+  </action>
+  <action name="actionVerify">
+   <property name="text">
+    <string>verify</string>
+   </property>
+   <property name="toolTip">
+    <string>Verify capacity constraints</string>
    </property>
   </action>
  </widget>
@@ -584,6 +604,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionVerify</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>verify()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggleEndSystem()</slot>
@@ -602,5 +638,6 @@
   <slot>toggleVirtualLinkDoubleClicked()</slot>
   <slot>toggleDataFlowItem()</slot>
   <slot>toggleDataFlowDoubleClicked()</slot>
+  <slot>verify()</slot>
  </slots>
 </ui>

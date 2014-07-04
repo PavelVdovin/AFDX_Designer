@@ -27,4 +27,6 @@ typedef std::set<Link*> Links;
 typedef std::map<NetElement*, Path*> Paths;
 typedef std::set<VirtualLink*> VirtualLinks;
 typedef std::set<DataFlow*> DataFlows;
+
+typedef std::map<Port*, VirtualLinks> AssignedVirtualLinks;
 #endif
