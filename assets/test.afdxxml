@@ -14,17 +14,22 @@
 	</resources>
 	<virtualLinks/>
 	<dataFlows>
-		<dataFlow dest="6" id="Data Flow 1" msgSize="1" period="1" source="5" tMax="0" vl="None"/>
-		<dataFlow dest="5" id="Data Flow 2" msgSize="1000" period="16" source="6" tMax="32" vl="None"/>
-		<dataFlow dest="6" id="Data Flow 3" msgSize="1" period="32" source="5" tMax="16" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="8" source="5" tMax="1000" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="1000" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="8" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="5" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="4" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="8" source="5" tMax="8" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="8" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="4" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="4000" period="7" source="5" tMax="4" vl="None"/>
+		<dataFlow dest="6" id="Data Flow 1" msgSize="1" period="1" source="5" tMax="0" jMax="0" vl="None"/>
+		<dataFlow dest="5" id="Data Flow 2" msgSize="1000" period="16" source="6" tMax="32" jMax="0" vl="None"/>
+		<dataFlow dest="6" id="Data Flow 3" msgSize="1" period="32" source="5" tMax="16" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="8" source="5" tMax="1000" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="1000" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="8" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="5" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="4" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="8" source="5" tMax="8" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="8" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="4" jMax="0" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="4000" period="7" source="5" tMax="4" jMax="0" vl="None"/>
+
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="1" period="8" source="5" tMax="5" jMax="4" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="1" period="8" source="5" tMax="4" jMax="4" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="16" source="5" tMax="13" jMax="4" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="16" source="5" tMax="12" jMax="4" vl="None"/>
 	</dataFlows>
 </afdxxml>

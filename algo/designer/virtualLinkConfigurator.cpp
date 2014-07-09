@@ -18,10 +18,10 @@ VirtualLink* VirtualLinkConfigurator::designUnroutedVL(DataFlow* df) {
     }
 
     if ( df->getMsgSize() <= 1471 ) {
-        return generateVLOneFrame(df->getMsgSize(), df->getPeriod(), df->getTMax());
+        return generateVLOneFrame(df->getMsgSize(), df->getPeriod(), df->getTMax(), df->getMaxJitter());
     }
 
-    return generateVLManyFrames(df->getMsgSize(), df->getPeriod(), df->getTMax());
+    return generateVLManyFrames(df->getMsgSize(), df->getPeriod(), df->getTMax(), df->getMaxJitter());
 }
 
 inline int min(int val1, int val2) {
@@ -45,14 +45,31 @@ inline float max(float val1, float val2, float val3) {
     return val > val3 ? val : val3;
 }
 
-long getBag(int bagMax) {
+// Check whether max message (with one-frame) jitter is satisfied
+inline bool checkJmaxForOneFrame(int val, long period, long tMax, long jMax) {
+    if ( !tMax )
+        return true;
+
+    if ( val <= (period - jMax) )
+        return true;
+
+    long sigma = tMax - FRAME_TRANSMITION_APPROXIMATION;
+    if ( (val - (period - jMax)) > sigma ) {
+        printf("Message jitter is not satisfied for bag = %d, period = %d, tMax = %d, jMax = %d\n",
+                val, period, tMax, jMax);
+        return false;
+    }
+    return true;
+}
+
+long getBag(int bagMax, long period, long tMax, long jMax) {
     int val = 128;
-    while ( val > bagMax )
+    while ( val > bagMax || !checkJmaxForOneFrame(val, period, tMax, jMax) )
         val = val >> 1;
     return val;
 }
 
-VirtualLink* VirtualLinkConfigurator::generateVLOneFrame(long msgSize, long period, long tMax) {
+VirtualLink* VirtualLinkConfigurator::generateVLOneFrame(long msgSize, long period, long tMax, long jMax) {
     assert(msgSize <= 1471);
     // simple way to generate vl
     long lMax = msgSize + 47;
@@ -61,10 +78,10 @@ VirtualLink* VirtualLinkConfigurator::generateVLOneFrame(long msgSize, long peri
 
     // BagMax is min(period, tMax), bag is the closest value to BagMax, which is the power of 2.
     int bagMax = (int)period;
-    if ( tMax > 0 ) // tMax == 0 means not constrained time
-        bagMax = (int)min(period, tMax);
+//    if ( tMax > 0 ) // tMax == 0 means not constrained time
+//        bagMax = (int)min(period, tMax);
 
-    int bag = getBag(bagMax);
+    int bag = getBag(bagMax, period, tMax, jMax);
     if ( !bag ) {
         printf("Cannot generate virtual link for data flow with parameters: msgSize: %d, period: %d, tMax: %d\n",
                 msgSize, period, tMax);
@@ -81,10 +98,24 @@ VirtualLink* VirtualLinkConfigurator::generateVLOneFrame(long msgSize, long peri
     return vl;
 }
 
-// Returns upper module valus
+// Returns upper module values
 inline int modMax(float val) {
     int mod = (int)(val + EPS);
     return mod > (int)(val - 2 * EPS) ? mod : mod + 1;
+}
+
+// Check message jitter constraints
+bool checkJMaxManyFrames(int n, int bag, long period, long sigma, long jMax ) {
+    if ( !sigma || ((n*bag) <= (period - jMax)) )
+        return true;
+
+    if ( ((2*n-1)*bag) > (sigma + period - jMax) ) {
+        printf("Message jitter is not satisfied for n = %d, bag = %d, period = %d, sigma = %d, jMax = %d\n",
+                        n, bag, period, sigma, jMax);
+        return false;
+    }
+
+    return true;
 }
 
 struct FramesParams {
@@ -94,7 +125,8 @@ struct FramesParams {
 /*
  * Ni = sigma/bag + 1 or period/bag
  */
-inline FramesParams identifyOptimalNumberOfFrames(int min_numberOfFrames, int max_numberOfFrames, long period, long sigma) {
+inline FramesParams identifyOptimalNumberOfFrames(int min_numberOfFrames, int max_numberOfFrames,
+        long period, long sigma, long jMax) {
     int k = 256;
     FramesParams params;
 
@@ -106,7 +138,8 @@ inline FramesParams identifyOptimalNumberOfFrames(int min_numberOfFrames, int ma
             if ( opt_by_sigma < opt_n )
                 opt_n = opt_by_sigma;
         }
-        if ( min_numberOfFrames <= opt_n && opt_n <= max_numberOfFrames ) {
+        if ( min_numberOfFrames <= opt_n && opt_n <= max_numberOfFrames
+                && checkJMaxManyFrames(opt_n, k, period, sigma, jMax) ) {
             params.number = opt_n;
             params.bag = k;
 
@@ -127,7 +160,7 @@ inline FramesParams identifyOptimalNumberOfFrames(int min_numberOfFrames, int ma
     return params;
 }
 
-VirtualLink* VirtualLinkConfigurator::generateVLManyFrames(long msgSize, long period, long tMax) {
+VirtualLink* VirtualLinkConfigurator::generateVLManyFrames(long msgSize, long period, long tMax, long jMax) {
     long tFrame = FRAME_TRANSMITION_APPROXIMATION,
          sigma = 0;
 
@@ -158,7 +191,7 @@ VirtualLink* VirtualLinkConfigurator::generateVLManyFrames(long msgSize, long pe
     // Identifying the optimal number of frames
 
     // It is either counted by period, or by sigma. Count by period first
-    FramesParams params = identifyOptimalNumberOfFrames(min_numberOfFrames, max_numberOfFrames, period, sigma);
+    FramesParams params = identifyOptimalNumberOfFrames(min_numberOfFrames, max_numberOfFrames, period, sigma, jMax);
     int opt_numberOfFrames = params.number,
         bag = params.bag,
         lMax = modMax((float)msgSize / opt_numberOfFrames) + 47;

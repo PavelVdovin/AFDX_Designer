@@ -13,12 +13,12 @@ public:
     /*
      * Virtual link with message transmitted in one frame.
      */
-    static VirtualLink* generateVLOneFrame(long msgSize, long period, long tMax);
+    static VirtualLink* generateVLOneFrame(long msgSize, long period, long tMax, long jMax = 0);
 
     /*
      * Virtual link with message divided in more then one frame.
      */
-    static VirtualLink* generateVLManyFrames(long msgSize, long period, long tMax);
+    static VirtualLink* generateVLManyFrames(long msgSize, long period, long tMax, long jMax = 0);
 };
 
 #endif

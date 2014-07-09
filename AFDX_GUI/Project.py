@@ -76,6 +76,7 @@ class Project:
             tag.setAttribute("msgSize", str(df.msgSize))
             tag.setAttribute("period", str(df.period))
             tag.setAttribute("tMax", str(df.tMax))
+            tag.setAttribute("jMax", str(df.jMax))
             tag.setAttribute("source", str(df.source and df.source.number))
             if len(df.dest) == 0:
                 tag.setAttribute("dest", str("None"))
@@ -188,6 +189,7 @@ class Project:
             df.msgSize = int(dfNode.getAttribute("msgSize"))
             df.period = int(dfNode.getAttribute("period"))
             df.tMax = int(dfNode.getAttribute("tMax"))
+            df.jMax = int(dfNode.getAttribute("jMax"))
             
             sourceId = dfNode.getAttribute("source") 
             if sourceId == "None":

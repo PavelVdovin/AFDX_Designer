@@ -318,6 +318,7 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
             msgSizeStr = element.attribute("msgSize"),
             periodStr = element.attribute("period"),
             tMaxStr = element.attribute("tMax"),
+            jMaxStr = element.attribute("jMax"),
             vlStr = element.attribute("vl");
 
     if ( sourceStr.length() != 0 ) {
@@ -361,6 +362,17 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
             dataFlow->tMax = tMax;
         } else {
             printf("Cannot parse tMax.\n");
+            return 0;
+        }
+    }
+
+    if ( jMaxStr.length() != 0 ) {
+        bool ok;
+        long jMax = jMaxStr.toLong(&ok);
+        if ( ok ) {
+            dataFlow->maxJitter = jMax;
+        } else {
+            printf("Cannot parse jMax.\n");
             return 0;
         }
     }

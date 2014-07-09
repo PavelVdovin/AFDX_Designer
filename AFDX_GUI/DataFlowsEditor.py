@@ -7,6 +7,7 @@ from ui.Ui_MsgSizeDialog import Ui_MsgSizeDialog
 from ui.Ui_PeriodDialog import Ui_PeriodDialog
 from ui.Ui_VLDialog import Ui_VLDialog
 from ui.Ui_TmaxDialog import Ui_TmaxDialog
+from ui.Ui_JmaxDialog import Ui_JmaxDialog
 
 class DFNameDialog(QDialog):
     def __init__(self):
@@ -61,6 +62,24 @@ class TmaxDialog(QDialog):
         
     def SetResult(self, df):
         df.tMax = int(self.ui.tmax.text())
+        
+class JmaxDialog(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.ui = Ui_JmaxDialog()
+        self.ui.setupUi(self)
+        self.valid = QIntValidator(0, 1000000, self)
+        self.ui.jmax.setValidator(self.valid)
+        
+    def Load(self, df):
+        self.ui.jmax.setText(str(df.jMax) )
+        
+    def SetResult(self, df):
+        jMax = int(self.ui.jmax.text())
+        if jMax <= df.tMax:
+            df.jMax = jMax
+        else:
+            QMessageBox.critical(self, self.tr("Error"), self.tr("Message max jitter cannot be more then max transmitton time"))
         
 class VLDialog(QDialog):
     def __init__(self):
@@ -124,6 +143,10 @@ class DataFlowsEditor:
         tMaxItem = QTreeWidgetItem(dataFlowItem)
         tMaxItem.setText(0, "Tmax: " + str(tMax) + " ms")
         
+        jMax = 0 if df == None else df.jMax
+        jMaxItem = QTreeWidgetItem(dataFlowItem)
+        jMaxItem.setText(0, "Jmax: " + str(jMax) + " ms")
+        
         source = None if df == None else df.source and df.source.id
         sourceItem = QTreeWidgetItem(dataFlowItem)
         sourceItem.setText(0, "Source: " + str(source))
@@ -171,6 +194,8 @@ class DataFlowsEditor:
             self.changePeriod(item)
         elif item.text(0)[:4] == "Tmax":
             self.changeTmax(item)
+        elif item.text(0)[:4] == "Jmax":
+            self.changeJmax(item)
     
     def removeSelected(self):
         if ( self.selectedItem != None) and self.selectedItem in self.dataFlows.keys():
@@ -263,6 +288,17 @@ class DataFlowsEditor:
         if d.result() == QDialog.Accepted:
             d.SetResult(df)
             item.setText(0, "Tmax: " + str(df.tMax) + " ms")
+            
+    def changeJmax(self, item):
+        parent = item.parent()
+        df = self.dataFlows[parent]
+        
+        d = JmaxDialog()
+        d.Load(df)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            d.SetResult(df)
+            item.setText(0, "Jmax: " + str(df.jMax) + " ms")
             
     def changeVL(self, item, vls):
         parent = item.parent()

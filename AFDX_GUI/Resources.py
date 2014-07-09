@@ -263,6 +263,7 @@ class DataFlow:
         self.msgSize = 0
         self.period = 1
         self.tMax = 0
+        self.jMax = 0
         self.source = None
         self.dest = []
         self.vl = None
