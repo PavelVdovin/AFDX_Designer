@@ -160,6 +160,7 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionVerify"/>
+   <addaction name="actionDesign"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -325,6 +326,14 @@
    </property>
    <property name="toolTip">
     <string>Verify capacity constraints</string>
+   </property>
+  </action>
+  <action name="actionDesign">
+   <property name="text">
+    <string>design</string>
+   </property>
+   <property name="toolTip">
+    <string>design virtual links for data flows</string>
    </property>
   </action>
  </widget>
@@ -620,6 +629,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionDesign</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>design()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggleEndSystem()</slot>
@@ -639,5 +664,6 @@
   <slot>toggleDataFlowItem()</slot>
   <slot>toggleDataFlowDoubleClicked()</slot>
   <slot>verify()</slot>
+  <slot>design()</slot>
  </slots>
 </ui>

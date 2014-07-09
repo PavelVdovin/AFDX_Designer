@@ -204,6 +204,26 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
         else:
         #os.system(name + " \"" + os.path.relpath(file) + "\" ")
-            result = os.popen(name + " \"" + os.path.relpath(file) + "\" ").read()
-            QMessageBox.information(self, "Verification result", result.split('\n')[-2])
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" v").read()
+            print result
+            results = result.split('\n')
+            if "Not all parameters are specified, some elements are omitted." in results:
+                QMessageBox.critical(self, "Warning", "Not all parameters are specified, some elements are omitted.")
+            QMessageBox.information(self, "Verification result", results[-2])
+            
+    def design(self):
+        file = "tmp/tmp.afdxxml"
+        self.project.Save(file)
+        if sys.platform.startswith("win"):
+            name = "algo/AFDX_DESIGN.exe"
+        else:
+            name = "algo/AFDX_DESIGN"
+        if not os.path.isfile(name):
+            QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
+        else:
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" a").read()
+            print result
+            results = result.split('\n')
+            if "Not all parameters are specified, some elements are omitted." in results:
+                QMessageBox.critical(self, "Warning", "Not all parameters are specified, some elements are omitted.")
         

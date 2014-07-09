@@ -6,6 +6,7 @@ from ui.Ui_NameDialog import Ui_NameDialog
 from ui.Ui_MsgSizeDialog import Ui_MsgSizeDialog
 from ui.Ui_PeriodDialog import Ui_PeriodDialog
 from ui.Ui_VLDialog import Ui_VLDialog
+from ui.Ui_TmaxDialog import Ui_TmaxDialog
 
 class DFNameDialog(QDialog):
     def __init__(self):
@@ -46,6 +47,20 @@ class PeriodDialog(QDialog):
         
     def SetResult(self, df):
         df.period = int(self.ui.period.text())
+        
+class TmaxDialog(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.ui = Ui_TmaxDialog()
+        self.ui.setupUi(self)
+        self.valid = QIntValidator(0, 10000000, self)
+        self.ui.tmax.setValidator(self.valid)
+        
+    def Load(self, df):
+        self.ui.tmax.setText(str(df.tMax) )
+        
+    def SetResult(self, df):
+        df.tMax = int(self.ui.tmax.text())
         
 class VLDialog(QDialog):
     def __init__(self):
@@ -105,6 +120,10 @@ class DataFlowsEditor:
         periodItem = QTreeWidgetItem(dataFlowItem)
         periodItem.setText(0, "Period: " + str(period) + " ms")
         
+        tMax = 0 if df == None else df.tMax
+        tMaxItem = QTreeWidgetItem(dataFlowItem)
+        tMaxItem.setText(0, "Tmax: " + str(tMax) + " ms")
+        
         source = None if df == None else df.source and df.source.id
         sourceItem = QTreeWidgetItem(dataFlowItem)
         sourceItem.setText(0, "Source: " + str(source))
@@ -150,6 +169,8 @@ class DataFlowsEditor:
             self.changeMsgSize(item)
         elif item.text(0)[:6] == "Period":
             self.changePeriod(item)
+        elif item.text(0)[:4] == "Tmax":
+            self.changeTmax(item)
     
     def removeSelected(self):
         if ( self.selectedItem != None) and self.selectedItem in self.dataFlows.keys():
@@ -231,7 +252,18 @@ class DataFlowsEditor:
         if d.result() == QDialog.Accepted:
             d.SetResult(df)
             item.setText(0, "Period: " + str(df.period) + " ms")
-                
+    
+    def changeTmax(self, item):
+        parent = item.parent()
+        df = self.dataFlows[parent]
+        
+        d = TmaxDialog()
+        d.Load(df)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            d.SetResult(df)
+            item.setText(0, "Tmax: " + str(df.tMax) + " ms")
+            
     def changeVL(self, item, vls):
         parent = item.parent()
         df = self.dataFlows[parent]

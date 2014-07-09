@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file './MainWindow.ui'
 #
-# Created: Fri Jul  4 10:45:55 2014
+# Created: Sun Jul  6 16:38:50 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -147,6 +147,8 @@ class Ui_MainWindow(object):
         self.actionRemoveDataFlow.setObjectName(_fromUtf8("actionRemoveDataFlow"))
         self.actionVerify = QtGui.QAction(MainWindow)
         self.actionVerify.setObjectName(_fromUtf8("actionVerify"))
+        self.actionDesign = QtGui.QAction(MainWindow)
+        self.actionDesign.setObjectName(_fromUtf8("actionDesign"))
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -169,6 +171,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionDataFlow)
         self.toolBar.addAction(self.actionRemoveDataFlow)
         self.toolBar_2.addAction(self.actionVerify)
+        self.toolBar_2.addAction(self.actionDesign)
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.actionEndSystem, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggleEndSystem)
@@ -189,6 +192,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.treeWidgetDataFlows, QtCore.SIGNAL(_fromUtf8("itemClicked(QTreeWidgetItem*,int)")), MainWindow.toggleDataFlowItem)
         QtCore.QObject.connect(self.treeWidgetDataFlows, QtCore.SIGNAL(_fromUtf8("itemDoubleClicked(QTreeWidgetItem*,int)")), MainWindow.toggleDataFlowDoubleClicked)
         QtCore.QObject.connect(self.actionVerify, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.verify)
+        QtCore.QObject.connect(self.actionDesign, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.design)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -222,5 +226,7 @@ class Ui_MainWindow(object):
         self.actionRemoveDataFlow.setToolTip(_translate("MainWindow", "Remove data flow", None))
         self.actionVerify.setText(_translate("MainWindow", "verify", None))
         self.actionVerify.setToolTip(_translate("MainWindow", "Verify capacity constraints", None))
+        self.actionDesign.setText(_translate("MainWindow", "design", None))
+        self.actionDesign.setToolTip(_translate("MainWindow", "design virtual links for data flows", None))
 
 import resources_rc

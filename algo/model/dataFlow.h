@@ -6,10 +6,11 @@
 class DataFlow {
     friend class Factory;
 public:
-	DataFlow(long period = 1, long msgSize = 1000, long maxJitter = 0):
+	DataFlow(long period = 1, long msgSize = 1000, long tMax = 0, long maxJitter = 0):
 		from(0),
 		period(period),
 		msgSize(msgSize),
+		tMax(tMax),
 		maxJitter(maxJitter),
 		assignedTo(0)
 	{}
@@ -26,6 +27,10 @@ public:
 		return period;
 	}
 
+	inline long getTMax() const {
+        return tMax;
+    }
+
 	inline long getMsgSize() const {
 		return msgSize;
 	}
@@ -34,11 +39,20 @@ public:
 		return maxJitter;
 	}
 
+	inline VirtualLink* getVirtualLink() {
+	    return assignedTo;
+	}
+
+	inline void assign(VirtualLink* vl) {
+	    assignedTo = vl;
+	}
+
 private:
 	Partition* from;
 	Partitions to;
 	long period;
 	long msgSize;
+	long tMax;
 	long maxJitter;
 
 	VirtualLink* assignedTo;

@@ -5,19 +5,26 @@
 		<endSystem name="endSystem2" number="2" ports="2" x="266.5" y="310.5"/>
 		<endSystem name="endSystem3" number="3" ports="3" x="314.5" y="102.5"/>
 		<switch name="switch1" number="4" ports="4,5,6" x="246.5" y="189.5"/>
-		<partition connectedTo="1" name="partition1" number="5" x="51.5" y="102.5"/>
-		<partition connectedTo="2" name="partition2" number="6" x="294.5" y="399.5"/>
+		<partition connectedTo="1" name="partition1" number="5" x="51.5" y="99.5"/>
+		<partition connectedTo="2" name="partition2" number="6" x="327.5" y="378.5"/>
+		<partition connectedTo="3" name="partition3" number="7" x="382.5" y="79.5"/>
 		<link capacity="10000" from="1" fromType="0" to="4" toType="1"/>
 		<link capacity="100000" from="5" fromType="0" to="2" toType="0"/>
 		<link capacity="100000" from="6" fromType="1" to="3" toType="0"/>
 	</resources>
-	<virtualLinks>
-		<virtualLink bag="1" dest="3,2" id="Virtual Link 1" lmax="1518" number="1" source="1">
-			<path dest="3" path="1,4h,3" source="1"/>
-			<path dest="2" path="1,4,2" source="1"/>
-		</virtualLink>
-	</virtualLinks>
+	<virtualLinks/>
 	<dataFlows>
-		<dataFlow dest="6" id="Data Flow 1" msgSize="0" period="1" source="5" vl="1"/>
+		<dataFlow dest="6" id="Data Flow 1" msgSize="1" period="1" source="5" tMax="0" vl="None"/>
+		<dataFlow dest="5" id="Data Flow 2" msgSize="1000" period="16" source="6" tMax="32" vl="None"/>
+		<dataFlow dest="6" id="Data Flow 3" msgSize="1" period="32" source="5" tMax="16" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="8" source="5" tMax="1000" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="1000" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="8" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="5" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="1000" source="5" tMax="4" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="8" source="5" tMax="8" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="8" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="7" source="5" tMax="4" vl="None"/>
+		<dataFlow dest="6,7" id="Data Flow 4" msgSize="4000" period="7" source="5" tMax="4" vl="None"/>
 	</dataFlows>
 </afdxxml>

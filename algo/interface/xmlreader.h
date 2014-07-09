@@ -27,6 +27,10 @@ public:
 	    return dataFlows;
 	}
 
+	inline bool isWellParsed() {
+	    return wellParsed;
+	}
+
 private:
 	bool generateElementByType(const QString& type, QDomElement& elem);
 private:
@@ -37,6 +41,7 @@ private:
 
 	QDomElement rootElement;
 	Factory factory;
+	bool wellParsed;
 
 };
 

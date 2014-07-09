@@ -52,8 +52,8 @@
 		</virtualLink>
 	</virtualLinks>
 	<dataFlows>
-		<dataFlow dest="12,10" id="Data Flow 1" msgSize="15" period="155" source="11" vl="2"/>
-		<dataFlow dest="15,16,17" id="Data Flow 2" msgSize="20" period="100" source="14" vl="9"/>
-		<dataFlow dest="18" id="Data Flow 3" msgSize="0" period="1" source="15" vl="3"/>
+		<dataFlow dest="12,10" id="Data Flow 1" msgSize="15" period="155" source="11" vl="2" tMax="10"/>
+		<dataFlow dest="15,16,17" id="Data Flow 2" msgSize="20" period="100" source="14" vl="9" tMax="10"/>
+		<dataFlow dest="18" id="Data Flow 3" msgSize="0" period="1" source="15" vl="3" tMax="10"/>
 	</dataFlows>
 </afdxxml>

@@ -1,13 +1,16 @@
 #include "xmlreader.h"
 #include "network.h"
 #include "verifier.h"
+#include "designer.h"
 #include <string>
 #include <iostream>
 
 int main(int argc, char** argv) {
-    if ( argc != 2 )
+    if ( argc != 3 || std::string(argv[2]) != "a" && std::string(argv[2]) != "v" )
     {
-        printf("Usage: %s <input file>\n", *argv);
+        printf("Usage: %s <input file> v|a\n", *argv);
+        printf("\tv: verify and exit\n");
+        printf("\ta: run designer\n");
         return 1;
     }
 
@@ -29,6 +32,9 @@ int main(int argc, char** argv) {
 
     XmlReader xmlReader(root);
 
+    if ( !xmlReader.isWellParsed() ) {
+        printf("Not all parameters are specified, some elements are omitted.\n");
+    }
     Network * network = xmlReader.getNetwork();
     printf("Network has %d net-elements.\n", network->getNetElements().size());
     printf("Network has %d links.\n", network->getLinks().size());
@@ -36,7 +42,17 @@ int main(int argc, char** argv) {
     printf("There are %d virtual links.\n", xmlReader.getVirtualLinks().size());
     printf("There are %d data flows.\n", xmlReader.getDataFlows().size());
 
-    std::string status = Verifier::verify(network, xmlReader.getVirtualLinks());
-    std::cout << status << std::endl;
+    if ( std::string(argv[2]) == "v" ) {
+        std::string status = Verifier::verify(network, xmlReader.getVirtualLinks());
+        std::cout << status << std::endl;
+        return 0;
+    } else {
+        Designer designer(network, xmlReader.getPartitions(), xmlReader.getDataFlows(), xmlReader.getVirtualLinks());
+        designer.design();
+
+        VirtualLinks newVls = designer.getDesignedVirtualLinks();
+        printf("Generated %d virtualLinks.\n", newVls.size());
+    }
+
     return 0;
 }

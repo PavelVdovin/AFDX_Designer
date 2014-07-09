@@ -75,6 +75,7 @@ class Project:
             tag.setAttribute("id", df.id)
             tag.setAttribute("msgSize", str(df.msgSize))
             tag.setAttribute("period", str(df.period))
+            tag.setAttribute("tMax", str(df.tMax))
             tag.setAttribute("source", str(df.source and df.source.number))
             if len(df.dest) == 0:
                 tag.setAttribute("dest", str("None"))
@@ -186,6 +187,7 @@ class Project:
             df = DataFlow(id)
             df.msgSize = int(dfNode.getAttribute("msgSize"))
             df.period = int(dfNode.getAttribute("period"))
+            df.tMax = int(dfNode.getAttribute("tMax"))
             
             sourceId = dfNode.getAttribute("source") 
             if sourceId == "None":

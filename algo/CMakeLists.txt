@@ -11,11 +11,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}
       model/
       operations/
       verifier/
+      designer/
       )
 SET ( COMPONENTS
       interface
       operations
       verifier
+      designer
       )
 
 FOREACH(COMPONENT ${COMPONENTS})

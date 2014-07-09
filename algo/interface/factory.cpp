@@ -315,14 +315,15 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
 
     QString sourceStr = element.attribute("source"),
             destStr = element.attribute("dest"),
-            msgSizeStr = element.attribute("path"),
+            msgSizeStr = element.attribute("msgSize"),
             periodStr = element.attribute("period"),
+            tMaxStr = element.attribute("tMax"),
             vlStr = element.attribute("vl");
 
     if ( sourceStr.length() != 0 ) {
         int number = sourceStr.toInt();
         if ( !number || partitionsStorage.find(number) == partitionsStorage.end() ) {
-            printf("Fail to parse data flow.\n");
+            printf("Fail to parse data flow source.\n");
             return 0;
         }
 
@@ -343,11 +344,23 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
     }
 
     if ( msgSizeStr.length() != 0 ) {
-        long msgSize = msgSizeStr.toLong();
-        if ( msgSize )
+        bool ok;
+        long msgSize = (long)msgSizeStr.toLong(&ok);
+        if ( ok )
             dataFlow->msgSize = msgSize;
         else {
             printf("Cannot parse msg size.\n");
+            return 0;
+        }
+    }
+
+    if ( tMaxStr.length() != 0 ) {
+        bool ok;
+        long tMax = tMaxStr.toLong(&ok);
+        if ( ok ) {
+            dataFlow->tMax = tMax;
+        } else {
+            printf("Cannot parse tMax.\n");
             return 0;
         }
     }
@@ -362,7 +375,7 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
         }
     }
 
-    if ( vlStr.length() != 0 ) {
+    if ( vlStr.length() != 0 && vlStr != "None" ) {
         int vlNum = vlStr.toInt();
         if ( !vlNum || virtualLinksStorage.find(vlNum) == virtualLinksStorage.end() ) {
             printf("Cannot parse vl num.\n");
