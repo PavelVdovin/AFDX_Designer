@@ -59,6 +59,10 @@ public:
         return port->getAssignedHighPriority();
     }
 
+    inline Ports& getPorts() {
+        return ports;
+    }
+
 protected:
 	// Outgoing ports
 	Ports ports;

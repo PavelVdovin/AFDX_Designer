@@ -3,8 +3,11 @@
 
 #include "defs.h"
 #include "route.h"
+#include "dataFlow.h"
 
 #include <assert.h>
+
+#define EPS 0.00001
 
 class VirtualLink {
     friend class Factory;
@@ -13,7 +16,7 @@ public:
 		from(0),
 		bag(1),
 		lMax(1000){
-	    bandwidth = lMax/bag;
+	    bandwidth = 1000; // in bytes/ms
 	}
 
 	inline NetElement* getSource() const {
@@ -40,19 +43,45 @@ public:
 		return route;
 	}
 
+	inline int getLMax() const {
+	    return lMax;
+	}
+
 	inline void setLMax(int lMax) {
 	    this->lMax = lMax;
-	    if ( bag != 0 && lMax != 0 )
-	        this->bandwidth = (float) lMax / bag;
+	    if ( bag != 0 && lMax != 0 ) {
+	        float bw = (float) lMax / bag;
+	        if ( (long)(bw - EPS) == (long)bw )
+	            this->bandwidth = (long)bw + 1;
+	        else
+	            this->bandwidth = bw;
+	    }
+	}
+
+	inline int getBag() const {
+	    return bag;
 	}
 
 	inline void setBag(int bag) {
         this->bag = bag;
-        if ( lMax != 0 && bag != 0 )
-            this->bandwidth = (float) lMax / bag;
+        if ( lMax != 0 && bag != 0 ) {
+            float bw = (float) lMax / bag;
+            if ( (long)(bw - EPS) == (long)bw )
+                this->bandwidth = (long)bw + 1;
+            else
+                this->bandwidth = bw;
+        }
     }
 
-	inline float getBandwidth() {
+	inline long getJMax() const {
+        return jMax;
+    }
+
+	inline void setJMax(long jMax) {
+	    this->jMax = jMax;
+	}
+
+	inline long getBandwidth() {
 	    return bandwidth;
 	}
 
@@ -60,16 +89,40 @@ public:
 	    route.addPath(path->getDest(), path);
 	}
 
+	inline void assign(DataFlow* df) {
+	    assert(df->getVirtualLink() == 0);
+	    df->assign(this);
+	    assignments.insert(df);
+	}
+
+	inline void removeAssignment(DataFlow* df) {
+	    assert(assignments.find(df) != assignments.end());
+	    df->removeAssignment();
+	    assignments.erase(df);
+	}
+
+	inline void removeAllAssignments() {
+	    for ( DataFlows::iterator it = assignments.begin(); it != assignments.end(); ++it ) {
+	        (*it)->removeAssignment();
+	        removeAssignment(*it);
+	    }
+	}
+
+	inline DataFlows& getAssignments() {
+	    return assignments;
+	}
+
 private:
 	int bag;
 	int lMax;
-	int jMax;
+	long jMax; // value in microseconds!
 
-	float bandwidth;
+	long bandwidth;
 
 	NetElement* from;
 	NetElements to;
 
+	DataFlows assignments;
 	Route route;
 };
 

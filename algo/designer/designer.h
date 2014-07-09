@@ -2,6 +2,7 @@
 #define DESIGNER
 
 #include "defs.h"
+#include "verifier.h"
 
 class Designer {
 public:
@@ -24,10 +25,23 @@ public:
 private:
 
     /*
-     * First step of algorithm: generate virtual links
+     * The first step of algorithm: generate virtual links
      * before them being routed.
      */
     void designUnroutedVLs();
+
+    /*
+     * The second step.
+     * Check outgoing virtual links constraints and try to fix them
+     */
+    void checkOutgoingVirtualLinks();
+    void checkOutgoingVirtualLinks(NetElement* endSystem);
+
+    /*
+     * Redesign outgoing virtual links if some constraints are failed on specified port.
+     */
+    void redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint);
+    void removeVirtualLink(Port* port, VirtualLink*);
 
 private:
     Network* network;

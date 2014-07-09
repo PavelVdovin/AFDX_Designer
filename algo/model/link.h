@@ -42,6 +42,12 @@ public:
 		return freeCapacityFromPort2;
 	}
 
+	inline long getFreeCapacityFromPort(Port* port) const {
+	    if ( port == port1 )
+	        return freeCapacityFromPort1;
+	    return freeCapacityFromPort2;
+	}
+
 	inline bool isAssignmentPossible(float bandwidth, Port* fromPort) {
         if ( port1 == fromPort && freeCapacityFromPort1 >= bandwidth )
             return true;
@@ -62,10 +68,10 @@ public:
 	        return false;
 
 	    if ( port1 == fromPort ) {
-	        freeCapacityFromPort1 -= (long)virtualLink->getBandwidth() + 1; // +1 required to normalize correctly
+	        freeCapacityFromPort1 -= virtualLink->getBandwidth(); // +1 required to normalize correctly
 	        assignedFromPort1.insert(virtualLink);
 	    } else {
-	        freeCapacityFromPort2 -= (long)virtualLink->getBandwidth() + 1;
+	        freeCapacityFromPort2 -= virtualLink->getBandwidth();
 	        assignedFromPort2.insert(virtualLink);
 	    }
 
@@ -77,13 +83,13 @@ public:
 	    Port* port = 0;
 	    if ( assignedFromPort1.find(virtualLink) != assignedFromPort1.end() ) {
 	        assignedFromPort1.erase(virtualLink);
-	        freeCapacityFromPort1 += (long)virtualLink->getBandwidth() + 1;
+	        freeCapacityFromPort1 += virtualLink->getBandwidth();
 	        port = port1;
 	    }
 
 	    if ( assignedFromPort2.find(virtualLink) != assignedFromPort2.end() ) {
             assignedFromPort2.erase(virtualLink);
-            freeCapacityFromPort2 += (long)virtualLink->getBandwidth() + 1;
+            freeCapacityFromPort2 += virtualLink->getBandwidth();
             port = port2;
         }
 

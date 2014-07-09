@@ -44,7 +44,11 @@ public:
 	}
 
 	inline void assign(VirtualLink* vl) {
-	    assignedTo = vl;
+	    assignedTo = vl;;
+	}
+
+	inline void removeAssignment() {
+	    assignedTo = 0;
 	}
 
 private:

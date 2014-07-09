@@ -8,9 +8,9 @@
 		<partition connectedTo="1" name="partition1" number="5" x="51.5" y="99.5"/>
 		<partition connectedTo="2" name="partition2" number="6" x="327.5" y="378.5"/>
 		<partition connectedTo="3" name="partition3" number="7" x="382.5" y="79.5"/>
-		<link capacity="10000" from="1" fromType="0" to="4" toType="1"/>
-		<link capacity="100000" from="5" fromType="0" to="2" toType="0"/>
-		<link capacity="100000" from="6" fromType="1" to="3" toType="0"/>
+		<link capacity="12500" from="1" fromType="0" to="4" toType="1"/>
+		<link capacity="12500" from="5" fromType="0" to="2" toType="0"/>
+		<link capacity="12500" from="6" fromType="1" to="3" toType="0"/>
 	</resources>
 	<virtualLinks/>
 	<dataFlows>

@@ -17,6 +17,17 @@ Link* Operations::getLinkByNetElements(Network* network, NetElement* elem1, NetE
     return 0;
 }
 
+NetElements Operations::getEndSystems(Network* network) {
+    NetElements result,
+                allElements = network->getNetElements();
+    NetElements::iterator it = allElements.begin();
+    for ( ; it != allElements.end(); ++it ) {
+        if ( (*it)->isEndSystem() )
+            result.insert(*it);
+    }
+    return result;
+}
+
 bool Operations::assignVirtualLink(Network* network, VirtualLink* virtualLink) {
     Route route = virtualLink->getRoute();
     NetElements elements = virtualLink->getDestinations();
@@ -55,4 +66,18 @@ void Operations::removeVirtualLink(Network* network, VirtualLink* virtualLink) {
     Links::iterator it = links.begin();
     for ( ; it != links.end(); ++it )
         (*it)->removeVirtualLink(virtualLink);
+}
+
+long Operations::countMaxJitter(Port* port, VirtualLink* vl) {
+    long maxCapacity = port->getAssosiatedLink()->getMaxCapacity();
+    long size = (vl == 0) ? 0 : vl->getLMax();
+
+    VirtualLinks assigned = port->getAssignedLowPriority();
+    VirtualLinks::iterator it = assigned.begin();
+    for ( ; it != assigned.end(); ++it ) {
+        size += (*it)->getLMax();
+    }
+
+    float jMax = (float)size / ((float)maxCapacity / 1000); // multiply by 1000 to get microseconds
+    return (long)(jMax - EPS) == (long)jMax ? (long)jMax + 1 : (long) jMax;
 }
