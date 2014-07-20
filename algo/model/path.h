@@ -11,6 +11,10 @@ public:
         path.push_back(PathNode(source, false));
     }
 
+    inline bool isZeroPath() {
+        return source != 0;
+    }
+
     inline void appendVertex(NetElement* elem, bool isHighPriority = false) {
         path.push_back(PathNode(elem, isHighPriority));
     }

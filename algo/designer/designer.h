@@ -42,6 +42,12 @@ private:
      */
     void redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint);
     void removeVirtualLink(Port* port, VirtualLink*);
+    void removeVirtualLink(VirtualLink*);
+
+    /*
+     * Third step of virtual links assignment: routing
+     */
+    void routeVirtualLinks();
 
 private:
     Network* network;

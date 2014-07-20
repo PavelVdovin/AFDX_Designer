@@ -8,7 +8,7 @@
 #include <math.h>
 
 #define FRAME_TRANSMITION_APPROXIMATION 1
-#define EPS 0.00000001
+//#define EPS 0.00000001
 
 
 VirtualLink* VirtualLinkConfigurator::designUnroutedVL(DataFlow* df) {

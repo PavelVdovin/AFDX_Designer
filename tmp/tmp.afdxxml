@@ -1,22 +1,61 @@
-<?xml version="1.0" ?>
+<?xml version='1.0'?>
 <afdxxml name="test project">
-	<resources>
-		<endSystem name="endSystem1" number="1" ports="1" x="142.5" y="144.5"/>
-		<endSystem name="endSystem2" number="2" ports="2" x="266.5" y="310.5"/>
-		<endSystem name="endSystem3" number="3" ports="3" x="314.5" y="102.5"/>
-		<switch name="switch1" number="4" ports="4,5,6" x="246.5" y="189.5"/>
-		<partition connectedTo="1" name="partition1" number="5" x="51.5" y="99.5"/>
-		<partition connectedTo="2" name="partition2" number="6" x="327.5" y="378.5"/>
-		<partition connectedTo="3" name="partition3" number="7" x="382.5" y="79.5"/>
-		<link capacity="10000" from="1" fromType="0" to="4" toType="1"/>
-		<link capacity="100000" from="5" fromType="0" to="2" toType="0"/>
-		<link capacity="100000" from="6" fromType="1" to="3" toType="0"/>
-	</resources>
-	<virtualLinks/>
-	<dataFlows>
-		<dataFlow dest="6" id="Data Flow 1" msgSize="1" period="1" source="5" tMax="0" vl="None"/>
-		<dataFlow dest="5" id="Data Flow 2" msgSize="1000" period="16" source="6" tMax="32" vl="None"/>
-		<dataFlow dest="6" id="Data Flow 3" msgSize="1" period="32" source="5" tMax="16" vl="None"/>
-		<dataFlow dest="6,7" id="Data Flow 4" msgSize="2000" period="3" source="5" tMax="0" vl="None"/>
-	</dataFlows>
+    <resources>
+        <endSystem x="110.5" y="177.5" number="1" ports="1" name="endSystem1"/>
+        <endSystem x="239.5" y="324.5" number="2" ports="2" name="endSystem2"/>
+        <partition x="86.5" y="80.5" number="3" connectedTo="1" name="partition1"/>
+        <partition x="239.5" y="385.5" number="4" connectedTo="2" name="partition2"/>
+        <switch x="212.5" y="203.5" number="5" ports="3,4,5,6,7" name="switch1"/>
+        <switch x="218.5" y="97.5" number="6" ports="8,9" name="switch2"/>
+        <switch x="278.5" y="150.5" number="7" ports="10,11" name="switch3"/>
+        <switch x="324.5" y="212.5" number="8" ports="12,13" name="switch4"/>
+        <switch x="305.5" y="49.5" number="9" ports="14,15" name="switch5"/>
+        <switch x="368.5" y="120.5" number="10" ports="16,17,18,19" name="switch6"/>
+        <switch x="421.5" y="199.5" number="11" ports="20,21,22" name="switch7"/>
+        <endSystem x="573.5" y="269.5" number="12" ports="23" name="endSystem3"/>
+        <endSystem x="460.5" y="61.5" number="13" ports="24" name="endSystem4"/>
+        <partition x="617.5" y="58.5" number="14" connectedTo="13" name="partition3"/>
+        <partition x="682.5" y="327.5" number="15" connectedTo="12" name="partition4"/>
+        <link toType="0" from="1" capacity="12500" to="3" fromType="0"/>
+        <link toType="0" from="4" capacity="12500" to="2" fromType="0"/>
+        <link toType="0" from="5" capacity="100000" to="8" fromType="0"/>
+        <link toType="0" from="9" capacity="100" to="14" fromType="0"/>
+        <link toType="0" from="6" capacity="100000" to="10" fromType="0"/>
+        <link toType="0" from="7" capacity="100000" to="12" fromType="0"/>
+        <link toType="0" from="11" capacity="100" to="16" fromType="0"/>
+        <link toType="0" from="15" capacity="100000" to="17" fromType="0"/>
+        <link toType="0" from="18" capacity="100000" to="24" fromType="0"/>
+        <link toType="0" from="19" capacity="100000" to="20" fromType="0"/>
+        <link toType="0" from="21" capacity="100" to="13" fromType="0"/>
+        <link toType="0" from="22" capacity="100000" to="23" fromType="0"/>
+    </resources>
+    <virtualLinks>
+        <virtualLink bag="8" dest="2" lmax="147" number="1" id="Designed for Data Flow 1" source="1">
+            <path dest="2" path="1,5,2" source="1"/>
+        </virtualLink>
+        <virtualLink bag="1" dest="2,12" lmax="64" number="2" id="Designed for Data Flow 2" source="13">
+            <path dest="2" path="13,10,7,5,2" source="13"/>
+            <path dest="12" path="13,10,11,12" source="13"/>
+        </virtualLink>
+        <virtualLink bag="1" dest="1,2" lmax="64" number="3" id="Designed for Data Flow 3" source="12">
+            <path dest="1" path="12,11,8,5,1" source="12"/>
+            <path dest="2" path="12,11,8,5,2" source="12"/>
+        </virtualLink>
+        <virtualLink bag="1" dest="1,2,12" lmax="64" number="4" id="Designed for Data Flow 4" source="13">
+            <path dest="1" path="13,10,9,6,5,1" source="13"/>
+            <path dest="2" path="13,10,9,6,5,2" source="13"/>
+            <path dest="12" path="13,10,11,12" source="13"/>
+        </virtualLink>
+        <virtualLink bag="1" dest="13" lmax="64" number="5" source="2" id="Designed for Data Flow 6">
+            <path dest="13" path="2,5,7,10,13" source="2"/>
+        </virtualLink>
+    </virtualLinks>
+    <dataFlows>
+        <dataFlow tMax="100" dest="4" period="10" msgSize="100" vl="1" jMax="0" id="Data Flow 1" source="3"/>
+        <dataFlow tMax="0" dest="15,4" period="1" msgSize="0" vl="2" jMax="0" id="Data Flow 2" source="14"/>
+        <dataFlow tMax="0" dest="3,4" period="1" msgSize="0" vl="3" jMax="0" id="Data Flow 3" source="15"/>
+        <dataFlow tMax="0" dest="15,3,4" period="1" msgSize="0" vl="4" jMax="0" id="Data Flow 4" source="14"/>
+        <dataFlow tMax="0" dest="4" period="1" msgSize="0" vl="None" jMax="0" id="Data Flow 5" source="14"/>
+        <dataFlow tMax="0" dest="14" period="1" msgSize="0" vl="5" jMax="0" id="Data Flow 6" source="4"/>
+    </dataFlows>
 </afdxxml>

@@ -6,16 +6,15 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    if ( argc != 3 || std::string(argv[2]) != "a" && std::string(argv[2]) != "v" )
+    if ( argc != 3 && argc != 4 || std::string(argv[argc - 1]) != "a" && std::string(argv[argc - 1]) != "v" )
     {
-        printf("Usage: %s <input file> v|a\n", *argv);
+        printf("Usage: %s <input file> [<output file>] v|a\n", *argv);
         printf("\tv: verify and exit\n");
         printf("\ta: run designer\n");
         return 1;
     }
 
     QFile input(argv[1]);
-
     input.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream inputStream(&input);
 
@@ -27,10 +26,11 @@ int main(int argc, char** argv) {
         printf("XML parsing error, reason: %s at line %d, column %d\n", errMessage.toStdString().c_str(), errorLine, errorColumn);
         return 2;
     }
+    input.close();
 
-    QDomElement root = document.documentElement();
 
-    XmlReader xmlReader(root);
+
+    XmlReader xmlReader(document);
 
     if ( !xmlReader.isWellParsed() ) {
         printf("Not all parameters are specified, some elements are omitted.\n");
@@ -52,6 +52,13 @@ int main(int argc, char** argv) {
 
         VirtualLinks newVls = designer.getDesignedVirtualLinks();
         printf("Generated %d virtualLinks.\n", newVls.size());
+
+        xmlReader.saveDesignedVirtualLinks(designer.getDesignedVirtualLinks());
+        QFile output(argv[argc - 2]);
+        output.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream outStream(&output);
+        outStream << document.toString(4);
+        output.close();
     }
 
     return 0;

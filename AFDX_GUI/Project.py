@@ -97,19 +97,23 @@ class Project:
         for root in dom.childNodes:
             if root.tagName == "afdxxml":
                 self.name = root.getAttribute("name")
-                for node in root.childNodes:
-                    if isinstance(node, xml.dom.minidom.Text):
-                        continue
-                    if node.tagName == "resources":
-                        resources = Network()
-                        resources.LoadFromXmlNode(node)
-                        self.resources = resources
-                    elif node.tagName == "virtualLinks":
-                        self.virtualLinks = []
-                        self.LoadVirtualLinks(node)
-                    elif node.tagName == "dataFlows":
-                        self.dataFlows = []
-                        self.LoadDataFlows(node)
+                
+                node = root.getElementsByTagName("resources")
+                if node.length > 0:
+                    resources = Network()
+                    resources.LoadFromXmlNode(node[0])
+                    self.resources = resources
+                    
+                node = root.getElementsByTagName("virtualLinks")
+                if node.length > 0:
+                    self.virtualLinks = []
+                    self.LoadVirtualLinks(node[0])
+                    
+                node = root.getElementsByTagName("dataFlows")
+                if node.length > 0:
+                    self.dataFlows = []
+                    self.LoadDataFlows(node[0])
+                    
         f.close()
         
     def LoadVirtualLinks(self, node):

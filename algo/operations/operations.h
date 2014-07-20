@@ -8,6 +8,8 @@ public:
     // Common operations
     static Link* getLinkByNetElements(Network* network, NetElement* elem1, NetElement* elem2);
     static NetElements getEndSystems(Network* network);
+    static NetElements getSwitches(Network* network);
+    static Links getLinksOfElement(NetElement* element);
 
 public:
     // Algorithm specific operations

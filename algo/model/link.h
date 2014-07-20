@@ -7,7 +7,7 @@
 
 class Link {
 public:
-	Link(Port* port1, Port* port2, long capacity = 100000):
+	Link(Port* port1, Port* port2, long capacity = 12500):
 		port1(port1),
 		port2(port2),
 		maxCapacity(capacity),
@@ -28,6 +28,14 @@ public:
 	        return port1;
 	    if ( port2->getParent() == elem )
 	        return port2;
+	    return 0;
+	}
+
+	inline NetElement* getElementByPort(Port* port) {
+	    if ( port1 == port )
+	        return port1->getParent();
+	    if ( port2 == port )
+            return port2->getParent();
 	}
 
 	inline long getMaxCapacity() const {

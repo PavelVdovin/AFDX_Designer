@@ -6,6 +6,7 @@
 #include "partition.h"
 #include "virtualLinkConfigurator.h"
 #include "operations.h"
+#include "routing.h"
 #include <stdio.h>
 #include <algorithm>
 
@@ -25,6 +26,7 @@ void Designer::design() {
 
     designUnroutedVLs();
     checkOutgoingVirtualLinks();
+    routeVirtualLinks();
 }
 
 void assignVLToEndSystem(VirtualLink* vl, NetElement* endSystem) {
@@ -43,10 +45,16 @@ void Designer::designUnroutedVLs() {
             // Check whether all constraints are satisfied
 
             if ( vl != 0 ) {
-                df->assign(vl);
+                vl->assign(df);
                 designedVirtualLinks.insert(vl);
                 NetElement* es = df->getFrom()->getConnected();
                 vl->setSource(es);
+
+                Partitions& dests = df->getTo();
+                for ( Partitions::iterator pit = dests.begin(); pit != dests.end(); ++pit ) {
+                    vl->addDestination((*pit)->getConnected());
+                }
+
                 assignVLToEndSystem(vl, es);
             }
         } else {
@@ -84,7 +92,7 @@ bool comparerLMax(VirtualLink* vl1, VirtualLink* vl2) {
 void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint failed) {
     assert(failed != Verifier::NONE);
     // Current implementation drops most weighted element
-    VirtualLinks vls = port->getAssignedLowPriority();
+    VirtualLinks vls = VirtualLinks(port->getAssignedLowPriority().begin(), port->getAssignedLowPriority().end());
     if ( failed == Verifier::CAPACITY ) {
         VirtualLink* vlToDrop = *std::max_element(vls.begin(), vls.end(), comparerCapacity);
         vls.erase(vlToDrop);
@@ -104,4 +112,26 @@ void Designer::removeVirtualLink(Port* port, VirtualLink* vlToDrop) {
     vlToDrop->removeAllAssignments();
     designedVirtualLinks.erase(vlToDrop);
     delete vlToDrop;
+}
+
+void Designer::removeVirtualLink(VirtualLink* vl) {
+    vl->removeAllAssignments();
+    designedVirtualLinks.erase(vl);
+    // TODO: remove from assigned ports
+}
+
+void Designer::routeVirtualLinks() {
+    VirtualLinks designed(designedVirtualLinks.begin(), designedVirtualLinks.end());
+    VirtualLinks::iterator it = designed.begin();
+    for ( ; it != designed.end(); ++it ) {
+        bool found = Routing::findRoute(network, *it);
+        if ( found ) {
+            Operations::assignVirtualLink(network, *it);
+            printf("Route assigned\n");
+            continue;
+        }
+
+        // Failed to assign virtual link
+        removeVirtualLink(*it);
+    }
 }

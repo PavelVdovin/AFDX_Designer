@@ -212,6 +212,8 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Verification result", results[-2])
             
     def design(self):
+        projectFile = self.projectFile
+        self.canvas.updatePos()
         file = "tmp/tmp.afdxxml"
         self.project.Save(file)
         if sys.platform.startswith("win"):
@@ -226,4 +228,10 @@ class MainWindow(QMainWindow):
             results = result.split('\n')
             if "Not all parameters are specified, some elements are omitted." in results:
                 QMessageBox.critical(self, "Warning", "Not all parameters are specified, some elements are omitted.")
+            else:
+                print "loading" 
+                self.OpenProjectFromFile(os.path.relpath(file))
+                self.virtualLinksEditor.setProject(self.project)
+                self.dataFlowsEditor.setProject(self.project)
+                self.projectFile = projectFile
         

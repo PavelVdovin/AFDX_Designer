@@ -7,6 +7,7 @@
 #include "dataFlow.h"
 #include "virtualLink.h"
 #include "path.h"
+#include "operations.h"
 #include <stdio.h>
 
 #include <QString>
@@ -39,10 +40,10 @@ Factory::~Factory() {
 	    delete vit->second.first;
 	}
 
-	PathsStorage::iterator path = pathsStorage.begin();
-    for ( ; path != pathsStorage.end(); ++path ) {
-        delete path->first;
-    }
+	DataFlowsStorage::iterator dit = dataFlowsStorage.begin();
+	for ( ; dit != dataFlowsStorage.end(); ++dit ) {
+	    delete dit->first;
+	}
 }
 
 NetElement* Factory::generateNetElement(const QDomElement& element) {
@@ -54,8 +55,9 @@ NetElement* Factory::generateNetElement(const QDomElement& element) {
 		return 0;
 	}
 
-	int number = numberStr.toInt();
-	if ( !number ) {
+	bool ok;
+	int number = numberStr.toInt(&ok);
+	if ( !number || !ok ) {
 		printf("Fail to convert number property to int in net-element.\n");
 		return 0;
 	}
@@ -69,6 +71,7 @@ NetElement* Factory::generateNetElement(const QDomElement& element) {
 		return 0;
 	}
 
+	assert(netElementsStorage.find(number) == netElementsStorage.end());
 	netElementsStorage[number] = netElement;
 	QString ports = element.attribute("ports");
 	if ( ports.length() != 0 ) {
@@ -191,8 +194,11 @@ VirtualLink* Factory::generateVirtualLink(QDomElement& element) {
         return 0;
     }
 
+    if ( maxIdOfVl < number )
+        maxIdOfVl = number;
+
     virtualLink = new VirtualLink();
-    virtualLinksStorage[number] = std::pair<VirtualLink*, QDomElement*>(virtualLink, &element);
+    virtualLinksStorage[number] = std::pair<VirtualLink*, QDomElement>(virtualLink, element);
 
     if ( bagStr.length() > 0 ) {
         int bag = bagStr.toInt();
@@ -278,11 +284,12 @@ Path* Factory::generatePath(VirtualLink* virtualLink, QDomElement& element) {
     }
 
     path = new Path(virtualLink->getSource(), netElementsStorage[dest]);
-    pathsStorage[path] = &element;
+    //pathsStorage[path] = &element;
 
     QStringList elems = pathStr.split(",");
     if ( elems[0].toInt() != source ) {
         printf("Fail to parse path.\n");
+        delete path;
         return 0;
     }
 
@@ -299,6 +306,7 @@ Path* Factory::generatePath(VirtualLink* virtualLink, QDomElement& element) {
         int id = elem.toInt();
         if ( !id || netElementsStorage.find(id) == netElementsStorage.end() ) {
             printf("Fail to parse path.\n");
+            delete path;
             return 0;
         }
 
@@ -311,7 +319,7 @@ Path* Factory::generatePath(VirtualLink* virtualLink, QDomElement& element) {
 DataFlow* Factory::generateDataFlow(QDomElement& element) {
     DataFlow* dataFlow = new DataFlow();
 
-    dataFlowsStorage[dataFlow] = &element;
+    dataFlowsStorage[dataFlow] = element;
 
     QString sourceStr = element.attribute("source"),
             destStr = element.attribute("dest"),
@@ -400,3 +408,84 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
     return dataFlow;
 }
 
+int Factory::findNumberOfNetElement(NetElement* elem) {
+    NetElementsStorage::iterator it = netElementsStorage.begin();
+    for ( ; it != netElementsStorage.end(); ++it ) {
+        if ( it->second == elem )
+            return it->first;
+    }
+
+    assert(0);
+    return 0;
+}
+
+void Factory::saveVirtualLink(Network* network, VirtualLink* virtualLink, QDomElement& element) {
+    QDomElement vlXml = document.createElement("virtualLink");
+    element.appendChild(vlXml);
+
+    vlXml.setAttribute("bag", QString::number(virtualLink->getBag()));
+    vlXml.setAttribute("lmax", QString::number(virtualLink->getLMax()));
+
+    NetElement* source = virtualLink->getSource();
+    vlXml.setAttribute("source", QString::number(findNumberOfNetElement(source)));
+
+    NetElements::iterator it = virtualLink->getDestinations().begin();
+    QString dests = "";
+    Route& route = virtualLink->getRoute();
+    for ( ; it != virtualLink->getDestinations().end(); ++it ) {
+        NetElement* dest = *it;
+        if ( it != virtualLink->getDestinations().begin())
+            dests += ",";
+        dests += QString::number(findNumberOfNetElement(dest));
+        generatePath(network, route.getPath(dest), vlXml);
+    }
+    vlXml.setAttribute("dest", dests);
+
+    // for number, new id is generated
+    int number = ++maxIdOfVl;
+    vlXml.setAttribute("number", QString::number(number));
+
+    DataFlows& dfs = virtualLink->getAssignments();
+    QString id = "Designed VL " + QString::number(number);
+    if (dfs.size() == 1) {
+        QDomElement& qdom = dataFlowsStorage[*(dfs.begin())];
+        id = "Designed for " + qdom.attribute("id");
+    }
+    vlXml.setAttribute("id", id);
+
+    DataFlows::iterator dit = dfs.begin();
+    for ( ; dit != dfs.end(); ++ dit ) {
+        QDomElement& qdom = dataFlowsStorage[*dit];
+        qdom.setAttribute("vl", QString::number(number));
+    }
+}
+
+void Factory::generatePath(Network* network, Path* path, QDomElement& element) {
+    QDomElement pathXml = document.createElement("path");
+    pathXml.setAttribute("source", QString::number(findNumberOfNetElement(path->getSource())));
+    pathXml.setAttribute("dest", QString::number(findNumberOfNetElement(path->getDest())));
+
+    QString pathStr = QString::number(findNumberOfNetElement(path->getSource()));
+    std::list<PathNode>::iterator it = path->getPath().begin();
+    assert(it->first == path->getSource());
+    NetElement* prev = it->first;
+    ++it; // skipping source
+    bool isHighPriority = false;
+    for ( ; it != path->getPath().end(); ++it ) {
+        // first, checking priority of outgoing link
+        Link* outgoingLink = Operations::getLinkByNetElements(network, prev, it->first);
+        assert(outgoingLink != 0);
+        if ( outgoingLink->getPortByParent(prev)->isPrioritized() ) {
+            pathStr += isHighPriority ? "h" : "l";
+        }
+
+        // for next step
+        isHighPriority = it->second;
+        int num = findNumberOfNetElement(it->first);
+
+        pathStr += "," + QString::number(num);
+        prev = it->first;
+    }
+    pathXml.setAttribute("path", pathStr);
+    element.appendChild(pathXml);
+}

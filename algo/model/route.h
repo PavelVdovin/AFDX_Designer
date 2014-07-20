@@ -3,12 +3,22 @@
 
 #include "defs.h"
 #include "path.h"
+
+#include <stdio.h>
 /*
  * Route consists of the set of paths from source to destinations
  */
 class Route {
 public:
 	Route() {
+	}
+
+	~Route() {
+	    Paths::iterator it = paths.begin();
+	    for ( ; it != paths.end(); ++it ) {
+	        delete (it->second);
+	        it->second = 0;
+	    }
 	}
 
 	inline Path* getPath(NetElement* dest) {
@@ -24,6 +34,10 @@ public:
 
 	inline void removePath(NetElement* dest) {
 		paths.erase(dest);
+	}
+
+	inline Paths& getPaths() {
+	    return paths;
 	}
 private:
 	Paths paths;

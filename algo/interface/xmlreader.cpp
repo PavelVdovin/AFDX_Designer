@@ -6,8 +6,8 @@
 #include <QStringList>
 #include <QDomNodeList>
 
-XmlReader::XmlReader(const QDomElement & element)
-: rootElement(element){
+XmlReader::XmlReader(QDomDocument & document)
+: document(document), rootElement(document.documentElement()), factory(document){
 	QStringList elementTypes;
 	elementTypes << "endSystem" << "switch" << "link" << "partition" << "virtualLink" << "dataFlow";
 
@@ -66,4 +66,18 @@ bool XmlReader::generateElementByType(const QString& type, QDomElement& elem) {
 	}
 
 	return wellParsed;
+}
+
+void XmlReader::saveDesignedVirtualLinks(VirtualLinks& virtualLinks) {
+    QDomNodeList elementsList = rootElement.childNodes ();
+    QDomElement vls = rootElement.firstChildElement("virtualLinks");
+    if ( vls.isNull() ) {
+        vls = document.createElement("virtualLinks");
+        rootElement.appendChild(vls);
+    }
+
+    VirtualLinks::iterator it = virtualLinks.begin();
+    for ( ; it != virtualLinks.end(); ++it ) {
+        factory.saveVirtualLink(network, *it, vls);
+    }
 }

@@ -8,7 +8,7 @@
 
 class XmlReader {
 public:
-	XmlReader(const QDomElement & element);
+	XmlReader(QDomDocument& document);
 	~XmlReader();
 
 	inline Network* getNetwork() const {
@@ -31,6 +31,8 @@ public:
 	    return wellParsed;
 	}
 
+	void saveDesignedVirtualLinks(VirtualLinks& virtualLinks);
+
 private:
 	bool generateElementByType(const QString& type, QDomElement& elem);
 private:
@@ -40,6 +42,7 @@ private:
 	DataFlows dataFlows;
 
 	QDomElement rootElement;
+	QDomDocument& document;
 	Factory factory;
 	bool wellParsed;
 

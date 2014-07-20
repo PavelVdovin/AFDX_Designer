@@ -13,13 +13,16 @@ class Factory {
 	typedef std::map<int, NetElement*> NetElementsStorage;
 	typedef std::set<Link*> LinksStorage;
 	typedef std::map<int, Partition*> PartitionsStorage;
-	typedef std::map<int, std::pair<VirtualLink*, QDomElement*> > VirtualLinksStorage;
-	typedef std::map<DataFlow*, QDomElement*> DataFlowsStorage;
+	typedef std::map<int, std::pair<VirtualLink*, QDomElement> > VirtualLinksStorage;
+	typedef std::map<DataFlow*, QDomElement> DataFlowsStorage;
 	typedef std::map<int, Port*> PortsStorage;
 
 	typedef std::map<Path*, QDomElement*> PathsStorage;
 
 public:
+
+	Factory(QDomDocument& document):
+	    maxIdOfVl(0), document(document) {}
 
 	~Factory();
 
@@ -32,6 +35,10 @@ public:
 
 	Path* generatePath(VirtualLink* virtualLink, QDomElement& element);
 
+	void saveVirtualLink(Network* network, VirtualLink* virtualLink, QDomElement& element);
+	void generatePath(Network* network, Path* path, QDomElement& element);
+
+	int findNumberOfNetElement(NetElement*);
 private:
 	NetElementsStorage netElementsStorage;
 	LinksStorage linksStorage;
@@ -40,5 +47,8 @@ private:
 	DataFlowsStorage dataFlowsStorage;
 	PortsStorage portsStorage;
 	PathsStorage pathsStorage;
+
+	int maxIdOfVl;
+	QDomDocument document;
 };
 #endif

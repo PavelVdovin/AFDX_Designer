@@ -19,7 +19,7 @@ Link* Operations::getLinkByNetElements(Network* network, NetElement* elem1, NetE
 
 NetElements Operations::getEndSystems(Network* network) {
     NetElements result,
-                allElements = network->getNetElements();
+                &allElements = network->getNetElements();
     NetElements::iterator it = allElements.begin();
     for ( ; it != allElements.end(); ++it ) {
         if ( (*it)->isEndSystem() )
@@ -28,13 +28,33 @@ NetElements Operations::getEndSystems(Network* network) {
     return result;
 }
 
+NetElements Operations::getSwitches(Network* network) {
+    NetElements result,
+                &allElements = network->getNetElements();
+    NetElements::iterator it = allElements.begin();
+    for ( ; it != allElements.end(); ++it ) {
+        if ( (*it)->isSwitch() )
+            result.insert(*it);
+    }
+    return result;
+}
+
+Links Operations::getLinksOfElement(NetElement* element) {
+    Links result;
+    Ports::iterator it = element->getPorts().begin();
+    for ( ; it != element->getPorts().end(); ++it ) {
+        result.insert((*it)->getAssosiatedLink());
+    }
+    return result;
+}
+
 bool Operations::assignVirtualLink(Network* network, VirtualLink* virtualLink) {
-    Route route = virtualLink->getRoute();
-    NetElements elements = virtualLink->getDestinations();
+    Route& route = virtualLink->getRoute();
+    NetElements& elements = virtualLink->getDestinations();
     NetElements::iterator it = elements.begin();
     for ( ; it != elements.end(); ++it ) {
         Path* path = route.getPath(*it);
-        std::list<PathNode> nodes = path->getPath();
+        std::list<PathNode>& nodes = path->getPath();
 
         NetElement* prevElement = path->getSource();
         bool priorityPrevElement = false;
@@ -62,7 +82,7 @@ bool Operations::assignVirtualLink(Network* network, VirtualLink* virtualLink) {
 }
 
 void Operations::removeVirtualLink(Network* network, VirtualLink* virtualLink) {
-    Links links = network->getLinks();
+    Links& links = network->getLinks();
     Links::iterator it = links.begin();
     for ( ; it != links.end(); ++it )
         (*it)->removeVirtualLink(virtualLink);
@@ -72,7 +92,7 @@ long Operations::countMaxJitter(Port* port, VirtualLink* vl) {
     long maxCapacity = port->getAssosiatedLink()->getMaxCapacity();
     long size = (vl == 0) ? 0 : vl->getLMax();
 
-    VirtualLinks assigned = port->getAssignedLowPriority();
+    VirtualLinks& assigned = port->getAssignedLowPriority();
     VirtualLinks::iterator it = assigned.begin();
     for ( ; it != assigned.end(); ++it ) {
         size += (*it)->getLMax();

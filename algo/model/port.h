@@ -27,13 +27,13 @@ public:
 
 	inline void assignVirtualLink(VirtualLink* vl, bool highPriority = false) {
 	    if ( !highPriority ) {
-	        assert(assignedLowPriority.find(vl) == assignedLowPriority.end());
+	        // assert(assignedLowPriority.find(vl) == assignedLowPriority.end());
 	        assignedLowPriority.insert(vl);
 	        return;
 	    }
 
 	    assert(type == PRIORITIZED);
-	    assert(assignedHighPriority.find(vl) == assignedHighPriority.end());
+	    //assert(assignedHighPriority.find(vl) == assignedHighPriority.end());
 	    assignedHighPriority.insert(vl);
 	}
 
@@ -60,6 +60,10 @@ public:
 	    if ( assignedHighPriority.find(vl) != assignedHighPriority.end() )
             assignedHighPriority.erase(vl);
 	}
+
+    inline bool isPrioritized() {
+        return type == PRIORITIZED;
+    }
 
 private:
 	Type type;
