@@ -11,6 +11,9 @@ public:
     static NetElements getSwitches(Network* network);
     static Links getLinksOfElement(NetElement* element);
 
+    // Get virtual links associated with data flows of partition
+    static VirtualLinks getLinksFromPartition(Partition* element);
+
 public:
     // Algorithm specific operations
 

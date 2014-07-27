@@ -10,6 +10,10 @@ public:
 	    type = NetElement::END_SYSTEM;
 	}
 
+	inline Partitions& getPartitions() {
+	    return partitions;
+	}
+
 protected:
 	// All connected partitions
 	Partitions partitions;

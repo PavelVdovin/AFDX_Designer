@@ -5,6 +5,7 @@
 #include "netelement.h"
 #include "partition.h"
 #include "virtualLinkConfigurator.h"
+#include "virtualLinksAggregator.h"
 #include "operations.h"
 #include "routing.h"
 #include <stdio.h>
@@ -36,6 +37,22 @@ void assignVLToEndSystem(VirtualLink* vl, NetElement* endSystem) {
     }
 }
 
+void Designer::setDataFlowVL(VirtualLink* vl, DataFlow* df) {
+    vl->assign(df);
+    designedVirtualLinks.insert(vl);
+    NetElement* es = df->getFrom()->getConnected();
+
+    Partitions& dests = df->getTo();
+    for ( Partitions::iterator pit = dests.begin(); pit != dests.end(); ++pit ) {
+        vl->addDestination((*pit)->getConnected());
+    }
+
+    if ( vl->getSource() != es ) { // not assigned yet
+        vl->setSource(es);
+        assignVLToEndSystem(vl, es);
+    }
+}
+
 void Designer::designUnroutedVLs() {
     DataFlows::iterator it = dataFlows.begin();
     for ( ; it != dataFlows.end(); ++it ) {
@@ -45,17 +62,7 @@ void Designer::designUnroutedVLs() {
             // Check whether all constraints are satisfied
 
             if ( vl != 0 ) {
-                vl->assign(df);
-                designedVirtualLinks.insert(vl);
-                NetElement* es = df->getFrom()->getConnected();
-                vl->setSource(es);
-
-                Partitions& dests = df->getTo();
-                for ( Partitions::iterator pit = dests.begin(); pit != dests.end(); ++pit ) {
-                    vl->addDestination((*pit)->getConnected());
-                }
-
-                assignVLToEndSystem(vl, es);
+                setDataFlowVL(vl, df);
             }
         } else {
             printf("Data flow already has assigned virtual link.\n");
@@ -93,18 +100,40 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
     assert(failed != Verifier::NONE);
     // Current implementation drops most weighted element
     VirtualLinks vls = VirtualLinks(port->getAssignedLowPriority().begin(), port->getAssignedLowPriority().end());
-    if ( failed == Verifier::CAPACITY ) {
-        VirtualLink* vlToDrop = *std::max_element(vls.begin(), vls.end(), comparerCapacity);
-        vls.erase(vlToDrop);
-        printf("Capacity is overloaded, Vl is dropped\n");
-        removeVirtualLink(port, vlToDrop);
-    } else {
-        assert(failed == Verifier::JMAX);
-        VirtualLink* vlToDrop = *std::max_element(vls.begin(), vls.end(), comparerLMax);
-        vls.erase(vlToDrop);
-        printf("Jmax is overloaded, Vl is dropped\n");
-        removeVirtualLink(port, vlToDrop);
+    if ( failed == Verifier::CAPACITY )
+        printf("Capacity is overloaded, trying to aggregate\n");
+    else
+        printf("Jmax is overloaded, trying to aggregate\n");
+
+    VirtualLink *first, *second;
+    VirtualLinksAggregator::selectVLsForAggregation(port->getParent(), &first, &second, failed);
+    if ( first != 0 && second != 0 ) {
+        VirtualLink* vl = VirtualLinksAggregator::performAggregation(first, second);
+        if ( vl != 0 ) {
+            if ( vl->getBandwidth() >= (first->getBandwidth() + second->getBandwidth()) ) {
+                printf("!!Aggregated vl capacity is more then before aggregation!\n");
+                // TODO: redo aggregation, cannot do it now
+            }
+
+            DataFlows dfs(first->getAssignments().begin(), first->getAssignments().end());
+            dfs.insert(second->getAssignments().begin(), second->getAssignments().end());
+            removeVirtualLink(port, first);
+            removeVirtualLink(port, second);
+
+            DataFlows::iterator it = dfs.begin();
+            for ( ; it != dfs.end(); ++it ) {
+                setDataFlowVL(vl, *it);
+            }
+            printf("Aggregation finished\n");
+            return;
+        }
     }
+
+    printf("Aggregation is failed, dropping vl\n");
+    VirtualLink* vlToDrop = *std::max_element(vls.begin(), vls.end(),
+            failed == Verifier::CAPACITY ? comparerCapacity : comparerLMax);
+    //vls.erase(vlToDrop);
+    removeVirtualLink(port, vlToDrop);
 }
 
 void Designer::removeVirtualLink(Port* port, VirtualLink* vlToDrop) {

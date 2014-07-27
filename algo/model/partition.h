@@ -9,11 +9,16 @@ public:
 	Partition(): connectedTo(0) {
 	}
 
-	NetElement* getConnected() const {
+	inline NetElement* getConnected() const {
 		return connectedTo;
+	}
+
+	inline DataFlows& getOutgoingDataFlows() {
+	    return outgoingDataFlows;
 	}
 
 private:
 	NetElement* connectedTo;
+	DataFlows outgoingDataFlows;
 };
 #endif

@@ -24,6 +24,8 @@ public:
 
 private:
 
+    void setDataFlowVL(VirtualLink* vl, DataFlow* df);
+
     /*
      * The first step of algorithm: generate virtual links
      * before them being routed.

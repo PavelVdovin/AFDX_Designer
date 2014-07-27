@@ -2,6 +2,7 @@
 #include "network.h"
 #include "link.h"
 #include "virtualLink.h"
+#include "partition.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -45,6 +46,20 @@ Links Operations::getLinksOfElement(NetElement* element) {
     for ( ; it != element->getPorts().end(); ++it ) {
         result.insert((*it)->getAssosiatedLink());
     }
+    return result;
+}
+
+VirtualLinks Operations::getLinksFromPartition(Partition* element) {
+    VirtualLinks result;
+
+    DataFlows& dfs = element->getOutgoingDataFlows();
+    DataFlows::iterator it = dfs.begin();
+    for ( ; it != dfs.end(); ++it ) {
+        VirtualLink* vl = (*it)->getVirtualLink();
+        if ( vl != 0 )
+            result.insert(vl);
+    }
+
     return result;
 }
 

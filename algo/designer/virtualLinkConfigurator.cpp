@@ -154,9 +154,13 @@ inline FramesParams identifyOptimalNumberOfFrames(int min_numberOfFrames, int ma
     }
     // if we are here, then we should use max_numberOfFrames to minimize bandwidth
     printf("Reached the end of sequence while identifying opt number of frames.\n");
-    assert(0);
     params.number = max_numberOfFrames;
     params.bag = 1;
+
+    if ( !checkJMaxManyFrames(params.number, params.bag, period, sigma, jMax) ) {
+        // cannot generate vl
+        params.number = 0;
+    }
     return params;
 }
 
@@ -192,6 +196,11 @@ VirtualLink* VirtualLinkConfigurator::generateVLManyFrames(long msgSize, long pe
 
     // It is either counted by period, or by sigma. Count by period first
     FramesParams params = identifyOptimalNumberOfFrames(min_numberOfFrames, max_numberOfFrames, period, sigma, jMax);
+
+    if ( params.number == 0 ) {
+        return 0;
+    }
+
     int opt_numberOfFrames = params.number,
         bag = params.bag,
         lMax = modMax((float)msgSize / opt_numberOfFrames) + 47;
@@ -207,4 +216,91 @@ VirtualLink* VirtualLinkConfigurator::generateVLManyFrames(long msgSize, long pe
     vl->setLMax(lMax);
     vl->setBag(bag);
     return vl;
+}
+
+VirtualLink* VirtualLinkConfigurator::generateAggregatedVirtualLink(DataFlows& dataFlows) {
+    DataFlows::iterator it = dataFlows.begin();
+    int nMin = 0.0;
+    long sigmaMin = 0,
+         periodMin = 0,
+         jMax = 0;
+
+    for ( ; it != dataFlows.end(); ++it ) {
+        DataFlow* df = *it;
+        // nMin = sum([msg_size / 1471]);
+        nMin += modMax(df->getMsgSize() / 1471);
+
+        if ( df->getTMax() > 0 && ( sigmaMin == 0 || (df->getTMax() - FRAME_TRANSMITION_APPROXIMATION) < sigmaMin) )
+            sigmaMin = df->getTMax() - FRAME_TRANSMITION_APPROXIMATION;
+
+        if ( periodMin == 0 || df->getPeriod() < periodMin )
+            periodMin = df->getPeriod();
+
+        if ( df->getMaxJitter() > 0 && (jMax == 0 || df->getMaxJitter() > jMax) ) {
+            jMax = df->getMaxJitter();
+        }
+    }
+
+    long nMax = periodMin;
+    if ( sigmaMin > 0 && (sigmaMin + 1) < nMax )
+        nMax = sigmaMin + 1;
+
+    if ( nMin > nMax ) {
+        return 0;
+    }
+
+    FramesParams params = identifyOptimalNumberOfFrames(nMin, nMax, periodMin, sigmaMin, jMax);
+    if ( params.number == 0 ) {
+        return 0;
+    }
+
+    int opt_numberOfFrames = params.number,
+        bag = params.bag,
+        lMax = calculateGreedyLMax(dataFlows, opt_numberOfFrames, bag) + 47;
+
+    if ( lMax < 64 )
+        lMax = 64;
+
+    assert(bag > 0);
+    VirtualLink* vl = new VirtualLink();
+    vl->setLMax(lMax);
+    vl->setBag(bag);
+    return vl;
+}
+
+int VirtualLinkConfigurator::calculateGreedyLMax(DataFlows& dataFlows, int opt_numberOfFrames, int bag) {
+    std::map<DataFlow*, int> numberOfFrames;
+    std::map<DataFlow*, long> framesSize;
+
+    DataFlows::iterator it = dataFlows.begin();
+    for ( ; it != dataFlows.end(); ++it ) {
+        numberOfFrames[*it] = 1;
+        framesSize[*it] = (*it)->getMsgSize();
+    }
+
+    int N0 = dataFlows.size();
+    long result;
+    for ( int i = N0 + 1; i <= opt_numberOfFrames; ++i ) {
+        long maxMsgSize = 0;
+        DataFlow* df = 0;
+        it = dataFlows.begin();
+        for ( ; it != dataFlows.end(); ++it ) {
+            if ( maxMsgSize == 0 || maxMsgSize < framesSize[*it] ) {
+                maxMsgSize = framesSize[*it];
+                df = *it;
+            }
+        }
+        assert( df != 0);
+        framesSize[df] = modMax(((float)df->getMsgSize() / ++numberOfFrames[df]));
+    }
+
+    long maxMsgSize = 0;
+    // calculate max msg size again
+    for ( ; it != dataFlows.end(); ++it ) {
+        if ( maxMsgSize == 0 || maxMsgSize < framesSize[*it] ) {
+            maxMsgSize = framesSize[*it];
+        }
+    }
+
+    return maxMsgSize;
 }

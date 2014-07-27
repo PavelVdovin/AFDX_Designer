@@ -337,6 +337,7 @@ DataFlow* Factory::generateDataFlow(QDomElement& element) {
         }
 
         dataFlow->from = partitionsStorage[number];
+        dataFlow->from->outgoingDataFlows.insert(dataFlow);
     }
 
     if ( destStr.length() != 0 ) {
