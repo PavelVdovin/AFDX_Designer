@@ -46,10 +46,12 @@ public:
     }
 
     inline void assignOutgoingVirtualLink(VirtualLink* virtualLink, Port* outgoingPort, bool highPriority = false) {
+        //assignedVirtualLinks[outgoingPort].insert(virtualLink);
         outgoingPort->assignVirtualLink(virtualLink, highPriority);
     }
 
     inline void removeOutgoingVirtualLink(VirtualLink* virtualLink, Port* outgoingPort) {
+        //assignedVirtualLinks[outgoingPort].erase(outgoingPort);
         outgoingPort->removeVirtualLink(virtualLink);
     }
 
@@ -66,7 +68,7 @@ public:
 protected:
 	// Outgoing ports
 	Ports ports;
-	AssignedVirtualLinks assignedVirtualLinks;
+	// AssignedVirtualLinks assignedVirtualLinks;
 
 	TYPE type;
 };

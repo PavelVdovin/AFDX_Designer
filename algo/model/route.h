@@ -13,6 +13,13 @@ public:
 	Route() {
 	}
 
+	Route(const Paths& paths) {
+	    if ( &paths != &this->paths ) {
+	        this->paths.clear();
+	        this->paths.insert(paths.begin(), paths.end());
+	    }
+	}
+
 	~Route() {
 	    Paths::iterator it = paths.begin();
 	    for ( ; it != paths.end(); ++it ) {

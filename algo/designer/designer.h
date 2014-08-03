@@ -51,6 +51,11 @@ private:
      */
     void routeVirtualLinks();
 
+    /*
+     * Limited exhaustive search for routing operation
+     */
+    bool limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned);
+
 private:
     Network* network;
     Partitions partitions;

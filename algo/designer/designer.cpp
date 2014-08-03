@@ -8,8 +8,11 @@
 #include "virtualLinksAggregator.h"
 #include "operations.h"
 #include "routing.h"
+#include "limitedSearcher.h"
 #include <stdio.h>
 #include <algorithm>
+
+#define LIMITED_SEARCH_DEPTH 2
 
 Designer::~Designer() {
     VirtualLinks:: iterator it = designedVirtualLinks.begin();
@@ -146,21 +149,73 @@ void Designer::removeVirtualLink(Port* port, VirtualLink* vlToDrop) {
 void Designer::removeVirtualLink(VirtualLink* vl) {
     vl->removeAllAssignments();
     designedVirtualLinks.erase(vl);
-    // TODO: remove from assigned ports
+    Operations::removeVirtualLink(network, vl);
+    delete vl;
 }
 
 void Designer::routeVirtualLinks() {
     VirtualLinks designed(designedVirtualLinks.begin(), designedVirtualLinks.end());
     VirtualLinks::iterator it = designed.begin();
+    VirtualLinks assigned;
     for ( ; it != designed.end(); ++it ) {
         bool found = Routing::findRoute(network, *it);
         if ( found ) {
             Operations::assignVirtualLink(network, *it);
             printf("Route assigned\n");
+            assigned.insert(*it);
             continue;
         }
 
-        // Failed to assign virtual link
+        // trying limited search
+        found = limitedSearch(*it, assigned);
+        if ( found ) {
+            printf("Limited search succeed\n");
+            assigned.insert(*it);
+        }
+
         removeVirtualLink(*it);
     }
+}
+
+bool comparatorBandwidth(VirtualLink* vl1, VirtualLink* vl2) {
+    // decreased by bwth
+    return vl1->getBandwidth() > vl2->getBandwidth();
+}
+
+bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
+    LimitedSearcher searcher(LIMITED_SEARCH_DEPTH, network);
+    searcher.start(virtualLink, assigned, comparatorBandwidth);
+    printf("Starting limited search\n");
+    VirtualLinks vls = searcher.getNextSet();
+    while(vls.size() > 0) {
+        // Trying to assign the element first
+        if ( Routing::findRoute(network, virtualLink) ) {
+            Operations::assignVirtualLink(network, virtualLink);
+            printf("\tRouteAssigned\n");
+
+            // Assigning removed nodes
+            bool allAssigned = true;
+            VirtualLinks::iterator it = vls.begin();
+            for ( ; it != vls.end(); ++it ) {
+                if ( !Routing::findRoute(network, *it) ) {
+                    allAssigned = false;
+                    break;
+                }
+
+                Operations::assignVirtualLink(network, *it);
+                printf("\tRouteAssigned\n");
+            }
+
+            if ( allAssigned ) {
+                searcher.stop(true);
+                return true;
+            }
+        }
+
+        vls = searcher.getNextSet();
+    }
+
+    printf("Limited search failed\n");
+    searcher.stop(false);
+    return false;
 }
