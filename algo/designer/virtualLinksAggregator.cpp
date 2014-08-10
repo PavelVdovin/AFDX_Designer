@@ -5,18 +5,21 @@
 #include "virtualLinkConfigurator.h"
 #include "operations.h"
 
+#include <vector>
+#include <algorithm>
+
 #define BW_RATION 0.5
 #define costVl costPeriods
 
 bool VirtualLinksAggregator::selectVLsForAggregation(NetElement* endSystem, VirtualLink** firstVl,
-        VirtualLink** secondVl, Verifier::FailedConstraint constraint) {
+        VirtualLink** secondVl, Verifier::FailedConstraint constraint, DeprecatedVLPairs& deprecated) {
     Partitions partitions = endSystem->toEndSystem()->getPartitions();
     Partitions::iterator it = partitions.begin();
 
     float maxCost = 0.0;
     for ( ; it != partitions.end(); ++it ) {
         VirtualLink *currentFirst = 0, *currentSecond = 0;
-        float cost = findVLsMaxCost(*it, &currentFirst, &currentSecond, constraint);
+        float cost = findVLsMaxCost(*it, &currentFirst, &currentSecond, constraint, deprecated);
         if ( cost > EPS && (maxCost < EPS || cost > maxCost )) {
             *firstVl = currentFirst;
             *secondVl = currentSecond;
@@ -55,31 +58,44 @@ VirtualLink* VirtualLinksAggregator::performAggregation(VirtualLink* firstVl, Vi
     return result;
 }
 
+bool sortVl(VirtualLink* vl1, VirtualLink* vl2) {
+    return costVl(vl1) > costVl(vl2);
+}
+
+bool sortLMax(VirtualLink* vl1, VirtualLink* vl2) {
+    return costLMax(vl1) > costLMax(vl2);
+}
+
 float VirtualLinksAggregator::findVLsMaxCost(Partition* partition, VirtualLink** first,
-        VirtualLink** second, Verifier::FailedConstraint constraint) {
+        VirtualLink** second, Verifier::FailedConstraint constraint, DeprecatedVLPairs& deprecated) {
     float firstMax = 0.0, secondMax = 0.0;
     VirtualLinks assigned = Operations::getLinksFromPartition(partition);
     if ( assigned.size() < 2 )
         return 0.0;
 
-    VirtualLinks:: iterator it = assigned.begin();
-    for ( ; it != assigned.end(); ++it ) {
-        VirtualLink* vl = *it;
-        float cost;
-        if ( constraint == Verifier::CAPACITY)
-            cost = costVl(vl);
-        else
-            cost = costLMax(vl);
 
-        if ( firstMax < EPS || cost > firstMax ) {
-            secondMax = firstMax;
-            *second = *first;
-            firstMax = cost;
-            *first = vl;
-        } else if ( secondMax < EPS || cost > secondMax ) {
-            secondMax = cost;
-            *second = vl;
+
+    std::vector<VirtualLink*>sortedVls(assigned.begin(), assigned.end());
+    if ( constraint == Verifier::CAPACITY)
+        std::sort(sortedVls.begin(), sortedVls.end(), sortVl);
+    else
+        std::sort(sortedVls.begin(), sortedVls.end(), sortLMax);
+
+    // This is considered to be rather fast, as any but first results are returned very seldom
+    for ( int indexMax = 0; indexMax < (sortedVls.size() - 1) ; ++indexMax ) {
+        VirtualLink* max = sortedVls[indexMax];
+        for ( int i = indexMax + 1; i < sortedVls.size(); ++i ) {
+            VirtualLink* vl = sortedVls[i];;
+            std::pair<VirtualLink*, VirtualLink*> vls(max, vl);
+            if ( deprecated.find(vls) == deprecated.end() ) {
+                *first = max;
+                *second = vl;
+                if ( constraint == Verifier::CAPACITY )
+                    return costVl(max) * costVl(vl);
+                else
+                    return costLMax(max) * costLMax(vl);
+            }
         }
     }
-    return firstMax * secondMax;
+    return 0.0;
 }

@@ -3,7 +3,7 @@
 #include "operations.h"
 #include <algorithm>
 
-void LimitedSearcher::start(VirtualLink* element, VirtualLinks& assigned, LimitedSearcher::ComparatorFunc comparator) {
+void LimitedSearcher::start(VirtualLinks& assigned, LimitedSearcher::ComparatorFunc comparator) {
     // Reinitializing working set
     workingSortedSet = std::vector<VirtualLink*>(assigned.begin(), assigned.end());
     std::sort(workingSortedSet.begin(), workingSortedSet.end(), comparator);

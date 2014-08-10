@@ -9,9 +9,13 @@
  */
 class VirtualLinksAggregator {
 public:
-    // Select two virtual links from es to perform aggregation
+    typedef std::set<std::pair<VirtualLink*, VirtualLink*> > DeprecatedVLPairs;
+
+    // Select two virtual links from es to perform aggregation.
+    // The last parameter contains already parsed pairs.
     static bool selectVLsForAggregation(NetElement* endSystem, VirtualLink** firstVl,
-            VirtualLink** secondVl, Verifier::FailedConstraint constraint);
+            VirtualLink** secondVl, Verifier::FailedConstraint constraint,
+            DeprecatedVLPairs& deprecated);
 
     // Perform virtual links aggregation, returns new virtual link (old ones are deleted)
     static VirtualLink* performAggregation(VirtualLink* firstVl, VirtualLink* secondVl);
@@ -19,7 +23,7 @@ public:
 private:
     // Select vls from partition to aggregate
     static float findVLsMaxCost(Partition* partition, VirtualLink** first,
-            VirtualLink** second, Verifier::FailedConstraint constraint);
+            VirtualLink** second, Verifier::FailedConstraint constraint, DeprecatedVLPairs& deprecated);
 };
 
 #endif

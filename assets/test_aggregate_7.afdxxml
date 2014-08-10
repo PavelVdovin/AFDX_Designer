@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<partition connectedTo="3" name="partition1" number="1" x="309.5" y="93.5"/>
+		<partition connectedTo="3" name="partition2" number="2" x="415.5" y="83.5"/>
+		<endSystem name="endSystem1" number="3" ports="1" x="352.5" y="164.5"/>
+		<endSystem name="endSystem2" number="4" ports="2" x="179.5" y="353.5"/>
+		<endSystem name="endSystem3" number="5" ports="3" x="385.5" y="442.5"/>
+		<endSystem name="endSystem4" number="6" ports="4" x="597.5" y="327.5"/>
+		<switch name="switch1" number="7" ports="5,6,7" x="382.5" y="303.5"/>
+		<switch name="switch2" number="8" ports="8,9,10" x="379.5" y="363.5"/>
+		<partition connectedTo="4" name="partition3" number="9" x="90.5" y="440.5"/>
+		<partition connectedTo="5" name="partition4" number="10" x="409.5" y="606.5"/>
+		<partition connectedTo="6" name="partition5" number="11" x="653.5" y="411.5"/>
+		<link capacity="100000" from="2" fromType="0" to="8" toType="0"/>
+		<link capacity="100000" from="9" fromType="0" to="5" toType="0"/>
+		<link capacity="3000" from="6" fromType="0" to="1" toType="0"/>
+		<link capacity="100000" from="7" fromType="0" to="4" toType="0"/>
+		<link capacity="100000" from="10" fromType="0" to="3" toType="0"/>
+	</resources>
+	<virtualLinks/>
+	<dataFlows>
+		<dataFlow dest="11,10" id="Data Flow 1" jMax="0" msgSize="2000" period="16" source="1" tMax="0" vl="None"/>
+		<dataFlow dest="10" id="Data Flow 2" jMax="0" msgSize="1000" period="16" source="1" tMax="0" vl="None"/>
+		<dataFlow dest="9" id="Data Flow 3" jMax="0" msgSize="4000" period="8" source="1" tMax="0" vl="None"/>
+		<dataFlow dest="11" id="Data Flow 4" jMax="2" msgSize="2000" period="100" source="1" tMax="8" vl="None"/>
+	</dataFlows>
+</afdxxml>

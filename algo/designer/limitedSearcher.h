@@ -18,7 +18,7 @@ public:
     {}
 
     // Start limited search for the specified virtual link
-    void start(VirtualLink* element, VirtualLinks& assigned, ComparatorFunc comparator);
+    void start(VirtualLinks& assigned, ComparatorFunc comparator);
 
     // Get next set (of length depth) to operate with,
     // it is automatically assigned/removed.

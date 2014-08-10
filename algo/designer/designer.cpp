@@ -91,12 +91,13 @@ void Designer::checkOutgoingVirtualLinks(NetElement* endSystem) {
     }
 }
 
+// Prefer elements with less number of data flows
 bool comparerCapacity(VirtualLink* vl1, VirtualLink* vl2) {
-    return vl1->getBandwidth() < vl2->getBandwidth();
+    return vl1->getBandwidth() / vl1->getAssignments().size() < vl2->getBandwidth() / vl2->getAssignments().size();
 }
 
 bool comparerLMax(VirtualLink* vl1, VirtualLink* vl2) {
-    return vl1->getLMax() < vl2->getLMax();
+    return vl1->getLMax() / vl1->getAssignments().size() < vl2->getLMax() / vl2->getAssignments().size();
 }
 
 void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint failed) {
@@ -109,27 +110,37 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
         printf("Jmax is overloaded, trying to aggregate\n");
 
     VirtualLink *first, *second;
-    VirtualLinksAggregator::selectVLsForAggregation(port->getParent(), &first, &second, failed);
-    if ( first != 0 && second != 0 ) {
-        VirtualLink* vl = VirtualLinksAggregator::performAggregation(first, second);
-        if ( vl != 0 ) {
-            if ( vl->getBandwidth() >= (first->getBandwidth() + second->getBandwidth()) ) {
-                printf("!!Aggregated vl capacity is more then before aggregation!\n");
-                // TODO: redo aggregation, cannot do it now
-            }
+    bool fail = false;
+    VirtualLinksAggregator::DeprecatedVLPairs deprecated;
 
-            DataFlows dfs(first->getAssignments().begin(), first->getAssignments().end());
-            dfs.insert(second->getAssignments().begin(), second->getAssignments().end());
-            removeVirtualLink(port, first);
-            removeVirtualLink(port, second);
+    while ( !fail ) {
+        first = 0;
+        second = 0;
+        VirtualLinksAggregator::selectVLsForAggregation(port->getParent(), &first, &second, failed, deprecated);
+        if ( first != 0 && second != 0 ) {
+            VirtualLink* vl = VirtualLinksAggregator::performAggregation(first, second);
+            if ( vl != 0 ) {
+                if ( vl->getBandwidth() >= (first->getBandwidth() + second->getBandwidth()) ) {
+                    printf("!!Aggregated vl capacity is more then before aggregation!\n");
+                    // TODO: redo aggregation, cannot do it now
+                }
 
-            DataFlows::iterator it = dfs.begin();
-            for ( ; it != dfs.end(); ++it ) {
-                setDataFlowVL(vl, *it);
+                DataFlows dfs(first->getAssignments().begin(), first->getAssignments().end());
+                dfs.insert(second->getAssignments().begin(), second->getAssignments().end());
+                removeVirtualLink(port, first);
+                removeVirtualLink(port, second);
+
+                DataFlows::iterator it = dfs.begin();
+                for ( ; it != dfs.end(); ++it ) {
+                    setDataFlowVL(vl, *it);
+                }
+                printf("Aggregation finished\n");
+                return;
+            } else {
+                std::pair<VirtualLink*, VirtualLink*>vls(first, second);
+                deprecated.insert(vls);
             }
-            printf("Aggregation finished\n");
-            return;
-        }
+        } else fail = true; // failed
     }
 
     printf("Aggregation is failed, dropping vl\n");
@@ -184,7 +195,7 @@ bool comparatorBandwidth(VirtualLink* vl1, VirtualLink* vl2) {
 
 bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
     LimitedSearcher searcher(LIMITED_SEARCH_DEPTH, network);
-    searcher.start(virtualLink, assigned, comparatorBandwidth);
+    searcher.start(assigned, comparatorBandwidth);
     printf("Starting limited search\n");
     VirtualLinks vls = searcher.getNextSet();
     while(vls.size() > 0) {

@@ -220,7 +220,7 @@ VirtualLink* VirtualLinkConfigurator::generateVLManyFrames(long msgSize, long pe
 
 VirtualLink* VirtualLinkConfigurator::generateAggregatedVirtualLink(DataFlows& dataFlows) {
     DataFlows::iterator it = dataFlows.begin();
-    int nMin = 0.0;
+    int nMin = 0;
     long sigmaMin = 0,
          periodMin = 0,
          jMax = 0;
@@ -228,7 +228,7 @@ VirtualLink* VirtualLinkConfigurator::generateAggregatedVirtualLink(DataFlows& d
     for ( ; it != dataFlows.end(); ++it ) {
         DataFlow* df = *it;
         // nMin = sum([msg_size / 1471]);
-        nMin += modMax(df->getMsgSize() / 1471);
+        nMin += modMax((float)df->getMsgSize() / 1471);
 
         if ( df->getTMax() > 0 && ( sigmaMin == 0 || (df->getTMax() - FRAME_TRANSMITION_APPROXIMATION) < sigmaMin) )
             sigmaMin = df->getTMax() - FRAME_TRANSMITION_APPROXIMATION;
@@ -296,6 +296,7 @@ int VirtualLinkConfigurator::calculateGreedyLMax(DataFlows& dataFlows, int opt_n
 
     long maxMsgSize = 0;
     // calculate max msg size again
+    it = dataFlows.begin();
     for ( ; it != dataFlows.end(); ++it ) {
         if ( maxMsgSize == 0 || maxMsgSize < framesSize[*it] ) {
             maxMsgSize = framesSize[*it];
