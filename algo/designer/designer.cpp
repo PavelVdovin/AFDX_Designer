@@ -182,6 +182,7 @@ void Designer::routeVirtualLinks() {
         if ( found ) {
             printf("Limited search succeed\n");
             assigned.insert(*it);
+            continue;
         }
 
         removeVirtualLink(*it);
@@ -202,7 +203,6 @@ bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
         // Trying to assign the element first
         if ( Routing::findRoute(network, virtualLink) ) {
             Operations::assignVirtualLink(network, virtualLink);
-            printf("\tRouteAssigned\n");
 
             // Assigning removed nodes
             bool allAssigned = true;
@@ -214,7 +214,6 @@ bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
                 }
 
                 Operations::assignVirtualLink(network, *it);
-                printf("\tRouteAssigned\n");
             }
 
             if ( allAssigned ) {
@@ -223,6 +222,8 @@ bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
             }
         }
 
+        Operations::removeVirtualLink(network, virtualLink);
+        virtualLink->getRoute().getPaths().clear();
         vls = searcher.getNextSet();
     }
 

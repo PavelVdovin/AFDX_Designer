@@ -14,20 +14,20 @@ void LimitedSearcher::start(VirtualLinks& assigned, LimitedSearcher::ComparatorF
 }
 
 VirtualLinks& LimitedSearcher::getNextSet() {
+	// Assign the set of virtual links from the previous step
+	restoreAssignments();
+
     removed.clear();
 
     // checking last indexes
-    if ( !checkLast() )
+    if ( checkLast() )
         return removed;
-
-    // Assign the set of virtual links from the previous step
-    removeAssignments();
 
     for ( int i = 0; i < depth; ++i )
         removed.insert(workingSortedSet[indexes[i]]);
 
     // Remove assignments of virtual links from the current set
-    restoreAssignments();
+    removeAssignments();
 
     // increase indexes now
     increaseIndexes();
@@ -59,6 +59,8 @@ void LimitedSearcher::removeAssignments() {
 void LimitedSearcher::restoreAssignments() {
     VirtualLinks::iterator it = removed.begin();
     for ( ; it != removed.end(); ++it ) {
+    	Operations::removeVirtualLink(network, *it);
+
         // Restore route
         (*it)->getRoute().getPaths().clear();
         (*it)->getRoute().getPaths().insert(context[*it].begin(), context[*it].end());
