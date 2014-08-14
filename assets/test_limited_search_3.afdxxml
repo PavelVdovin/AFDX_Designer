@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="158.5" y="83.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="155.5" y="368.5"/>
+		<partition connectedTo="1" name="partition1" number="3" x="83.5" y="38.5"/>
+		<partition connectedTo="2" name="partition2" number="4" x="83.5" y="427.5"/>
+		<switch name="switch1" number="5" ports="3,4,5,6" x="156.5" y="165.5"/>
+		<switch name="switch2" number="6" ports="7,8,9,10,11" x="152.5" y="265.5"/>
+		<switch name="switch3" number="7" ports="12,13,14" x="229.5" y="268.5"/>
+		<switch name="switch4" number="8" ports="15,16,17" x="218.5" y="161.5"/>
+		<switch name="switch5" number="9" ports="18,19,20" x="292.5" y="157.5"/>
+		<switch name="switch6" number="10" ports="21,22,23" x="304.5" y="274.5"/>
+		<switch name="switch7" number="11" ports="24,25" x="369.5" y="146.5"/>
+		<switch name="switch8" number="12" ports="26,27" x="388.5" y="281.5"/>
+		<switch name="switch9" number="13" ports="28,29" x="67.5" y="158.5"/>
+		<switch name="switch10" number="14" ports="30,31" x="80.5" y="263.5"/>
+		<endSystem name="endSystem3" number="15" ports="32" x="247.5" y="372.5"/>
+		<partition connectedTo="15" name="partition3" number="16" x="309.5" y="452.5"/>
+		<link capacity="100000" from="1" fromType="0" to="3" toType="0"/>
+		<link capacity="600" from="4" fromType="0" to="7" toType="0"/>
+		<link capacity="100000" from="8" fromType="0" to="2" toType="0"/>
+		<link capacity="100000" from="9" fromType="0" to="12" toType="0"/>
+		<link capacity="100000" from="13" fromType="0" to="21" toType="0"/>
+		<link capacity="100000" from="22" fromType="0" to="26" toType="0"/>
+		<link capacity="600" from="27" fromType="0" to="24" toType="0"/>
+		<link capacity="100000" from="25" fromType="0" to="18" toType="0"/>
+		<link capacity="100000" from="19" fromType="0" to="15" toType="0"/>
+		<link capacity="100000" from="16" fromType="0" to="5" toType="0"/>
+		<link capacity="600" from="17" fromType="0" to="14" toType="0"/>
+		<link capacity="600" from="20" fromType="0" to="23" toType="0"/>
+		<link capacity="100000" from="6" fromType="0" to="28" toType="0"/>
+		<link capacity="650" from="29" fromType="0" to="30" toType="0"/>
+		<link capacity="100000" from="31" fromType="0" to="10" toType="0"/>
+		<link capacity="100000" from="11" fromType="0" to="32" toType="0"/>
+	</resources>
+	<virtualLinks/>
+	<dataFlows>
+		<dataFlow dest="16" id="Data Flow 1" jMax="0" msgSize="250" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 2" jMax="0" msgSize="250" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 3" jMax="0" msgSize="150" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 4" jMax="0" msgSize="150" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4,16" id="Data Flow 5" jMax="0" msgSize="250" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 6" jMax="0" msgSize="250" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 7" jMax="0" msgSize="150" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 8" jMax="0" msgSize="150" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4,16" id="Data Flow 9" jMax="0" msgSize="150" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 10" jMax="0" msgSize="150" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="4" id="Data Flow 11" jMax="0" msgSize="0" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="16,4" id="Data Flow 12" jMax="0" msgSize="600" period="1" source="3" tMax="0" vl="None"/>
+		<dataFlow dest="16,4" id="Data Flow 13" jMax="0" msgSize="600" period="1" source="3" tMax="0" vl="None"/>
+	</dataFlows>
+</afdxxml>
