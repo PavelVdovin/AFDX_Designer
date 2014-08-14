@@ -93,16 +93,15 @@ void Designer::checkOutgoingVirtualLinks(NetElement* endSystem) {
 
 // Prefer elements with less number of data flows
 bool comparerCapacity(VirtualLink* vl1, VirtualLink* vl2) {
-    return vl1->getBandwidth() / vl1->getAssignments().size() < vl2->getBandwidth() / vl2->getAssignments().size();
+    return vl1->getBandwidth() / vl1->getAssignments().size() > vl2->getBandwidth() / vl2->getAssignments().size();
 }
 
 bool comparerLMax(VirtualLink* vl1, VirtualLink* vl2) {
-    return vl1->getLMax() / vl1->getAssignments().size() < vl2->getLMax() / vl2->getAssignments().size();
+    return vl1->getLMax() / vl1->getAssignments().size() > vl2->getLMax() / vl2->getAssignments().size();
 }
 
 void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint failed) {
     assert(failed != Verifier::NONE);
-    // Current implementation drops most weighted element
     VirtualLinks vls = VirtualLinks(port->getAssignedLowPriority().begin(), port->getAssignedLowPriority().end());
     if ( failed == Verifier::CAPACITY )
         printf("Capacity is overloaded, trying to aggregate\n");
@@ -144,7 +143,7 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
     }
 
     printf("Aggregation is failed, dropping vl\n");
-    VirtualLink* vlToDrop = *std::max_element(vls.begin(), vls.end(),
+    VirtualLink* vlToDrop = *std::min_element(vls.begin(), vls.end(),
             failed == Verifier::CAPACITY ? comparerCapacity : comparerLMax);
     //vls.erase(vlToDrop);
     removeVirtualLink(port, vlToDrop);
@@ -165,10 +164,12 @@ void Designer::removeVirtualLink(VirtualLink* vl) {
 }
 
 void Designer::routeVirtualLinks() {
-    VirtualLinks designed(designedVirtualLinks.begin(), designedVirtualLinks.end());
-    VirtualLinks::iterator it = designed.begin();
+    std::vector<VirtualLink*> designed(designedVirtualLinks.begin(), designedVirtualLinks.end());
+    std::sort(designed.begin(), designed.end(), comparerCapacity);
+    std::vector<VirtualLink*>::iterator it = designed.begin();
     VirtualLinks assigned;
     for ( ; it != designed.end(); ++it ) {
+        printf("Capacity: %d\n", (*it)->getBandwidth());
         bool found = Routing::findRoute(network, *it);
         if ( found ) {
             Operations::assignVirtualLink(network, *it);

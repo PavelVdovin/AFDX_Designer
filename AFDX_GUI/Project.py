@@ -181,7 +181,7 @@ class Project:
                     
             self.virtualLinks.append(vl)
             
-        self.virtualLinks.sort(key=lambda x: x.number)
+        self.virtualLinks.sort(key=lambda x: int(x.number))
 
     def LoadDataFlows(self, node):
         for dfNode in node.childNodes:
