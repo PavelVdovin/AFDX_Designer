@@ -37,6 +37,7 @@ public:
 
 	void saveVirtualLink(Network* network, VirtualLink* virtualLink, QDomElement& element);
 	void generatePath(Network* network, Path* path, QDomElement& element);
+	void updateVirtualLinks();
 
 	int findNumberOfNetElement(NetElement*);
 private:

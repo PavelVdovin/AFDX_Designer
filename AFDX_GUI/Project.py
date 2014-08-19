@@ -36,6 +36,7 @@ class Project:
             tag.setAttribute("number", str(self.virtualLinks.index(vl) + 1))
             tag.setAttribute("bag", str(vl.bag))
             tag.setAttribute("lmax", str(vl.lmax))
+            tag.setAttribute("responseTime", str(vl.responseTime))
             tag.setAttribute("source", str(vl.source and vl.source.number))
             if len(vl.dest) == 0:
                 tag.setAttribute("dest", str("None"))
@@ -126,6 +127,7 @@ class Project:
             vl.number = vlNode.getAttribute("number")
             vl.bag = int(vlNode.getAttribute("bag"))
             vl.lmax = int(vlNode.getAttribute("lmax"))
+            vl.responseTime = int(vlNode.getAttribute("responseTime")) if vlNode.hasAttribute("responseTime") else 0
             
             sourceId = vlNode.getAttribute("source") 
             if sourceId == "None":

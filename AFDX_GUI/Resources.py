@@ -186,6 +186,7 @@ class VirtualLink:
         self.source = None
         self.dest = []
         self.route = [] # set of Path
+        self.responseTime = 0
     
     def setSource(self, v):
         if ( v != self.source ):

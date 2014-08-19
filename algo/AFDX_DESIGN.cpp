@@ -1,16 +1,20 @@
 #include "xmlreader.h"
 #include "network.h"
 #include "verifier.h"
+#include "responseTimeEstimator.h"
+#include "trajectoryApproachBasedEstimator.h"
 #include "designer.h"
 #include <string>
 #include <iostream>
 
 int main(int argc, char** argv) {
-    if ( argc != 3 && argc != 4 || std::string(argv[argc - 1]) != "a" && std::string(argv[argc - 1]) != "v" )
+    if ( argc != 3 && argc != 4 || std::string(argv[argc - 1]) != "a" && std::string(argv[argc - 1]) != "v"
+            && std::string(argv[argc - 1]) != "r" )
     {
-        printf("Usage: %s <input file> [<output file>] v|a\n", *argv);
+        printf("Usage: %s <input file> [<output file>] v|a|r\n", *argv);
         printf("\tv: verify and exit\n");
         printf("\ta: run designer\n");
+        printf("\tr: estimate end-to-end response times\n");
         return 1;
     }
 
@@ -42,10 +46,20 @@ int main(int argc, char** argv) {
     printf("There are %d virtual links.\n", xmlReader.getVirtualLinks().size());
     printf("There are %d data flows.\n", xmlReader.getDataFlows().size());
 
-    if ( std::string(argv[2]) == "v" ) {
+    if ( std::string(argv[argc-1]) == "v" ) {
         std::string status = Verifier::verify(network, xmlReader.getVirtualLinks());
         std::cout << status << std::endl;
         return 0;
+    } else if (std::string(argv[argc-1]) == "r" ) {
+        ResponseTimeEstimator* estimator = new TrajectoryApproachBasedEstimator(network, xmlReader.getVirtualLinks());
+        estimator->estimateWorstCaseResponseTime();
+        xmlReader.updateVirtualLinks();
+        QFile output(argv[argc - 2]);
+        output.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream outStream(&output);
+        outStream << document.toString(4);
+        output.close();
+        delete estimator;
     } else {
         Designer designer(network, xmlReader.getPartitions(), xmlReader.getDataFlows(), xmlReader.getVirtualLinks());
         designer.design();

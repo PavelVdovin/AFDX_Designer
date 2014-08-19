@@ -186,6 +186,10 @@ class MainWindow(QMainWindow):
         else:
             self.project.Save(self.projectFile)
     
+    def SaveAs(self):
+        self.canvas.updatePos()
+        self.SaveProjectAs()
+    
     def SaveProjectAs(self):
         self.canvas.updatePos()
         self.projectFile = unicode(QFileDialog.getSaveFileName(directory=self.project.name + ".afdxxml", filter=self.projFilter))
@@ -224,6 +228,30 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
         else:
             result = os.popen(name + " \"" + os.path.relpath(file) + "\" a").read()
+            print result
+            results = result.split('\n')
+            if "Not all parameters are specified, some elements are omitted." in results:
+                QMessageBox.critical(self, "Warning", "Not all parameters are specified, some elements are omitted.")
+            else:
+                print "loading" 
+                self.OpenProjectFromFile(os.path.relpath(file))
+                self.virtualLinksEditor.setProject(self.project)
+                self.dataFlowsEditor.setProject(self.project)
+                self.projectFile = projectFile
+                
+    def estimateResponseTimes(self):
+        projectFile = self.projectFile
+        self.canvas.updatePos()
+        file = "tmp/tmp.afdxxml"
+        self.project.Save(file)
+        if sys.platform.startswith("win"):
+            name = "algo/AFDX_DESIGN.exe"
+        else:
+            name = "algo/AFDX_DESIGN"
+        if not os.path.isfile(name):
+            QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
+        else:
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" r").read()
             print result
             results = result.split('\n')
             if "Not all parameters are specified, some elements are omitted." in results:

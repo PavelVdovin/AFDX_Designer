@@ -181,7 +181,8 @@ VirtualLink* Factory::generateVirtualLink(QDomElement& element) {
             bagStr = element.attribute("bag"),
             destStr = element.attribute("dest"),
             lmaxStr = element.attribute("lmax"),
-            sourceStr = element.attribute("source");
+            sourceStr = element.attribute("source"),
+            respTimeStr = element.attribute("responseTime");
 
     if ( numberStr.length() == 0 ) {
         printf("Fail to read number property of virtual link.\n");
@@ -241,6 +242,12 @@ VirtualLink* Factory::generateVirtualLink(QDomElement& element) {
                 && netElementsStorage[id]->isEndSystem())
                 virtualLink->addDestination(netElementsStorage[id]);
         }
+    }
+
+    if ( respTimeStr.length() > 0 ) {
+        int respTime = respTimeStr.toInt();
+        if (respTime > 0)
+            virtualLink->setResponseTimeEstimation(respTime);
     }
 
     // Parsing paths
@@ -426,6 +433,7 @@ void Factory::saveVirtualLink(Network* network, VirtualLink* virtualLink, QDomEl
 
     vlXml.setAttribute("bag", QString::number(virtualLink->getBag()));
     vlXml.setAttribute("lmax", QString::number(virtualLink->getLMax()));
+    vlXml.setAttribute("responseTime", QString::number(virtualLink->getResponseTimeEstimation()));
 
     NetElement* source = virtualLink->getSource();
     vlXml.setAttribute("source", QString::number(findNumberOfNetElement(source)));
@@ -489,4 +497,13 @@ void Factory::generatePath(Network* network, Path* path, QDomElement& element) {
     }
     pathXml.setAttribute("path", pathStr);
     element.appendChild(pathXml);
+}
+
+void Factory::updateVirtualLinks() {
+    // Need to update only response times for existing virtual links
+    VirtualLinksStorage::iterator it = virtualLinksStorage.begin();
+    for ( ; it != virtualLinksStorage.end(); ++it ) {
+        QString responseTime = QString::number((it->second).first->getResponseTimeEstimation());
+        ((it->second).second).setAttribute("responseTime", responseTime);
+    }
 }

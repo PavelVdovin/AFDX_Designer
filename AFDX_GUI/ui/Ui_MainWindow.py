@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file './MainWindow.ui'
 #
-# Created: Sun Jul  6 16:38:50 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Tue Aug 19 13:36:21 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -149,9 +149,14 @@ class Ui_MainWindow(object):
         self.actionVerify.setObjectName(_fromUtf8("actionVerify"))
         self.actionDesign = QtGui.QAction(MainWindow)
         self.actionDesign.setObjectName(_fromUtf8("actionDesign"))
+        self.actionSave_as = QtGui.QAction(MainWindow)
+        self.actionSave_as.setObjectName(_fromUtf8("actionSave_as"))
+        self.actionEstimate_Response_Times = QtGui.QAction(MainWindow)
+        self.actionEstimate_Response_Times.setObjectName(_fromUtf8("actionEstimate_Response_Times"))
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSave_as)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -172,6 +177,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionRemoveDataFlow)
         self.toolBar_2.addAction(self.actionVerify)
         self.toolBar_2.addAction(self.actionDesign)
+        self.toolBar_2.addAction(self.actionEstimate_Response_Times)
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.actionEndSystem, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggleEndSystem)
@@ -193,6 +199,8 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.treeWidgetDataFlows, QtCore.SIGNAL(_fromUtf8("itemDoubleClicked(QTreeWidgetItem*,int)")), MainWindow.toggleDataFlowDoubleClicked)
         QtCore.QObject.connect(self.actionVerify, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.verify)
         QtCore.QObject.connect(self.actionDesign, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.design)
+        QtCore.QObject.connect(self.actionSave_as, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.SaveAs)
+        QtCore.QObject.connect(self.actionEstimate_Response_Times, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.estimateResponseTimes)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -228,5 +236,7 @@ class Ui_MainWindow(object):
         self.actionVerify.setToolTip(_translate("MainWindow", "Verify capacity constraints", None))
         self.actionDesign.setText(_translate("MainWindow", "design", None))
         self.actionDesign.setToolTip(_translate("MainWindow", "design virtual links for data flows", None))
+        self.actionSave_as.setText(_translate("MainWindow", "Save as", None))
+        self.actionEstimate_Response_Times.setText(_translate("MainWindow", "estimate_response_times", None))
 
 import resources_rc

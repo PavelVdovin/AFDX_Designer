@@ -117,6 +117,7 @@
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -161,6 +162,7 @@
    </attribute>
    <addaction name="actionVerify"/>
    <addaction name="actionDesign"/>
+   <addaction name="actionEstimate_Response_Times"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -334,6 +336,16 @@
    </property>
    <property name="toolTip">
     <string>design virtual links for data flows</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as</string>
+   </property>
+  </action>
+  <action name="actionEstimate_Response_Times">
+   <property name="text">
+    <string>estimate_response_times</string>
    </property>
   </action>
  </widget>
@@ -645,6 +657,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSave_as</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>SaveAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEstimate_Response_Times</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>estimateResponseTimes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>367</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggleEndSystem()</slot>
@@ -665,5 +709,7 @@
   <slot>toggleDataFlowDoubleClicked()</slot>
   <slot>verify()</slot>
   <slot>design()</slot>
+  <slot>estimateResponseTimes()</slot>
+  <slot>SaveAs()</slot>
  </slots>
 </ui>

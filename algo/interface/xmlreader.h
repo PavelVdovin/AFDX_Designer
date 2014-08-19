@@ -31,6 +31,10 @@ public:
 	    return wellParsed;
 	}
 
+	inline void updateVirtualLinks() {
+	    factory.updateVirtualLinks();
+	}
+
 	void saveDesignedVirtualLinks(VirtualLinks& virtualLinks);
 
 private:

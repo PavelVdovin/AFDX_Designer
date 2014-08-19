@@ -17,6 +17,7 @@ public:
 		bag(1),
 		lMax(1000){
 	    bandwidth = 1000; // in bytes/ms
+	    responseTimeEstimation = 0; //microseconds
 	}
 
 	inline NetElement* getSource() const {
@@ -112,6 +113,14 @@ public:
 	    return assignments;
 	}
 
+	inline long getResponseTimeEstimation() {
+	    return responseTimeEstimation;
+	}
+
+	inline void setResponseTimeEstimation(long estimation) {
+        responseTimeEstimation = estimation;
+    }
+
 private:
 	int bag;
 	int lMax;
@@ -124,6 +133,9 @@ private:
 
 	DataFlows assignments;
 	Route route;
+
+	// Estimation of the worst case end-to-end response time for frames in microseconds
+	long responseTimeEstimation;
 };
 
 #endif

@@ -11,12 +11,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}
       model/
       operations/
       verifier/
+      responseTimeEstimator/
       designer/
       )
 SET ( COMPONENTS
       interface
       operations
       verifier
+      responseTimeEstimator
       designer
       )
 

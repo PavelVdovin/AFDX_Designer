@@ -79,10 +79,14 @@ class VirtualLinksEditor:
         bag = 1 if vl == None else vl.bag
         bagItem = QTreeWidgetItem(vlItem)
         bagItem.setText(0, "BAG: " + str(bag) + " ms")
-        
+
         lmax = 1518 if vl == None else vl.lmax
         lmaxItem = QTreeWidgetItem(vlItem)
         lmaxItem.setText(0, "Lmax: " + str(lmax) + " kb")
+        
+        responseTime = 0 if vl == None else vl.responseTime
+        responseTimeItem = QTreeWidgetItem(vlItem)
+        responseTimeItem.setText(0, "Response Time: " + str(responseTime) + " microseconds")
         
         source = None if vl == None else vl.source and vl.source.id
         sourceItem = QTreeWidgetItem(vlItem)
