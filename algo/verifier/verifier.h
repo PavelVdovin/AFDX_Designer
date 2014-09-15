@@ -19,6 +19,7 @@ public:
     };
     // Verify that virtual links may be assigned via the port of net-element without constraints breaking
     static FailedConstraint verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl = 0);
+    static FailedConstraint verifyOutgoingVirtualLinks(VirtualLink* vl);
 };
 
 #endif

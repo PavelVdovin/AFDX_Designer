@@ -9,8 +9,15 @@ std::string Verifier::verify(Network* network, VirtualLinks& virtualLinks) {
 
     VirtualLinks::iterator it = virtualLinks.begin();
     for( ; it != virtualLinks.end(); ++it ) {
-        if ( !Operations::assignVirtualLink(network, *it) )
+        if ( !Operations::assignVirtualLink(network, *it) ) {
             status = "Verification failed: cannot assign virtual link";
+            break;
+        }
+
+        if ( verifyOutgoingVirtualLinks(*it) == Verifier::JMAX ) {
+        	status = "Verification failed: jitter is more then 500 microseconds";
+        	break;
+        }
     }
 
     return status;
@@ -32,5 +39,15 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, Virt
         return Verifier::JMAX;
     }
 
+    if ( vl != 0 ) {
+    	vl->setJMax(jMax);
+    }
+
     return Verifier::NONE;
+}
+
+Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(VirtualLink* vl) {
+	Ports& ports = vl->getSource()->getPorts();
+	assert(ports.size() == 1);
+	return verifyOutgoingVirtualLinks(*(ports.begin()), vl);
 }
