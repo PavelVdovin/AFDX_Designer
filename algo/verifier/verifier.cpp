@@ -13,10 +13,14 @@ std::string Verifier::verify(Network* network, VirtualLinks& virtualLinks) {
             status = "Verification failed: cannot assign virtual link";
             break;
         }
+    }
 
+    // After assignment, need to count jitter and verify it
+    it = virtualLinks.begin();
+    for( ; it != virtualLinks.end(); ++it ) {
         if ( verifyOutgoingVirtualLinks(*it) == Verifier::JMAX ) {
-        	status = "Verification failed: jitter is more then 500 microseconds";
-        	break;
+            status = "Verification failed: jitter is more then 500 microseconds";
+            break;
         }
     }
 

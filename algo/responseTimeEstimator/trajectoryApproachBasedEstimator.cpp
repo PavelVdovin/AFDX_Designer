@@ -23,30 +23,42 @@ float countTransmissionDelay(Network* network, float frameLength, Path* path) {
         Link* link = Operations::getLinkByNetElements(network, prevElement, node);
         assert(link != 0);
 
-        result += frameLength / (link->getMaxCapacity() + EPS);
+        result += frameLength / ((float)link->getMaxCapacity() / 1000 + EPS);
         prevElement = node;
     }
 
     return result;
 }
 
-float TrajectoryApproachBasedEstimator::estimateWorstCaseResponseTime(VirtualLink* vl) {
-	// Initializing data
-	vlJitters[vl] = JitterAtNetElement();
-	NetElement* source = vl->getSource();
-	vlJitters[vl][source] = (float)vl->getJMax();
+void TrajectoryApproachBasedEstimator::initialize() {
+    // Initializing data
+    VirtualLinks::iterator it = virtualLinks.begin();
+    for ( ; it != virtualLinks.end(); ++it ) {
+        VirtualLink* vl = *it;
+        vlJitters[vl] = JitterAtNetElement();
+        NetElement* source = vl->getSource();
+        vlJitters[vl][source] = (float)vl->getJMax();
+    }
+}
 
+float TrajectoryApproachBasedEstimator::estimateWorstCaseResponseTime(VirtualLink* vl) {
     Route& route = vl->getRoute();
     Paths& paths = route.getPaths();
     NetElements::iterator it = vl->getDestinations().begin();
 
-    float maxJitter = 0.0;
+    float maxE2e = 0.0;
     Path* worstPath = 0;
     for ( ; it != vl->getDestinations().end(); ++it ) {
         Path* path = route.getPath(*it);
         float jitter = estimateJitterAtNetElement(vl, *it, path);
-        if ( jitter - EPS > maxJitter ) {
-            maxJitter = jitter;
+
+        // e2eResponse = minimum transmission time + max jitter (jitter = sum delays in output buffers)
+        float e2eResponse = (path->getPath().size() - 2 )* switchFabricDelay
+            +  countTransmissionDelay(network, (float) vl->getLMax(), path)
+            + jitter; // extra switch counted
+
+        if ( e2eResponse - EPS > maxE2e || worstPath == 0 ) {
+            maxE2e = e2eResponse;
             worstPath = path;
         }
     }
@@ -56,11 +68,7 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseResponseTime(VirtualLin
     	return -1;
     }
 
-    // e2eResponse = minimum transmission time + max jitter (jitter = sum delays in output buffers)
-    float e2eResponse = worstPath->getPath().size()* ( switchFabricDelay +  countTransmissionDelay(network, (float) vl->getLMax(), worstPath) )
-            - switchFabricDelay + maxJitter; // extra switch counted
-
-    return e2eResponse;
+    return maxE2e;
 }
 
 NetElement* findPreviousNetElement(NetElement* netElement, Path* path) {
@@ -277,8 +285,10 @@ private:
             // for high priority, count only max lmax from low priority
             if ( !isHighPriority || highPriority.find(*it) != highPriority.end() ) {
                 bp +=  lmax * numberOfFrames[*it] + ifg;
-                float vlFramesDelay = (float)(numberOfFrames[*it] - 1) * (*it)->getBag() - jitters[*it];
-                vlFramesDelay *= capacity;
+
+                // jitter is in microseconds, converting to milliseconds
+                float vlFramesDelay = (float)(numberOfFrames[*it] - 1) * (*it)->getBag() - jitters[*it] / 1000;
+                vlFramesDelay *= capacity; // getting bytes
                 vlFramesDelay +=  + lmax + ifg;
                 if (  vlFramesDelay > maxVlFramesDelay )
                     maxVlFramesDelay = vlFramesDelay;
@@ -329,7 +339,10 @@ private:
         bool changed = false;
         VirtualLinks::iterator it = virtualLinks.begin();
         for ( ; it != virtualLinks.end(); ++it ) {
-            int newNum  = 1 + (int)(((bp + (*it)->getLMax() + ifg) / capacity + jitters[*it]) / (float)((*it)->getBag() * 1000)) + 1;
+            // capacity is in bytes/milliseconds,
+            // bag is in milliseconds
+            // jitter is in microseconds, so transmitting to milliseconds
+            int newNum  = 1 + (int)(((bp + (*it)->getLMax() + ifg) / capacity + jitters[*it] / 1000) / (float)(*it)->getBag());
 
             if ( newNum > numberOfFrames[*it] ) {
                 numberOfFrames[*it] = newNum;
@@ -363,6 +376,7 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseDelay(VirtualLink* vl, 
     // initializing estimator object
     TrajectoryVLEstimator estimator;
     estimator.estimator = this;
+    estimator.vl = vl;
     estimator.outgoingPort = outgoingPort;
     estimator.isHighPriority = (highPriority.find(vl) != highPriority.end());
     estimator.virtualLinks.insert(virtualLinks.begin(), virtualLinks.end());
@@ -375,5 +389,5 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseDelay(VirtualLink* vl, 
     estimator.estimateMinArrivalBP();
     estimator.estimateBP();
 
-    return (estimator.busyPeriod - estimator.minBPBeforeArrival) / estimator.capacity;
+    return 1000 * (estimator.busyPeriod - estimator.minBPBeforeArrival) / estimator.capacity;
 }

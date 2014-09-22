@@ -7,13 +7,17 @@
  * transmitting on specified virtual links
  */
 class ResponseTimeEstimator {
-
 public:
     ResponseTimeEstimator(Network* network, VirtualLinks& virtualLinks, long interFrameDelay = 0, long switchFabricDelay = 16):
         network(network), virtualLinks(virtualLinks), interFrameDelay(interFrameDelay), switchFabricDelay(switchFabricDelay)
     {}
 
     virtual ~ResponseTimeEstimator() {}
+
+    /*
+     * Initialize required data.
+     */
+    virtual void initialize() = 0;
 
     /*
      * Returns estimated end-to-end response time in microseconds.
@@ -26,7 +30,6 @@ public:
     virtual void estimateWorstCaseResponseTime();
 
 protected:
-
     Network* network;
     VirtualLinks& virtualLinks;
 

@@ -10,6 +10,8 @@ class TrajectoryApproachBasedEstimator: public ResponseTimeEstimator {
     typedef std::map<VirtualLink*, JitterAtNetElement> VLJitters;
 public:
     TrajectoryApproachBasedEstimator(Network* network, VirtualLinks& virtualLinks, long interFrameDelay = 0, long switchFabricDelay = 16);
+
+    void initialize();
     float estimateWorstCaseResponseTime(VirtualLink* vl);
 
 private:

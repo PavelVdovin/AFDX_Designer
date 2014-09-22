@@ -107,14 +107,15 @@ void Operations::removeVirtualLink(Network* network, VirtualLink* virtualLink) {
 
 long Operations::countMaxJitter(Port* port, VirtualLink* vl) {
     long maxCapacity = port->getAssosiatedLink()->getMaxCapacity();
-    long size = (vl == 0) ? 0 : vl->getLMax();
+    long size = 0;
 
     VirtualLinks& assigned = port->getAssignedLowPriority();
     VirtualLinks::iterator it = assigned.begin();
     for ( ; it != assigned.end(); ++it ) {
-        size += (*it)->getLMax();
+        if ( *it != vl )
+            size += (*it)->getLMax();
     }
 
     float jMax = (float)size / ((float)maxCapacity / 1000); // multiply by 1000 to get microseconds
-    return (long)(jMax - EPS) == (long)jMax ? (long)jMax + 1 : (long) jMax;
+    return (long) jMax;
 }

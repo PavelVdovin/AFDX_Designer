@@ -10,7 +10,9 @@ void ResponseTimeEstimator::estimateWorstCaseResponseTime() {
 		return;
 	}
 
-	// Initializing data
+	initialize();
+
+    // Estimating response time
 	VirtualLinks::iterator it = virtualLinks.begin();
     for ( ; it != virtualLinks.end(); ++it ) {
         float estimation = estimateWorstCaseResponseTime(*it);
