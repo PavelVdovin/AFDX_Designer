@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="75.5" y="192.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="74.5" y="239.5"/>
+		<switch name="switch1" number="3" ports="3,4,5" x="233.5" y="202.5"/>
+		<endSystem name="endSystem3" number="4" ports="6" x="74.5" y="302.5"/>
+		<endSystem name="endSystem4" number="5" ports="7" x="73.5" y="342.5"/>
+		<endSystem name="endSystem5" number="6" ports="8" x="340.5" y="403.5"/>
+		<endSystem name="endSystem6" number="7" ports="9" x="551.5" y="223.5"/>
+		<endSystem name="endSystem7" number="8" ports="10" x="559.5" y="321.5"/>
+		<switch name="switch2" number="9" ports="11,12,13" x="231.5" y="315.5"/>
+		<switch name="switch3" number="10" ports="14,15,16,17,18" x="432.5" y="271.5"/>
+		<link capacity="12500" from="1" fromType="0" to="3" toType="0"/>
+		<link capacity="12500" from="4" fromType="0" to="2" toType="0"/>
+		<link capacity="12500" from="6" fromType="0" to="11" toType="0"/>
+		<link capacity="12500" from="12" fromType="0" to="7" toType="0"/>
+		<link capacity="12500" from="13" fromType="0" to="14" toType="0"/>
+		<link capacity="12500" from="5" fromType="0" to="15" toType="0"/>
+		<link capacity="12500" from="16" fromType="0" to="8" toType="0"/>
+		<link capacity="12500" from="17" fromType="0" to="9" toType="0"/>
+		<link capacity="12500" from="18" fromType="0" to="10" toType="0"/>
+	</resources>
+	<virtualLinks>
+		<virtualLink bag="1" dest="7" id="Virtual Link 1" lmax="500" number="1" responseTime="0" source="1">
+			<path dest="7" path="1,3,10,7" source="1"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="8" id="Virtual Link 2" lmax="500" number="2" responseTime="0" source="2">
+			<path dest="8" path="2,3,10,8" source="2"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="7" id="Virtual Link 3" lmax="500" number="3" responseTime="0" source="4">
+			<path dest="7" path="4,9,10,7" source="4"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="7" id="Virtual Link 4" lmax="500" number="4" responseTime="0" source="5">
+			<path dest="7" path="5,9,10,7" source="5"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="7" id="Virtual Link 5" lmax="500" number="5" responseTime="0" source="6">
+			<path dest="7" path="6,10,7" source="6"/>
+		</virtualLink>
+	</virtualLinks>
+	<dataFlows/>
+</afdxxml>
