@@ -48,7 +48,7 @@ public:
 
 	inline bool isAssigned(VirtualLink* vl) {
 	    return assignedLowPriority.find(vl) != assignedLowPriority.end()
-	            || assignedLowPriority.find(vl) != assignedLowPriority.end();
+	            || assignedHighPriority.find(vl) != assignedHighPriority.end();
 	}
 
 	inline void removeVirtualLink(VirtualLink* vl) {

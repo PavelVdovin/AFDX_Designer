@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="293.5" y="159.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="298.5" y="499.5"/>
+		<switch name="switch1" number="3" ports="3,4" x="371.5" y="319.5"/>
+		<link capacity="12500" from="1" fromType="0" to="3" toType="1"/>
+		<link capacity="12500" from="4" fromType="1" to="2" toType="0"/>
+	</resources>
+	<virtualLinks>
+		<virtualLink bag="1" dest="2" id="Virtual Link 1" lmax="500" number="1" responseTime="96" source="1">
+			<path dest="2" path="1,3h,2" source="1"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="2" id="Virtual Link 2" lmax="100" number="2" responseTime="0" source="1">
+			<path dest="2" path="1,3l,2" source="1"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="2" id="Virtual Link 3" lmax="200" number="3" responseTime="0" source="1">
+			<path dest="2" path="1,3l,2" source="1"/>
+		</virtualLink>
+	</virtualLinks>
+	<dataFlows/>
+</afdxxml>

@@ -163,6 +163,9 @@ public:
     // VirtualLink under consideration
     VirtualLink* vl;
 
+    // Prev net-element of the current vl
+    NetElement* prevNetElement;
+
     // Virtual link of outgoing port
     VirtualLinks virtualLinks;
     VirtualLinks highPriority;
@@ -197,6 +200,20 @@ public:
     float busyPeriod;
 
 public:
+    // Identify whether the virtual link has a higher priority
+    inline bool isHigher(VirtualLink* vl) {
+        return outgoingPort->isPrioritized()
+                && outgoingPort->getAssignedLowPriority().find(this->vl) != outgoingPort->getAssignedLowPriority().end()
+                && highPriority.find(vl) != highPriority.end();
+    }
+
+    // Identify whether the virtual link has a higher priority
+    inline bool isLower(VirtualLink* vl) {
+        return outgoingPort->isPrioritized()
+                && highPriority.find(this->vl) != highPriority.end()
+                && outgoingPort->getAssignedLowPriority().find(vl) != outgoingPort->getAssignedLowPriority().end();
+    }
+
     // Methods used during algorithm
     void initializeValues() {
         VirtualLinks::iterator it = virtualLinks.begin();
@@ -207,6 +224,10 @@ public:
 
             prevNetElements[prev].insert(*it);
             numberOfFrames[*it] = 1;
+
+            if ( (*it) == vl ) {
+                prevNetElement = prev;
+            }
 
             // We need to know all jitters!
             jitters[*it] = estimator->estimateJitterAtNetElement(*it, prev);
@@ -257,8 +278,14 @@ public:
 
                 if ( !isHighPriority || highPriority.find(*it) != highPriority.end() ) {
                     busyPeriod += numberOfFrames[*it] * lmax + ifg;
-                } else if ( maxLowPriorityLmax < lmax )
-                    maxLowPriorityLmax = lmax;
+                } else {
+                    // if the frame is from the same source that the virtual link, then it is already been calculated
+                    if ( prevNetElements[prevNetElement].find(*it) != prevNetElements[prevNetElement].end() )
+                        lmax -= (float)vl->getLMax();
+
+                    if ( maxLowPriorityLmax < lmax )
+                        maxLowPriorityLmax = lmax;
+                }
 
             }
 
@@ -309,27 +336,21 @@ private:
     // Estimate min bp of vls from one physical link
     float estimateMinBPBeforeArrival(VirtualLinks& virtualLinks) {
         float bp = 0.0,
-              maxLmax = 0.0,
-              maxLmaxLowPriority = 0.0;
+              maxLmax = 0.0;
         VirtualLinks::iterator it = virtualLinks.begin();
         for ( ; it != virtualLinks.end(); ++it ) {
             float lmax = (float)(*it)->getLMax();
 
             // for high priority, count only max lmax from low priority
-            if ( !isHighPriority || highPriority.find(*it) != highPriority.end() ) {
+            if ( !isHigher(*it) && !isLower(*it) ) {
                 bp +=  lmax * numberOfFrames[*it] + ifg;
                 if ( maxLmax < lmax ) {
                     maxLmax = lmax;
                 }
-            }  else if ( maxLmaxLowPriority < lmax ) {
-                assert (isHighPriority && highPriority.find(*it) == highPriority.end());
-                maxLmaxLowPriority = lmax;
-            } else
-                assert(0);
+            }
         }
 
         bp -= (maxLmax + ifg);
-        bp += maxLmaxLowPriority;
         return bp;
     }
 
@@ -352,16 +373,6 @@ private:
         return changed;
     }
 };
-/*
- * The first step of the algorithm: estimation of buffers from the physical links before arrival of the current frame
-float estimateBusyPeriodBeforeCurrentFrame(VirtualLink* vl, VirtualLinks& virtualLinks, bool isHighPriority,
-        std::map<NetElement*, VirtualLinks> prevNetElements, std::map<VirtualLink*, unsigned>& numberOfFrames) {
-    VirtualLinks& vls = virtualLinks;
-    if ( isHighPriority ) {
-        vls = vl->
-    }
-}
-*/
 
 // The most difficult func in this whole project!!!
 float TrajectoryApproachBasedEstimator::estimateWorstCaseDelay(VirtualLink* vl, NetElement* netElement, Port* outgoingPort) {
@@ -377,6 +388,7 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseDelay(VirtualLink* vl, 
     TrajectoryVLEstimator estimator;
     estimator.estimator = this;
     estimator.vl = vl;
+    estimator.prevNetElement = 0;
     estimator.outgoingPort = outgoingPort;
     estimator.isHighPriority = (highPriority.find(vl) != highPriority.end());
     estimator.virtualLinks.insert(virtualLinks.begin(), virtualLinks.end());
@@ -385,6 +397,7 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseDelay(VirtualLink* vl, 
     estimator.ifg = interFrameDelay * (estimator.capacity / 1000); // counting in bytes, then get microseconds
 
     estimator.initializeValues();
+    assert(estimator.prevNetElement != 0);
     estimator.estimateMaxArrivalBP();
     estimator.estimateMinArrivalBP();
     estimator.estimateBP();

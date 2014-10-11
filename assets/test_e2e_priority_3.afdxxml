@@ -10,16 +10,16 @@
         <link toType="1" from="6" capacity="12500" to="5" fromType="0"/>
     </resources>
     <virtualLinks>
-        <virtualLink responseTime="128" bag="1" dest="2" lmax="500" number="1" id="Virtual Link 1" source="1">
+        <virtualLink responseTime="120" bag="1" dest="2" lmax="500" number="1" id="Virtual Link 1" source="1">
             <path dest="2" path="1,3h,2" source="1"/>
         </virtualLink>
-        <virtualLink responseTime="144" bag="1" dest="2" lmax="100" number="2" id="Virtual Link 2" source="1">
+        <virtualLink responseTime="128" bag="1" dest="2" lmax="100" number="2" id="Virtual Link 2" source="1">
             <path dest="2" path="1,3l,2" source="1"/>
         </virtualLink>
-        <virtualLink responseTime="144" bag="1" dest="2" lmax="200" number="3" id="Virtual Link 3" source="1">
+        <virtualLink responseTime="128" bag="1" dest="2" lmax="200" number="3" id="Virtual Link 3" source="1">
             <path dest="2" path="1,3l,2" source="1"/>
         </virtualLink>
-        <virtualLink responseTime="88" bag="1" dest="2" lmax="100" number="4" id="Virtual Link 4" source="4">
+        <virtualLink responseTime="72" bag="1" dest="2" lmax="100" number="4" id="Virtual Link 4" source="4">
             <path dest="2" path="4,3l,2" source="4"/>
         </virtualLink>
     </virtualLinks>
