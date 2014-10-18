@@ -56,6 +56,10 @@ private:
      */
     bool limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned);
 
+    bool calculateAndCheckResponseTimeouts();
+
+    bool redesignVirtualLink(DataFlow* df, VirtualLink* vl);
+
 private:
     Network* network;
     Partitions partitions;

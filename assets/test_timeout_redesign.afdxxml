@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="127.5" y="117.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="164.5" y="353.5"/>
+		<partition connectedTo="1" name="partition1" number="3" x="61.5" y="101.5"/>
+		<partition connectedTo="2" name="partition2" number="4" x="70.5" y="403.5"/>
+		<switch name="switch1" number="5" ports="3,4" x="267.5" y="240.5"/>
+		<link capacity="1000" from="1" fromType="0" to="3" toType="0"/>
+		<link capacity="1000" from="4" fromType="0" to="2" toType="0"/>
+	</resources>
+	<virtualLinks>
+		<virtualLink bag="2" dest="2" id="Designed for Data Flow 1" lmax="1047" number="1" responseTime="2110" source="1">
+			<path dest="2" path="1,5,2" source="1"/>
+		</virtualLink>
+	</virtualLinks>
+	<dataFlows>
+		<dataFlow dest="4" id="Data Flow 1" jMax="0" msgSize="2000" period="10" source="3" tMax="5" vl="1"/>
+	</dataFlows>
+</afdxxml>

@@ -119,3 +119,40 @@ long Operations::countMaxJitter(Port* port, VirtualLink* vl) {
     float jMax = (float)size / ((float)maxCapacity / 1000); // multiply by 1000 to get microseconds
     return (long) jMax;
 }
+
+// Returns upper module values
+inline int modMax(float val) {
+    int mod = (int)(val + EPS);
+    return mod > (int)(val - 2 * EPS) ? mod : mod + 1;
+}
+
+DataFlow* Operations::setAndCheckResponseTimes(VirtualLink* vl) {
+    DataFlows::iterator it = vl->getAssignments().begin();
+
+    // Calculating the whole number of frames first
+    int numberOfFrames = 0;
+
+    // The data flow with the smallest value of required response time
+    DataFlow* theMostConstrainedDF = 0;
+    for ( ; it != vl->getAssignments().end(); ++it ) {
+        numberOfFrames += modMax((float)(*it)->getMsgSize() / vl->getLMax());
+        if ( (*it)->getTMax() != 0 && (!theMostConstrainedDF || (*it)->getTMax() < theMostConstrainedDF->getTMax()) )
+            theMostConstrainedDF = *it;
+    }
+
+    float e2eResponseTime = (float)vl->getResponseTimeEstimation() / 1000 + (float)(numberOfFrames - 1) * vl->getBag();
+    //printf("Response time: %f\n", e2eResponseTime);
+    // Starting from the most constrained - if constraints are satisfied - then it is true for every data flow
+
+    it = vl->getAssignments().begin();
+    for ( ; it != vl->getAssignments().end(); ++it ) {
+        //assert((*it)->getTMax() == 0 || (float)(*it)->getTMax() >= e2eResponseTime - EPS);
+        (*it)->setResponseTime((long)(e2eResponseTime * 1000 + EPS));
+        printf("Response time: %d\n", (*it)->getResponseTime());
+    }
+
+    if ( theMostConstrainedDF != 0 && (float)theMostConstrainedDF->getTMax() < e2eResponseTime - EPS )
+        return theMostConstrainedDF;
+
+    return 0;
+}

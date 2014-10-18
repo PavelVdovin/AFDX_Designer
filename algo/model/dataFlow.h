@@ -12,7 +12,8 @@ public:
 		msgSize(msgSize),
 		tMax(tMax),
 		maxJitter(maxJitter),
-		assignedTo(0)
+		assignedTo(0),
+		responseTime(0)
 	{}
 
 	inline Partition* getFrom() const {
@@ -51,6 +52,14 @@ public:
 	    assignedTo = 0;
 	}
 
+	inline void setResponseTime(long responseTime) {
+	    this->responseTime = responseTime;
+	}
+
+	inline long getResponseTime() {
+	    return responseTime;
+	}
+
 private:
 	Partition* from;
 	Partitions to;
@@ -58,6 +67,9 @@ private:
 	long msgSize;
 	long tMax;
 	long maxJitter;
+
+	// in microseconds
+	long responseTime;
 
 	VirtualLink* assignedTo;
 };

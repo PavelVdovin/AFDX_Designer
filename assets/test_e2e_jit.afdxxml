@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="240.5" y="184.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="474.5" y="188.5"/>
+		<endSystem name="endSystem3" number="3" ports="3" x="362.5" y="545.5"/>
+		<switch name="switch1" number="4" ports="4,5,6" x="351.5" y="308.5"/>
+		<switch name="switch2" number="5" ports="7,8,9" x="401.5" y="390.5"/>
+		<switch name="switch3" number="6" ports="10,11,12" x="537.5" y="328.5"/>
+		<endSystem name="endSystem5" number="7" ports="13" x="662.5" y="234.5"/>
+		<endSystem name="endSystem6" number="8" ports="14" x="681.5" y="402.5"/>
+		<link capacity="12500" from="1" fromType="0" to="4" toType="0"/>
+		<link capacity="12500" from="5" fromType="0" to="2" toType="0"/>
+		<link capacity="12500" from="6" fromType="0" to="7" toType="0"/>
+		<link capacity="12500" from="8" fromType="0" to="3" toType="0"/>
+		<link capacity="12500" from="13" fromType="0" to="10" toType="0"/>
+		<link capacity="12500" from="11" fromType="0" to="14" toType="0"/>
+		<link capacity="12500" from="12" fromType="0" to="9" toType="0"/>
+	</resources>
+	<virtualLinks>
+		<virtualLink bag="1" dest="3" id="Virtual Link 1" lmax="1000" number="1" responseTime="2112" source="1">
+			<path dest="3" path="1,4,5,3" source="1"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 2" lmax="1000" number="2" responseTime="2112" source="2">
+			<path dest="3" path="2,4,5,3" source="2"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 2" lmax="1000" number="3" responseTime="2112" source="2">
+			<path dest="3" path="2,4,5,3" source="2"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 2" lmax="1000" number="4" responseTime="2112" source="2">
+			<path dest="3" path="2,4,5,3" source="2"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 2" lmax="1000" number="5" responseTime="2112" source="2">
+			<path dest="3" path="2,4,5,3" source="2"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 2" lmax="1000" number="6" responseTime="2112" source="2">
+			<path dest="3" path="2,4,5,3" source="2"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 2" lmax="1000" number="7" responseTime="2112" source="2">
+			<path dest="3" path="2,4,5,3" source="2"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 3" lmax="1000" number="8" responseTime="2112" source="1">
+			<path dest="3" path="1,4,5,3" source="1"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 3" lmax="1000" number="9" responseTime="2112" source="1">
+			<path dest="3" path="1,4,5,3" source="1"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 3" lmax="1000" number="10" responseTime="2112" source="1">
+			<path dest="3" path="1,4,5,3" source="1"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 3" lmax="1000" number="11" responseTime="2112" source="1">
+			<path dest="3" path="1,4,5,3" source="1"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 3" lmax="1000" number="12" responseTime="2112" source="1">
+			<path dest="3" path="1,4,5,3" source="1"/>
+		</virtualLink>
+		<virtualLink bag="1" dest="3" id="Virtual Link 20" lmax="1000" number="13" responseTime="2112" source="7">
+			<path dest="3" path="7,6,5,3" source="7"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 20" lmax="1000" number="14" responseTime="2112" source="7">
+			<path dest="3" path="7,6,5,3" source="7"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 20" lmax="1000" number="15" responseTime="2112" source="7">
+			<path dest="3" path="7,6,5,3" source="7"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 20" lmax="1000" number="16" responseTime="2112" source="7">
+			<path dest="3" path="7,6,5,3" source="7"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 20" lmax="1000" number="17" responseTime="2112" source="7">
+			<path dest="3" path="7,6,5,3" source="7"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 20" lmax="1000" number="18" responseTime="2112" source="7">
+			<path dest="3" path="7,6,5,3" source="7"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 21" lmax="1000" number="19" responseTime="2112" source="8">
+			<path dest="3" path="8,6,5,3" source="8"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 21" lmax="1000" number="20" responseTime="2112" source="8">
+			<path dest="3" path="8,6,5,3" source="8"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 21" lmax="1000" number="21" responseTime="2112" source="8">
+			<path dest="3" path="8,6,5,3" source="8"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 21" lmax="1000" number="22" responseTime="2112" source="8">
+			<path dest="3" path="8,6,5,3" source="8"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 21" lmax="1000" number="23" responseTime="2112" source="8">
+			<path dest="3" path="8,6,5,3" source="8"/>
+		</virtualLink>
+		<virtualLink bag="128" dest="3" id="Virtual Link 21" lmax="1000" number="24" responseTime="2112" source="8">
+			<path dest="3" path="8,6,5,3" source="8"/>
+		</virtualLink>
+	</virtualLinks>
+	<dataFlows/>
+</afdxxml>

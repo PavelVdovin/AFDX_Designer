@@ -1,27 +1,16 @@
 <?xml version='1.0'?>
 <afdxxml name="test project">
     <resources>
-        <endSystem x="293.5" y="159.5" number="1" ports="1" name="endSystem1"/>
-        <endSystem x="298.5" y="499.5" number="2" ports="2" name="endSystem2"/>
-        <switch x="371.5" y="319.5" number="3" ports="3,4,5" name="switch1"/>
-        <endSystem x="499.5" y="182.5" number="4" ports="6" name="endSystem3"/>
-        <link toType="1" from="1" capacity="12500" to="3" fromType="0"/>
-        <link toType="0" from="4" capacity="12500" to="2" fromType="1"/>
-        <link toType="1" from="6" capacity="12500" to="5" fromType="0"/>
+        <endSystem x="127.5" y="117.5" number="1" ports="1" name="endSystem1"/>
+        <endSystem x="164.5" y="353.5" number="2" ports="2" name="endSystem2"/>
+        <partition x="61.5" y="101.5" number="3" connectedTo="1" name="partition1"/>
+        <partition x="70.5" y="403.5" number="4" connectedTo="2" name="partition2"/>
+        <switch x="267.5" y="240.5" number="5" ports="3,4" name="switch1"/>
+        <link toType="0" from="1" capacity="1000" to="3" fromType="0"/>
+        <link toType="0" from="4" capacity="1000" to="2" fromType="0"/>
     </resources>
-    <virtualLinks>
-        <virtualLink responseTime="128" bag="1" dest="2" lmax="500" number="1" id="Virtual Link 1" source="1">
-            <path dest="2" path="1,3h,2" source="1"/>
-        </virtualLink>
-        <virtualLink responseTime="144" bag="1" dest="2" lmax="100" number="2" id="Virtual Link 2" source="1">
-            <path dest="2" path="1,3l,2" source="1"/>
-        </virtualLink>
-        <virtualLink responseTime="144" bag="1" dest="2" lmax="200" number="3" id="Virtual Link 3" source="1">
-            <path dest="2" path="1,3l,2" source="1"/>
-        </virtualLink>
-        <virtualLink responseTime="88" bag="1" dest="2" lmax="100" number="4" id="Virtual Link 4" source="4">
-            <path dest="2" path="4,3l,2" source="4"/>
-        </virtualLink>
-    </virtualLinks>
-    <dataFlows/>
+    <virtualLinks/>
+    <dataFlows>
+        <dataFlow tMax="4" dest="4" period="10" msgSize="2000" vl="None" jMax="0" id="Data Flow 1" source="3"/>
+    </dataFlows>
 </afdxxml>

@@ -9,6 +9,8 @@
 #include "operations.h"
 #include "routing.h"
 #include "limitedSearcher.h"
+#include "responseTimeEstimator.h"
+#include "trajectoryApproachBasedEstimator.h"
 #include <stdio.h>
 #include <algorithm>
 
@@ -31,6 +33,7 @@ void Designer::design() {
     designUnroutedVLs();
     checkOutgoingVirtualLinks();
     routeVirtualLinks();
+    calculateAndCheckResponseTimeouts();
 }
 
 void assignVLToEndSystem(VirtualLink* vl, NetElement* endSystem) {
@@ -100,9 +103,21 @@ bool comparerLMax(VirtualLink* vl1, VirtualLink* vl2) {
     return vl1->getLMax() / vl1->getAssignments().size() > vl2->getLMax() / vl2->getAssignments().size();
 }
 
+void filterVls(VirtualLinks& vls) {
+    VirtualLinks copy(vls.begin(), vls.end());
+    VirtualLinks::iterator it = copy.begin();
+    for( ; it != copy.end(); ++it ) {
+        if ( (*it)->getAssignments().size() == 0 )
+            vls.erase(*it);
+    }
+}
+
 void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint failed) {
     assert(failed != Verifier::NONE);
     VirtualLinks vls = VirtualLinks(port->getAssignedLowPriority().begin(), port->getAssignedLowPriority().end());
+
+    // do not remove already existing vls
+    filterVls(vls);
     if ( failed == Verifier::CAPACITY )
         printf("Capacity is overloaded, trying to aggregate\n");
     else
@@ -145,7 +160,6 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
     printf("Aggregation is failed, dropping vl\n");
     VirtualLink* vlToDrop = *std::min_element(vls.begin(), vls.end(),
             failed == Verifier::CAPACITY ? comparerCapacity : comparerLMax);
-    //vls.erase(vlToDrop);
     removeVirtualLink(port, vlToDrop);
 }
 
@@ -231,4 +245,114 @@ bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
     printf("Limited search failed\n");
     searcher.stop(false);
     return false;
+}
+
+bool Designer::calculateAndCheckResponseTimeouts() {
+    VirtualLinks virtualLinks;
+    ResponseTimeEstimator* estimator = new TrajectoryApproachBasedEstimator(network, virtualLinks);
+    bool recheck = true;
+    while ( recheck ) {
+        recheck = false;
+        virtualLinks = VirtualLinks(designedVirtualLinks.begin(), designedVirtualLinks.end());
+        virtualLinks.insert(existingVirtualLinks.begin(), existingVirtualLinks.end());
+        estimator->setVirtualLinks(virtualLinks);
+        estimator->initialize();
+        VirtualLinks::iterator it = designedVirtualLinks.begin();
+        for ( ; it != designedVirtualLinks.end(); ++it ) {
+            float estimation = estimator->estimateWorstCaseResponseTime(*it);
+            long estimationLong = (long)(estimation - EPS) < (long)estimation ? (long)estimation : (long)estimation + 1;
+            printf("Resp time: %d\n", estimationLong);
+            (*it)->setResponseTimeEstimation(estimationLong);
+
+            DataFlow* failedDataFlow = Operations::setAndCheckResponseTimes(*it);
+            if ( failedDataFlow != 0 ) {
+                printf("Constraints are failed for data flow. Trying to redesign vl.\n");
+
+                bool success = redesignVirtualLink(failedDataFlow, *it);
+                if ( !success ) {
+                    // Removing data flow
+                    (*it)->removeAssignment(failedDataFlow);
+
+                    // Trying to redesign without failedDataFlow
+                    while ( !success && (*it)->getAssignments().size() > 0 ) {
+                        failedDataFlow = *((*it)->getAssignments().begin());
+                        success = redesignVirtualLink(failedDataFlow, *it);
+                    }
+
+                    if ( (*it)->getAssignments().size() == 0 )
+                        removeVirtualLink(*it);
+
+                    printf("Failed to redesign virtual link.\n");
+                }
+                else
+                    printf("Virtual link redesigned successfully! Rechecking response time.\n");
+                recheck = true;
+                break; // recheck again
+                // removeVirtualLink(*it);
+            }
+        }
+    }
+
+    delete estimator;
+}
+
+bool compareVlParams(VirtualLink* vl1, VirtualLink* vl2) {
+    return vl1->getBag() == vl2->getBag() && vl1->getLMax() == vl2->getLMax();
+}
+
+bool Designer::redesignVirtualLink(DataFlow* df, VirtualLink* vl) {
+    DataFlows flows(vl->getAssignments().begin(), vl->getAssignments().end());
+    // Removing path first
+    Operations::removeVirtualLink(network, vl);
+    vl->getRoute().getPaths().clear();
+    VirtualLink * newVl = VirtualLinkConfigurator::redesignVirtualLink(df, vl);
+    if ( newVl == 0 ) {
+        // if there are more then one data flows, removing just dataflow
+        return false;
+    }
+
+    // Checking whether params has changed
+    if ( compareVlParams(newVl, vl) ) {
+        delete newVl;
+        return false;
+    }
+
+    vl->removeAllAssignments();
+
+    DataFlows::iterator it = flows.begin();
+    for ( ; it != flows.end(); ++it )
+        setDataFlowVL(newVl, *it);
+
+    Verifier::FailedConstraint failed = Verifier::NONE;
+    if ( newVl->getSource()->getPorts().size() == 1 ) {
+        Port* port = *(newVl->getSource()->getPorts().begin());
+        failed = Verifier::verifyOutgoingVirtualLinks(port);
+    }
+    if ( failed != Verifier::NONE ) {
+        // Fail, redesigning without df
+        removeVirtualLink(newVl);
+        it = flows.begin();
+        for ( ; it != flows.end(); ++it )
+            setDataFlowVL(vl, *it);
+        return false;
+    }
+
+    // Trying to route
+    bool found = Routing::findRoute(network, newVl);
+    if ( !found ) {
+        // Fail, redesigning without df
+        removeVirtualLink(newVl);
+        it = flows.begin();
+        for ( ; it != flows.end(); ++it )
+            setDataFlowVL(vl, *it);
+        return false;
+    }
+
+    Operations::assignVirtualLink(network, newVl);
+    designedVirtualLinks.erase(vl);
+    delete vl;
+
+    designedVirtualLinks.insert(newVl);
+
+    return true;
 }

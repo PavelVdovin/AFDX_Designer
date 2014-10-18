@@ -29,6 +29,10 @@ public:
      */
     virtual void estimateWorstCaseResponseTime();
 
+    inline void setVirtualLinks (VirtualLinks& virtualLinks) {
+        this->virtualLinks = virtualLinks;
+    }
+
 protected:
     Network* network;
     VirtualLinks& virtualLinks;

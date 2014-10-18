@@ -22,6 +22,8 @@ public:
 
     // Count max jitter with (without if vl == 0 ) assigning vl
     static long countMaxJitter(Port* port, VirtualLink* vl = 0);
+
+    static DataFlow* setAndCheckResponseTimes(VirtualLink* vl);
 };
 
 #endif

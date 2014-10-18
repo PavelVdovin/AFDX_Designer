@@ -27,7 +27,28 @@ std::string Verifier::verify(Network* network, VirtualLinks& virtualLinks) {
     return status;
 }
 
+Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port) {
+    VirtualLinks::iterator it = port->getAssignedLowPriority().begin();
+    for ( ; it != port->getAssignedLowPriority().end(); ++it ) {
+        Verifier::FailedConstraint constraint = verifyOutgoingVirtualLinks(port, *it);
+        if ( constraint != Verifier::NONE )
+            return constraint;
+    }
+
+    if ( port->isPrioritized() ) {
+        it = port->getAssignedHighPriority().begin();
+        for ( ; it != port->getAssignedHighPriority().end(); ++it ) {
+            Verifier::FailedConstraint constraint = verifyOutgoingVirtualLinks(port, *it);
+            if ( constraint != Verifier::NONE )
+                return constraint;
+        }
+    }
+
+    return Verifier::NONE;
+}
+
 Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl) {
+    assert(vl != 0);
     if ( port->getAssosiatedLink()->getFreeCapacityFromPort(port) < 0 ||
             vl != 0 && port->getAssosiatedLink()->getFreeCapacityFromPort(port) < vl->getBandwidth() ) {
         printf("Capacity is overloaded: %d\n", port->getAssosiatedLink()->getFreeCapacityFromPort(port));
@@ -43,9 +64,8 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, Virt
         return Verifier::JMAX;
     }
 
-    if ( vl != 0 ) {
-    	vl->setJMax(jMax);
-    }
+    vl->setJMax(jMax);
+
 
     return Verifier::NONE;
 }

@@ -248,7 +248,9 @@ public:
 
             // Estimate number of frames for priority >= current frame
             VirtualLinks& vls = isHighPriority ? outgoingPort->getAssignedHighPriority() : virtualLinks;
-            calculate = estimateNumberOfFrames(maxBPBeforeArrival, vls);
+
+            estimateMinArrivalBP();
+            calculate = estimateNumberOfFrames(minBPBeforeArrival, vls);
         }
     }
 
@@ -368,6 +370,7 @@ private:
             if ( newNum > numberOfFrames[*it] ) {
                 numberOfFrames[*it] = newNum;
                 changed = true;
+                printf("Number of frames changed! There are %d frames.\n", newNum);
             }
         }
         return changed;
