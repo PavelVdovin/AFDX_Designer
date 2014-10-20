@@ -13,6 +13,11 @@ public:
 	Route() {
 	}
 
+	Route(const Route& other) {
+        this->paths.clear();
+        this->paths.insert(other.paths.begin(), other.paths.end());
+    }
+
 	Route(const Paths& paths) {
 	    if ( &paths != &this->paths ) {
 	        this->paths.clear();

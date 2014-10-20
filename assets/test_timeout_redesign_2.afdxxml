@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="276.5" y="166.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="274.5" y="397.5"/>
+		<switch name="switch1" number="3" ports="3,4" x="271.5" y="283.5"/>
+		<partition connectedTo="1" name="partition1" number="4" x="237.5" y="59.5"/>
+		<partition connectedTo="1" name="partition2" number="5" x="336.5" y="65.5"/>
+		<partition connectedTo="2" name="partition3" number="6" x="276.5" y="502.5"/>
+		<link capacity="1000" from="1" fromType="0" to="3" toType="0"/>
+		<link capacity="1000" from="4" fromType="0" to="2" toType="0"/>
+	</resources>
+	<virtualLinks/>
+	<dataFlows>
+		<dataFlow dest="6" id="Data Flow 1" jMax="0" msgSize="2000" period="10" source="4" tMax="5" vl="None"/>
+		<dataFlow dest="6" id="Data Flow 2" jMax="0" msgSize="2000" period="1" source="5" tMax="0" vl="None"/>
+	</dataFlows>
+</afdxxml>

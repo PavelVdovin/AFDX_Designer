@@ -3,8 +3,8 @@
 #include "link.h"
 #include "operations.h"
 
-TrajectoryApproachBasedEstimator::TrajectoryApproachBasedEstimator(Network* network, VirtualLinks& virtualLinks, long interFrameDelay, long switchFabricDelay)
-    : ResponseTimeEstimator(network, virtualLinks, interFrameDelay, switchFabricDelay) {
+TrajectoryApproachBasedEstimator::TrajectoryApproachBasedEstimator(Network* network, long interFrameDelay, long switchFabricDelay)
+    : ResponseTimeEstimator(network, interFrameDelay, switchFabricDelay) {
 }
 
 float countTransmissionDelay(Network* network, float frameLength, Path* path) {
@@ -35,9 +35,11 @@ void TrajectoryApproachBasedEstimator::initialize() {
     VirtualLinks::iterator it = virtualLinks.begin();
     for ( ; it != virtualLinks.end(); ++it ) {
         VirtualLink* vl = *it;
-        vlJitters[vl] = JitterAtNetElement();
+        JitterAtNetElement jit;
+        //vlJitters[vl] = JitterAtNetElement();
         NetElement* source = vl->getSource();
-        vlJitters[vl][source] = (float)vl->getJMax();
+        jit[source] = (float)(vl->getJMax());
+        vlJitters[vl] = jit;
     }
 }
 

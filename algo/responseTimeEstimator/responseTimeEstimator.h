@@ -8,7 +8,7 @@
  */
 class ResponseTimeEstimator {
 public:
-    ResponseTimeEstimator(Network* network, VirtualLinks& virtualLinks, long interFrameDelay = 0, long switchFabricDelay = 16):
+    ResponseTimeEstimator(Network* network, long interFrameDelay = 0, long switchFabricDelay = 16):
         network(network), virtualLinks(virtualLinks), interFrameDelay(interFrameDelay), switchFabricDelay(switchFabricDelay)
     {}
 
@@ -29,13 +29,13 @@ public:
      */
     virtual void estimateWorstCaseResponseTime();
 
-    inline void setVirtualLinks (VirtualLinks& virtualLinks) {
+    inline void setVirtualLinks (VirtualLinks virtualLinks) {
         this->virtualLinks = virtualLinks;
     }
 
 protected:
     Network* network;
-    VirtualLinks& virtualLinks;
+    VirtualLinks virtualLinks;
 
     // Const delays in microseconds
     const long interFrameDelay;

@@ -51,7 +51,8 @@ int main(int argc, char** argv) {
         std::cout << status << std::endl;
         return 0;
     } else if (std::string(argv[argc-1]) == "r" ) {
-        ResponseTimeEstimator* estimator = new TrajectoryApproachBasedEstimator(network, xmlReader.getVirtualLinks());
+        ResponseTimeEstimator* estimator = new TrajectoryApproachBasedEstimator(network);
+        estimator->setVirtualLinks(xmlReader.getVirtualLinks());
         estimator->estimateWorstCaseResponseTime();
         xmlReader.updateVirtualLinks();
         QFile output(argv[argc - 2]);

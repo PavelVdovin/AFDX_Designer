@@ -20,6 +20,19 @@ public:
 	    responseTimeEstimation = 0; //microseconds
 	}
 
+	/*
+	VirtualLink(const VirtualLink& other):
+	    bag(other.bag),
+	    lMax(other.lMax),
+	    jMax(other.jMax),
+	    bandwidth(other.bandwidth),
+	    from(other.from),
+	    to(other.to.begin(), other.to.end()),
+	    responseTimeEstimation(other.responseTimeEstimation),
+	    assignments(other.assignments.begin(), other.assignments.end()),
+	    route(other.route.getPaths()){
+	}*/
+
 	inline NetElement* getSource() const {
 		return from;
 	}

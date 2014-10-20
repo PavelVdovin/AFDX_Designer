@@ -110,6 +110,13 @@ public:
 	            || assignedFromPort2.find(vl) != assignedFromPort2.end();
 	}
 
+	inline VirtualLinks& getAssignedFromPort(Port* port) {
+	    assert(port == port1 || port == port2);
+	    if ( port == port1 )
+	        return assignedFromPort1;
+	    return assignedFromPort2;
+	}
+
 private:
 	Port* port1;
 	Port* port2;
