@@ -17,9 +17,11 @@ class OptionsDialog(QDialog):
         
     def Load(self, mainWindow):
         self.ui.limitJitter.setCheckState( Qt.Checked if mainWindow.limitJitter else Qt.Unchecked )
+        self.ui.allowMultipleLinks.setCheckState( Qt.Checked if mainWindow.canvas.allowMultipleLinks else Qt.Unchecked )
         
     def SetResult(self, mainWindow):
         mainWindow.limitJitter = self.ui.limitJitter.isChecked()
+        mainWindow.canvas.allowMultipleLinks = self.ui.allowMultipleLinks.isChecked()
 
 class MainWindow(QMainWindow):
     project = None

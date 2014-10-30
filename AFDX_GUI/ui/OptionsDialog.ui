@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>337</width>
-    <height>100</height>
+    <width>392</width>
+    <height>116</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,13 @@
       <widget class="QCheckBox" name="limitJitter">
        <property name="text">
         <string>Limit jitter to 500 microseconds</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="allowMultipleLinks">
+       <property name="text">
+        <string>Allow multiple links from end systems</string>
        </property>
       </widget>
      </item>
@@ -57,12 +64,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>240</y>
+     <x>72</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>70</x>
-     <y>265</y>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -73,12 +80,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>247</y>
+     <x>325</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>195</x>
-     <y>267</y>
+     <y>99</y>
     </hint>
    </hints>
   </connection>

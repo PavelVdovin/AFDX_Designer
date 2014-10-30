@@ -33,6 +33,7 @@ void Designer::design() {
     designUnroutedVLs();
     checkOutgoingVirtualLinks();
     routeVirtualLinks();
+    checkOutgoingVirtualLinks(false); // checking once again (for the cases when there are more then one port for end system)
     calculateAndCheckResponseTimeouts(designedVirtualLinks);
 }
 
@@ -76,20 +77,20 @@ void Designer::designUnroutedVLs() {
     }
 }
 
-void Designer::checkOutgoingVirtualLinks() {
+void Designer::checkOutgoingVirtualLinks(bool checkCapacity) {
     NetElements endSystems = Operations::getEndSystems(network);
     NetElements::iterator it = endSystems.begin();
     for ( ; it != endSystems.end(); ++it )
-        checkOutgoingVirtualLinks(*it);
+        checkOutgoingVirtualLinks(*it, checkCapacity);
 }
 
-void Designer::checkOutgoingVirtualLinks(NetElement* endSystem) {
-    if ( endSystem->getPorts().size() == 1 ) {
-        Port* port = *endSystem->getPorts().begin();
-        Verifier::FailedConstraint failed = Verifier::verifyOutgoingVirtualLinks(port);
+void Designer::checkOutgoingVirtualLinks(NetElement* endSystem, bool checkCapacity) {
+    Ports::iterator it = endSystem->getPorts().begin();
+    for ( ; it != endSystem->getPorts().end(); ++it ) {
+        Verifier::FailedConstraint failed = Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
         while ( failed != Verifier::NONE ) {
-            redesignOutgoingVirtualLinks(port, failed);
-            failed= Verifier::verifyOutgoingVirtualLinks(port);
+            redesignOutgoingVirtualLinks(*it, failed);
+            failed= Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
         }
     }
 }
@@ -183,6 +184,7 @@ void Designer::removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDro
         vlToDrop->removeAssignment(toDel);
 
         if ( vlToDrop->getAssignments().size() == 0) {
+            Operations::removeVirtualLink(network, vlToDrop);
             removeVirtualLink(port, vlToDrop);
             return;
         }
@@ -353,19 +355,19 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
     }
 
     Verifier::FailedConstraint failed = Verifier::NONE;
-    if ( newVl->getSource()->getPorts().size() == 1 ) {
-        Port* port = *(newVl->getSource()->getPorts().begin());
-        failed = Verifier::verifyOutgoingVirtualLinks(port);
-    }
+    Ports::iterator pit = newVl->getSource()->getPorts().begin();
+    for ( ; pit != newVl->getSource()->getPorts().end(); ++pit ) {
+        failed = Verifier::verifyOutgoingVirtualLinks(*pit);
 
-    if ( failed != Verifier::NONE ) {
-        printf("Failed to redesign virtual link(s) as jitter/capacity constraints are not satisfied.\n");
-        // Fail, redesigning without df
-        removeVirtualLink(newVl);
-        restoreVirtualLink(network, oldVl1, flowsFromVl1);
-        if ( oldVl2 != 0 )
-            restoreVirtualLink(network, oldVl2, flowsFromVl2);
-        return false;
+        if ( failed != Verifier::NONE ) {
+            printf("Failed to redesign virtual link(s) as jitter/capacity constraints are not satisfied.\n");
+            // Fail, redesigning without df
+            removeVirtualLink(newVl);
+            restoreVirtualLink(network, oldVl1, flowsFromVl1);
+            if ( oldVl2 != 0 )
+                restoreVirtualLink(network, oldVl2, flowsFromVl2);
+            return false;
+        }
     }
 
     // Trying to route

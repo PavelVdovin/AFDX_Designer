@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="318.5" y="103.5"/>
+		<endSystem name="endSystem2" number="2" ports="2,3" x="164.5" y="375.5"/>
+		<endSystem name="endSystem3" number="3" ports="4" x="473.5" y="397.5"/>
+		<switch name="switch1" number="4" ports="5,6,7" x="225.5" y="259.5"/>
+		<switch name="switch2" number="5" ports="8,9,10" x="275.5" y="342.5"/>
+		<switch name="switch3" number="6" ports="11,12,13" x="413.5" y="300.5"/>
+		<switch name="switch4" number="7" ports="14,15,16" x="329.5" y="172.5"/>
+		<partition connectedTo="1" name="partition1" number="8" x="200.5" y="83.5"/>
+		<partition connectedTo="2" name="partition2" number="9" x="79.5" y="470.5"/>
+		<partition connectedTo="3" name="partition3" number="10" x="563.5" y="456.5"/>
+		<partition connectedTo="1" name="partition4" number="11" x="390.5" y="29.5"/>
+		<partition connectedTo="3" name="partition5" number="12" x="486.5" y="506.5"/>
+		<partition connectedTo="2" name="partition6" number="13" x="43.5" y="389.5"/>
+		<link capacity="12500" from="2" fromType="0" to="5" toType="0"/>
+		<link capacity="12500" from="3" fromType="0" to="8" toType="0"/>
+		<link capacity="12500" from="9" fromType="0" to="11" toType="0"/>
+		<link capacity="12500" from="12" fromType="0" to="14" toType="0"/>
+		<link capacity="12500" from="15" fromType="0" to="1" toType="0"/>
+		<link capacity="12500" from="6" fromType="0" to="16" toType="0"/>
+		<link capacity="12500" from="7" fromType="0" to="10" toType="0"/>
+		<link capacity="12500" from="13" fromType="0" to="4" toType="0"/>
+	</resources>
+	<virtualLinks/>
+	<dataFlows>
+		<dataFlow dest="12,10,11" id="Data Flow 1" jMax="1" msgSize="2000" period="10" source="13" tMax="10" vl="None"/>
+		<dataFlow dest="12,8" id="Data Flow 2" jMax="3" msgSize="0" period="3" source="9" tMax="4" vl="None"/>
+		<dataFlow dest="12,10" id="Data Flow 3" jMax="0" msgSize="100" period="15" source="9" tMax="0" vl="None"/>
+		<dataFlow dest="11,8" id="Data Flow 4" jMax="0" msgSize="5000" period="16" source="9" tMax="8" vl="None"/>
+		<dataFlow dest="12,8" id="Data Flow 5" jMax="0" msgSize="0" period="16" source="9" tMax="10" vl="None"/>
+	</dataFlows>
+</afdxxml>

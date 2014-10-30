@@ -109,6 +109,7 @@ class NetworkCanvas(QWidget):
         self.partitionSelectedIcon = QImage(":/pics/pics/computer_selected.png")
         self.switchIcon = QImage(":/pics/pics/router.png")
         self.switchSelectedIcon = QImage(":/pics/pics/router_selected.png")
+        self.allowMultipleLinks = False
 
     def getConnections(self, resources):
         connections = []
@@ -472,9 +473,9 @@ class NetworkCanvas(QWidget):
                         else:
                             QMessageBox.critical(self, self.tr("Error"), self.tr("Partition may be connected to one end system only"))
                     else:
-                        if ( isinstance(self.curLink[1], EndSystem) and (len(self.curLink[1].ports) > 0) ):
+                        if ( not self.allowMultipleLinks and isinstance(self.curLink[1], EndSystem) and (len(self.curLink[1].ports) > 0) ):
                             QMessageBox.critical(self, self.tr("Error"), self.tr("End System may have only one connection to AFDX network"))
-                        elif ( isinstance(v, EndSystem) and (len(v.ports) > 0) ):
+                        elif ( not self.allowMultipleLinks and isinstance(v, EndSystem) and (len(v.ports) > 0) ):
                             QMessageBox.critical(self, self.tr("Error"), self.tr("End System may have only one connection to AFDX network"))
                         else:
                             port1 = Port(self.curLink[1])

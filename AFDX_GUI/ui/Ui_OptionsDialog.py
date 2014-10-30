@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionsDialog.ui'
 #
-# Created: Thu Oct 30 13:19:47 2014
+# Created: Thu Oct 30 16:08:13 2014
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         OptionsDialog.setObjectName(_fromUtf8("OptionsDialog"))
-        OptionsDialog.resize(337, 100)
+        OptionsDialog.resize(392, 116)
         self.gridLayout = QtGui.QGridLayout(OptionsDialog)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.verticalLayout = QtGui.QVBoxLayout()
@@ -35,6 +35,9 @@ class Ui_OptionsDialog(object):
         self.limitJitter = QtGui.QCheckBox(OptionsDialog)
         self.limitJitter.setObjectName(_fromUtf8("limitJitter"))
         self.verticalLayout.addWidget(self.limitJitter)
+        self.allowMultipleLinks = QtGui.QCheckBox(OptionsDialog)
+        self.allowMultipleLinks.setObjectName(_fromUtf8("allowMultipleLinks"))
+        self.verticalLayout.addWidget(self.allowMultipleLinks)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.OK = QtGui.QPushButton(OptionsDialog)
@@ -54,6 +57,7 @@ class Ui_OptionsDialog(object):
     def retranslateUi(self, OptionsDialog):
         OptionsDialog.setWindowTitle(_translate("OptionsDialog", "Dialog", None))
         self.limitJitter.setText(_translate("OptionsDialog", "Limit jitter to 500 microseconds", None))
+        self.allowMultipleLinks.setText(_translate("OptionsDialog", "Allow multiple links from end systems", None))
         self.OK.setText(_translate("OptionsDialog", "OK", None))
         self.Cancel.setText(_translate("OptionsDialog", "Cancel", None))
 

@@ -39,8 +39,8 @@ private:
      * The second step.
      * Check outgoing virtual links constraints and try to fix them
      */
-    void checkOutgoingVirtualLinks();
-    void checkOutgoingVirtualLinks(NetElement* endSystem);
+    void checkOutgoingVirtualLinks(bool checkCapacity = true);
+    void checkOutgoingVirtualLinks(NetElement* endSystem, bool checkCapacity = true);
 
     /*
      * Redesign outgoing virtual links if some constraints are failed on specified port.

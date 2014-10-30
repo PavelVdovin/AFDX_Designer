@@ -29,10 +29,10 @@ std::string Verifier::verify(Network* network, VirtualLinks& virtualLinks) {
     return status;
 }
 
-Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port) {
+Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, bool checkCapacity) {
     VirtualLinks::iterator it = port->getAssignedLowPriority().begin();
     for ( ; it != port->getAssignedLowPriority().end(); ++it ) {
-        Verifier::FailedConstraint constraint = verifyOutgoingVirtualLinks(port, *it);
+        Verifier::FailedConstraint constraint = verifyOutgoingVirtualLinks(port, *it, checkCapacity);
         if ( constraint != Verifier::NONE )
             return constraint;
     }
@@ -40,7 +40,7 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port) {
     if ( port->isPrioritized() ) {
         it = port->getAssignedHighPriority().begin();
         for ( ; it != port->getAssignedHighPriority().end(); ++it ) {
-            Verifier::FailedConstraint constraint = verifyOutgoingVirtualLinks(port, *it);
+            Verifier::FailedConstraint constraint = verifyOutgoingVirtualLinks(port, *it, checkCapacity);
             if ( constraint != Verifier::NONE )
                 return constraint;
         }
@@ -49,10 +49,10 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port) {
     return Verifier::NONE;
 }
 
-Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl) {
+Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl, bool checkCapacity) {
     assert(vl != 0);
-    if ( port->getAssosiatedLink()->getFreeCapacityFromPort(port) < 0 ||
-            vl != 0 && port->getAssosiatedLink()->getFreeCapacityFromPort(port) < vl->getBandwidth() ) {
+    if ( checkCapacity && (port->getAssosiatedLink()->getFreeCapacityFromPort(port) < 0 ||
+            vl != 0 && port->getAssosiatedLink()->getFreeCapacityFromPort(port) < vl->getBandwidth()) ) {
         printf("Capacity is overloaded: %d\n", port->getAssosiatedLink()->getFreeCapacityFromPort(port));
         return Verifier::CAPACITY;
     }

@@ -18,8 +18,8 @@ public:
         TMAX
     };
     // Verify that virtual links may be assigned via the port of net-element without constraints breaking
-    static FailedConstraint verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl);
-    static FailedConstraint verifyOutgoingVirtualLinks(Port* port);
+    static FailedConstraint verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl, bool checkCapacity = true);
+    static FailedConstraint verifyOutgoingVirtualLinks(Port* port, bool checkCapacity = true);
     static FailedConstraint verifyOutgoingVirtualLinks(VirtualLink* vl);
 
     static inline void setLimitJitter(bool limit) {
