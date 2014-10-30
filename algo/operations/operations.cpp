@@ -126,6 +126,22 @@ inline int modMax(float val) {
     return mod > (int)(val - 2 * EPS) ? mod : mod + 1;
 }
 
+// Calculating e2e response time (in microseconds) according to data flow message jitter
+inline float calculateResponseTime(VirtualLink* vl, int numberOfFrames, DataFlow* df) {
+    if ( df->getMaxJitter() == 0 )
+        return (float)vl->getResponseTimeEstimation() + (float)(numberOfFrames - 1) * vl->getBag() * 1000;
+    else {
+        // value in microseconds
+        float val;
+        if ( (numberOfFrames - 1) * vl->getBag() >= (df->getPeriod() - df->getMaxJitter()) )
+            val = (float)(2*numberOfFrames - 1) * vl->getBag() * 1000 - (df->getPeriod() - df->getMaxJitter()) * 1000 +
+                vl->getResponseTimeEstimation();
+        else
+            val = (float)(numberOfFrames - 1) * vl->getBag() * 1000 + vl->getResponseTimeEstimation();
+        return val;
+    }
+}
+
 DataFlow* Operations::setAndCheckResponseTimes(VirtualLink* vl) {
     DataFlows::iterator it = vl->getAssignments().begin();
 
@@ -134,24 +150,38 @@ DataFlow* Operations::setAndCheckResponseTimes(VirtualLink* vl) {
 
     // The data flow with the smallest value of required response time
     DataFlow* theMostConstrainedDF = 0;
+    // difference between response time and constraint
+    float diff = 0.0;
+
     for ( ; it != vl->getAssignments().end(); ++it ) {
         numberOfFrames += modMax((float)(*it)->getMsgSize() / vl->getLMax());
-        if ( (*it)->getTMax() != 0 && (!theMostConstrainedDF || (*it)->getTMax() < theMostConstrainedDF->getTMax()) )
-            theMostConstrainedDF = *it;
+        //if ( (*it)->getTMax() != 0 && (!theMostConstrainedDF || (*it)->getTMax() < theMostConstrainedDF->getTMax()) )
+        //    theMostConstrainedDF = *it;
     }
 
-    float e2eResponseTime = (float)vl->getResponseTimeEstimation() / 1000 + (float)(numberOfFrames - 1) * vl->getBag();
+    //float e2eResponseTime = (float)vl->getResponseTimeEstimation() / 1000 + (float)(numberOfFrames - 1) * vl->getBag();
     //printf("Response time: %f\n", e2eResponseTime);
     // Starting from the most constrained - if constraints are satisfied - then it is true for every data flow
 
     it = vl->getAssignments().begin();
     for ( ; it != vl->getAssignments().end(); ++it ) {
         //assert((*it)->getTMax() == 0 || (float)(*it)->getTMax() >= e2eResponseTime - EPS);
-        (*it)->setResponseTime((long)(e2eResponseTime * 1000 + EPS));
+        float e2eResponseTime = calculateResponseTime(vl, numberOfFrames, *it);
+        (*it)->setResponseTime((long)(e2eResponseTime + EPS));
         printf("Response time: %d\n", (*it)->getResponseTime());
+
+        float tMax = (float)((*it)->getTMax() * 1000); // getting microseconds
+        if ( tMax != 0 && tMax < e2eResponseTime - EPS ) {
+            printf("Time constraints are not satisfaied\n");
+            if ( theMostConstrainedDF == 0 || diff < e2eResponseTime - tMax ) {
+                theMostConstrainedDF = *it;
+                diff = e2eResponseTime - tMax;
+                assert(diff > 0.0);
+            }
+        }
     }
 
-    if ( theMostConstrainedDF != 0 && (float)theMostConstrainedDF->getTMax() < e2eResponseTime - EPS )
+    if ( theMostConstrainedDF != 0 )
         return theMostConstrainedDF;
 
     return 0;

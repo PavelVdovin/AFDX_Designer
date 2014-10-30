@@ -4,6 +4,8 @@
 #include "port.h"
 #include "link.h"
 
+bool Verifier::limitJitter = true;
+
 std::string Verifier::verify(Network* network, VirtualLinks& virtualLinks) {
     std::string status = "Verified successfully";
 
@@ -59,7 +61,7 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, Virt
         return Verifier::NONE;
 
     long jMax = Operations::countMaxJitter(port, vl);
-    if ( jMax >= 500 ) {
+    if ( limitJitter && jMax >= 500 ) {
         printf("Jmax is overloaded: %d\n", jMax);
         return Verifier::JMAX;
     }

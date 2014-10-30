@@ -63,9 +63,15 @@ public:
 private:
 	Partition* from;
 	Partitions to;
+
+	// Period in milliseconds
 	long period;
 	long msgSize;
+
+	// Max e2e response time in milliseconds
 	long tMax;
+
+	// Max jitter between messages in microseconds
 	long maxJitter;
 
 	// in microseconds

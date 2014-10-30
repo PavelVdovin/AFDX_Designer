@@ -50,6 +50,11 @@ private:
     void removeVirtualLink(VirtualLink*);
 
     /*
+     * Remove only the most constrained data flow instead of removing the whole virtual link
+     */
+    void removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDrop, Verifier::FailedConstraint failed);
+
+    /*
      * Third step of virtual links assignment: routing
      */
     void routeVirtualLinks();

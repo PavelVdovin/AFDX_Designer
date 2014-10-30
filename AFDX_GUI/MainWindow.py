@@ -1,10 +1,25 @@
-from PyQt4.QtGui import QMainWindow, QFileDialog, QMessageBox
+from PyQt4.QtGui import QMainWindow, QFileDialog, QMessageBox, QDialog
 from ui.Ui_MainWindow import Ui_MainWindow
 from NetworkCanvas import NetworkCanvas, State
 from Project import Project
 from VirtualLinksEditor import VirtualLinksEditor
 from DataFlowsEditor import DataFlowsEditor
+from PyQt4.QtCore import Qt
 import os, sys
+from ui.Ui_OptionsDialog import Ui_OptionsDialog
+
+
+class OptionsDialog(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.ui = Ui_OptionsDialog()
+        self.ui.setupUi(self)
+        
+    def Load(self, mainWindow):
+        self.ui.limitJitter.setCheckState( Qt.Checked if mainWindow.limitJitter else Qt.Unchecked )
+        
+    def SetResult(self, mainWindow):
+        mainWindow.limitJitter = self.ui.limitJitter.isChecked()
 
 class MainWindow(QMainWindow):
     project = None
@@ -23,6 +38,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.tr("Untitled") + " - " + self.basename)
         self.canvas.resources = self.project.resources
         self.projFilter = self.tr("AFDX projects (*.afdxxml)")
+        self.limitJitter = True
         
 
     def toggleSelect(self):
@@ -227,7 +243,8 @@ class MainWindow(QMainWindow):
         if not os.path.isfile(name):
             QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
         else:
-            result = os.popen(name + " \"" + os.path.relpath(file) + "\" a").read()
+            limitJitter = "t" if self.limitJitter else "f"
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" a" + " --limit-jitter=" + limitJitter).read()
             print result
             results = result.split('\n')
             if "Not all parameters are specified, some elements are omitted." in results:
@@ -262,4 +279,11 @@ class MainWindow(QMainWindow):
                 self.virtualLinksEditor.setProject(self.project)
                 self.dataFlowsEditor.setProject(self.project)
                 self.projectFile = projectFile
+                
+    def Options(self):
+        d = OptionsDialog()
+        d.Load(self)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            d.SetResult(self)
         

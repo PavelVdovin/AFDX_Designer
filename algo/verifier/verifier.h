@@ -21,6 +21,13 @@ public:
     static FailedConstraint verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl);
     static FailedConstraint verifyOutgoingVirtualLinks(Port* port);
     static FailedConstraint verifyOutgoingVirtualLinks(VirtualLink* vl);
+
+    static inline void setLimitJitter(bool limit) {
+        limitJitter = limit;
+    }
+
+private:
+    static bool limitJitter;
 };
 
 #endif

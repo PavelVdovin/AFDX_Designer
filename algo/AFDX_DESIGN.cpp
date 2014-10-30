@@ -7,14 +7,18 @@
 #include <string>
 #include <iostream>
 
+void printUsage(char** argv) {
+    printf("Usage: %s <input file> [<output file>] v|a|r [--limit-jitter=t|f]\n", *argv);
+    printf("\tv: verify and exit\n");
+    printf("\ta: run designer\n");
+    printf("\tr: estimate end-to-end response times\n");
+    printf("limit-jitter - jitter should be limited to 500 microseconds (true by default)\n");
+}
+
 int main(int argc, char** argv) {
-    if ( argc != 3 && argc != 4 || std::string(argv[argc - 1]) != "a" && std::string(argv[argc - 1]) != "v"
-            && std::string(argv[argc - 1]) != "r" )
+    if ( argc < 3 || argc > 5 )
     {
-        printf("Usage: %s <input file> [<output file>] v|a|r\n", *argv);
-        printf("\tv: verify and exit\n");
-        printf("\ta: run designer\n");
-        printf("\tr: estimate end-to-end response times\n");
+        printUsage(argv);
         return 1;
     }
 
@@ -32,8 +36,6 @@ int main(int argc, char** argv) {
     }
     input.close();
 
-
-
     XmlReader xmlReader(document);
 
     if ( !xmlReader.isWellParsed() ) {
@@ -46,6 +48,23 @@ int main(int argc, char** argv) {
     printf("There are %d virtual links.\n", xmlReader.getVirtualLinks().size());
     printf("There are %d data flows.\n", xmlReader.getDataFlows().size());
 
+    bool limitJitter = true;
+    // Checking whether there is "limit-jitter" string
+    if ( std::string(argv[argc-1]).find("--limit-jitter=") != std::string::npos ) {
+        std::string str = std::string(argv[argc-1]);
+        if ( str.size() != 16 || (str[15] != 't' && str[15] != 'f' ) ) {
+            printUsage(argv);
+            return 1;
+        }
+
+        if ( str[15] == 'f' ) {
+            limitJitter = false;
+            printf("Not limiting jitter on end-systems\n");
+        }
+        --argc;
+    }
+
+    Verifier::setLimitJitter(limitJitter);
     if ( std::string(argv[argc-1]) == "v" ) {
         std::string status = Verifier::verify(network, xmlReader.getVirtualLinks());
         std::cout << status << std::endl;
@@ -61,7 +80,7 @@ int main(int argc, char** argv) {
         outStream << document.toString(4);
         output.close();
         delete estimator;
-    } else {
+    } else if (std::string(argv[argc-1]) == "a" ) {
         Designer designer(network, xmlReader.getPartitions(), xmlReader.getDataFlows(), xmlReader.getVirtualLinks());
         designer.design();
 
@@ -74,6 +93,9 @@ int main(int argc, char** argv) {
         QTextStream outStream(&output);
         outStream << document.toString(4);
         output.close();
+    } else {
+        printUsage(argv);
+        return 1;
     }
 
     return 0;

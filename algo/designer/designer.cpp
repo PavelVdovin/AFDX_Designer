@@ -136,7 +136,6 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
             if ( vl != 0 ) {
                 if ( vl->getBandwidth() >= (first->getBandwidth() + second->getBandwidth()) ) {
                     printf("!!Aggregated vl capacity is more then before aggregation!\n");
-                    // TODO: redo aggregation, cannot do it now
                 }
 
                 DataFlows dfs(first->getAssignments().begin(), first->getAssignments().end());
@@ -157,10 +156,40 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
         } else fail = true; // failed
     }
 
-    printf("Aggregation is failed, dropping vl\n");
+    printf("Aggregation is failed, dropping data flow\n");
     VirtualLink* vlToDrop = *std::min_element(vls.begin(), vls.end(),
             failed == Verifier::CAPACITY ? comparerCapacity : comparerLMax);
-    removeVirtualLink(port, vlToDrop);
+
+    removeMostConstrainedVirtualLink(port, vlToDrop, failed);
+
+}
+
+void Designer::removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDrop, Verifier::FailedConstraint failed) {
+    // Trying to redesign without failedDataFlow
+    bool success = false;
+    while ( !success && vlToDrop->getAssignments().size() > 0 ) {
+        DataFlow* toDel = 0;
+        long minVal = 0;
+        DataFlows::iterator it = vlToDrop->getAssignments().begin();
+        for ( ; it != vlToDrop->getAssignments().end(); ++it ) {
+            // removing data flows with the largest value of period/rMax
+            long val = (*it)->getTMax() < (*it)->getPeriod() ? (*it)->getTMax() : (*it)->getPeriod();
+            if ( toDel == 0 || val < minVal ) {
+                toDel = *it;
+                minVal = val;
+            }
+        }
+
+        vlToDrop->removeAssignment(toDel);
+
+        if ( vlToDrop->getAssignments().size() == 0) {
+            removeVirtualLink(port, vlToDrop);
+            return;
+        }
+
+        DataFlow* df = *(vlToDrop->getAssignments().begin());
+        success = redesignVirtualLink(df, vlToDrop);
+    }
 }
 
 void Designer::removeVirtualLink(Port* port, VirtualLink* vlToDrop) {
@@ -377,11 +406,6 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
 }
 
 bool Designer::redesignVirtualLink(DataFlow* df, VirtualLink* vl) {
-    // DataFlows::iterator it = flows.begin();
-
-    // Removing path first
-    // Operations::removeVirtualLink(network, vl);
-    // vl->getRoute().getPaths().clear();
     VirtualLink * newVl = VirtualLinkConfigurator::redesignVirtualLink(df, vl);
     if ( newVl == 0 ) {
         // if there are more then one data flows, removing just dataflow
@@ -398,46 +422,6 @@ bool Designer::redesignVirtualLink(DataFlow* df, VirtualLink* vl) {
         return false;
 
     return true;
-    /*
-    vl->removeAllAssignments();
-
-    DataFlows::iterator it = flows.begin();
-    for ( ; it != flows.end(); ++it )
-        setDataFlowVL(newVl, *it);
-
-    Verifier::FailedConstraint failed = Verifier::NONE;
-    if ( newVl->getSource()->getPorts().size() == 1 ) {
-        Port* port = *(newVl->getSource()->getPorts().begin());
-        failed = Verifier::verifyOutgoingVirtualLinks(port);
-    }
-    if ( failed != Verifier::NONE ) {
-        // Fail, redesigning without df
-        removeVirtualLink(newVl);
-        it = flows.begin();
-        for ( ; it != flows.end(); ++it )
-            setDataFlowVL(vl, *it);
-        return false;
-    }
-
-    // Trying to route
-    bool found = Routing::findRoute(network, newVl);
-    if ( !found ) {
-        // Fail, redesigning without df
-        removeVirtualLink(newVl);
-        it = flows.begin();
-        for ( ; it != flows.end(); ++it )
-            setDataFlowVL(vl, *it);
-        return false;
-    }
-
-    Operations::assignVirtualLink(network, newVl);
-    designedVirtualLinks.erase(vl);
-    delete vl;
-
-    designedVirtualLinks.insert(newVl);
-
-    return true;
-    */
 }
 
 bool Designer::limitedSearchAggregation(DataFlow* df, VirtualLink* vl) {
