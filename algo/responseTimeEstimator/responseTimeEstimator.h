@@ -8,8 +8,9 @@
  */
 class ResponseTimeEstimator {
 public:
-    ResponseTimeEstimator(Network* network, long interFrameDelay = 0, long switchFabricDelay = 16):
-        network(network), virtualLinks(virtualLinks), interFrameDelay(interFrameDelay), switchFabricDelay(switchFabricDelay)
+    ResponseTimeEstimator(Network* network, long esFabricDelay = 0, long interFrameDelay = 0, long switchFabricDelay = 16):
+        network(network), virtualLinks(virtualLinks), esFabricDelay(esFabricDelay),
+        interFrameDelay(interFrameDelay), switchFabricDelay(switchFabricDelay)
     {}
 
     virtual ~ResponseTimeEstimator() {}
@@ -38,6 +39,7 @@ protected:
     VirtualLinks virtualLinks;
 
     // Const delays in microseconds
+    const long esFabricDelay;
     const long interFrameDelay;
     const long switchFabricDelay;
 };

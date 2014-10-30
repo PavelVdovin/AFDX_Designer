@@ -52,7 +52,8 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, bool
 Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, VirtualLink* vl, bool checkCapacity) {
     assert(vl != 0);
     if ( checkCapacity && (port->getAssosiatedLink()->getFreeCapacityFromPort(port) < 0 ||
-            vl != 0 && port->getAssosiatedLink()->getFreeCapacityFromPort(port) < vl->getBandwidth()) ) {
+            vl != 0 && vl->getRoute().getPaths().size() == 0 &&
+            port->getAssosiatedLink()->getFreeCapacityFromPort(port) < vl->getBandwidth()) ) {
         printf("Capacity is overloaded: %d\n", port->getAssosiatedLink()->getFreeCapacityFromPort(port));
         return Verifier::CAPACITY;
     }
@@ -74,6 +75,11 @@ Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(Port* port, Virt
 
 Verifier::FailedConstraint Verifier::verifyOutgoingVirtualLinks(VirtualLink* vl) {
 	Ports& ports = vl->getSource()->getPorts();
-	assert(ports.size() == 1);
-	return verifyOutgoingVirtualLinks(*(ports.begin()), vl);
+	Ports::iterator it = ports.begin();
+	for ( ; it != ports.end(); ++it ) {
+	    if ( (*it)->isAssigned(vl) )
+	        return verifyOutgoingVirtualLinks(*it, vl);
+	}
+	assert(0);
+	return Verifier::NONE;
 }

@@ -9,7 +9,7 @@ class TrajectoryApproachBasedEstimator: public ResponseTimeEstimator {
     typedef std::map<NetElement*, float> JitterAtNetElement;
     typedef std::map<VirtualLink*, JitterAtNetElement> VLJitters;
 public:
-    TrajectoryApproachBasedEstimator(Network* network, long interFrameDelay = 0, long switchFabricDelay = 16);
+    TrajectoryApproachBasedEstimator(Network* network, long esFabricDelay = 0, long interFrameDelay = 0, long switchFabricDelay = 16);
 
     virtual ~TrajectoryApproachBasedEstimator() {}
 

@@ -8,13 +8,14 @@
 
 class Designer {
 public:
-    Designer(Network* network, Partitions& partitions, DataFlows& dataFlows, VirtualLinks& existingVirtualLinks):
+    Designer(Network* network, Partitions& partitions, DataFlows& dataFlows, VirtualLinks& existingVirtualLinks,
+            int esDelay = 0, int switchDelay = 16, int ifg = 0):
         network(network),
         partitions(partitions),
         dataFlows(dataFlows),
         existingVirtualLinks(existingVirtualLinks) {
 
-        responseTimeEstimator = new TrajectoryApproachBasedEstimator(network);
+        responseTimeEstimator = new TrajectoryApproachBasedEstimator(network, esDelay, ifg, switchDelay);
     }
 
     ~Designer();

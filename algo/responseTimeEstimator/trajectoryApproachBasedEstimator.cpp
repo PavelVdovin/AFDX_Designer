@@ -3,8 +3,8 @@
 #include "link.h"
 #include "operations.h"
 
-TrajectoryApproachBasedEstimator::TrajectoryApproachBasedEstimator(Network* network, long interFrameDelay, long switchFabricDelay)
-    : ResponseTimeEstimator(network, interFrameDelay, switchFabricDelay) {
+TrajectoryApproachBasedEstimator::TrajectoryApproachBasedEstimator(Network* network, long esFabricDelay, long interFrameDelay, long switchFabricDelay)
+    : ResponseTimeEstimator(network, esFabricDelay, interFrameDelay, switchFabricDelay) {
 }
 
 float countTransmissionDelay(Network* network, float frameLength, Path* path) {
@@ -57,7 +57,8 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseResponseTime(VirtualLin
         // e2eResponse = minimum transmission time + max jitter (jitter = sum delays in output buffers)
         float e2eResponse = (path->getPath().size() - 2 )* switchFabricDelay
             +  countTransmissionDelay(network, (float) vl->getLMax(), path)
-            + jitter; // extra switch counted
+            + jitter
+            + esFabricDelay; // extra switch counted
 
         if ( e2eResponse - EPS > maxE2e || worstPath == 0 ) {
             maxE2e = e2eResponse;
