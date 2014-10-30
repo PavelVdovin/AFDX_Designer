@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'PeriodDialog.ui'
 #
-# Created: Sun May 11 12:06:18 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Oct 30 15:31:33 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -69,7 +69,7 @@ class Ui_PeriodDialog(object):
 
     def retranslateUi(self, PeriodDialog):
         PeriodDialog.setWindowTitle(_translate("PeriodDialog", "Dialog", None))
-        self.periodlabel.setText(_translate("PeriodDialog", "Period:", None))
+        self.periodlabel.setText(_translate("PeriodDialog", "Period (ms):", None))
         self.OK.setText(_translate("PeriodDialog", "OK", None))
         self.Cancel.setText(_translate("PeriodDialog", "Cancel", None))
 

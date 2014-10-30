@@ -47,7 +47,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Capacity:</string>
+       <string>Capacity (bytes/ms):</string>
       </property>
      </widget>
     </item>

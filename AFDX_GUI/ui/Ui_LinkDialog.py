@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'LinkDialog.ui'
 #
-# Created: Sun May  4 19:46:30 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Oct 30 15:29:13 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -85,7 +85,7 @@ class Ui_LinkDialog(object):
 
     def retranslateUi(self, LinkDialog):
         LinkDialog.setWindowTitle(_translate("LinkDialog", "Dialog", None))
-        self.timelabel.setText(_translate("LinkDialog", "Capacity:", None))
+        self.timelabel.setText(_translate("LinkDialog", "Capacity (bytes/ms):", None))
         self.port1Name.setText(_translate("LinkDialog", "Port 1 type:", None))
         self.port1Type.setItemText(0, _translate("LinkDialog", "FIFO", None))
         self.port1Type.setItemText(1, _translate("LinkDialog", "Prioritized", None))

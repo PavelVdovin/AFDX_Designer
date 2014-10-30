@@ -47,7 +47,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Period:</string>
+       <string>Period (ms):</string>
       </property>
      </widget>
     </item>

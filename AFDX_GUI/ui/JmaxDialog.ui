@@ -47,7 +47,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Max message jitter:</string>
+       <string>Max message jitter (ms):</string>
       </property>
      </widget>
     </item>

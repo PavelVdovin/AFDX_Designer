@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'MsgSizeDialog.ui'
 #
-# Created: Sun May 11 12:06:02 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Oct 30 15:31:04 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -69,7 +69,7 @@ class Ui_MsgSizeDialog(object):
 
     def retranslateUi(self, MsgSizeDialog):
         MsgSizeDialog.setWindowTitle(_translate("MsgSizeDialog", "Dialog", None))
-        self.msgSizelabel.setText(_translate("MsgSizeDialog", "Message size:", None))
+        self.msgSizelabel.setText(_translate("MsgSizeDialog", "Message size (bytes):", None))
         self.OK.setText(_translate("MsgSizeDialog", "OK", None))
         self.Cancel.setText(_translate("MsgSizeDialog", "Cancel", None))
 

@@ -280,6 +280,17 @@ class MainWindow(QMainWindow):
                 self.dataFlowsEditor.setProject(self.project)
                 self.projectFile = projectFile
                 
+    def RemoveAllVirtualLinks(self):
+        self.ui.actionSelect.setChecked(False)
+        self.ui.actionEndSystem.setChecked(False)
+        self.ui.actionPartition.setChecked(False)
+        self.ui.actionLink.setChecked(False)
+        self.ui.actionSwitch.setChecked(False)
+        if self.canvas.state == State.VirtualLink:
+            vls = self.virtualLinksEditor.removeAll()
+            for vl in vls:
+                self.dataFlowsEditor.updateAllDataFlows(vl)
+            
     def Options(self):
         d = OptionsDialog()
         d.Load(self)

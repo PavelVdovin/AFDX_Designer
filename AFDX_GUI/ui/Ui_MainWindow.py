@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Wed Oct 29 22:18:45 2014
+# Created: Thu Oct 30 15:01:15 2014
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,6 +105,8 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
         self.menuOptions = QtGui.QMenu(self.menubar)
         self.menuOptions.setObjectName(_fromUtf8("menuOptions"))
+        self.menuActions = QtGui.QMenu(self.menubar)
+        self.menuActions.setObjectName(_fromUtf8("menuActions"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -192,6 +194,8 @@ class Ui_MainWindow(object):
         self.actionEstimate_Response_Times.setObjectName(_fromUtf8("actionEstimate_Response_Times"))
         self.actionOptions = QtGui.QAction(MainWindow)
         self.actionOptions.setObjectName(_fromUtf8("actionOptions"))
+        self.actionRemove_all_virtual_links = QtGui.QAction(MainWindow)
+        self.actionRemove_all_virtual_links.setObjectName(_fromUtf8("actionRemove_all_virtual_links"))
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
@@ -199,7 +203,14 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menuOptions.addAction(self.actionOptions)
+        self.menuActions.addAction(self.actionVirtualLink)
+        self.menuActions.addAction(self.actionRemoveVirtualLink)
+        self.menuActions.addAction(self.actionRemove_all_virtual_links)
+        self.menuActions.addSeparator()
+        self.menuActions.addAction(self.actionDataFlow)
+        self.menuActions.addAction(self.actionRemoveDataFlow)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuActions.menuAction())
         self.menubar.addAction(self.menuOptions.menuAction())
         self.toolBar.addAction(self.actionNew)
         self.toolBar.addAction(self.actionOpen)
@@ -243,6 +254,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.actionSave_as, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.SaveAs)
         QtCore.QObject.connect(self.actionEstimate_Response_Times, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.estimateResponseTimes)
         QtCore.QObject.connect(self.actionOptions, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.Options)
+        QtCore.QObject.connect(self.actionRemove_all_virtual_links, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.RemoveAllVirtualLinks)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -251,6 +263,7 @@ class Ui_MainWindow(object):
         self.treeWidgetDataFlows.headerItem().setText(0, _translate("MainWindow", "Data flows", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuOptions.setTitle(_translate("MainWindow", "Edit", None))
+        self.menuActions.setTitle(_translate("MainWindow", "Actions", None))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar", None))
         self.toolBar_2.setWindowTitle(_translate("MainWindow", "toolBar_2", None))
         self.actionOpen.setText(_translate("MainWindow", "Open", None))
@@ -267,13 +280,13 @@ class Ui_MainWindow(object):
         self.actionSwitch.setToolTip(_translate("MainWindow", "Add AFDX switch", None))
         self.actionLink.setText(_translate("MainWindow", "link", None))
         self.actionLink.setToolTip(_translate("MainWindow", "Add link", None))
-        self.actionVirtualLink.setText(_translate("MainWindow", "virtualLink", None))
+        self.actionVirtualLink.setText(_translate("MainWindow", "Add virtual link", None))
         self.actionVirtualLink.setToolTip(_translate("MainWindow", "Add new virtual link", None))
-        self.actionRemoveVirtualLink.setText(_translate("MainWindow", "removeVirtualLink", None))
+        self.actionRemoveVirtualLink.setText(_translate("MainWindow", "Remove virtual link", None))
         self.actionRemoveVirtualLink.setToolTip(_translate("MainWindow", "Remove virtual link", None))
-        self.actionDataFlow.setText(_translate("MainWindow", "dataFlow", None))
+        self.actionDataFlow.setText(_translate("MainWindow", "Add data flow", None))
         self.actionDataFlow.setToolTip(_translate("MainWindow", "Add new data flow", None))
-        self.actionRemoveDataFlow.setText(_translate("MainWindow", "removeDataFlow", None))
+        self.actionRemoveDataFlow.setText(_translate("MainWindow", "Remove data flow", None))
         self.actionRemoveDataFlow.setToolTip(_translate("MainWindow", "Remove data flow", None))
         self.actionVerify.setText(_translate("MainWindow", "verify", None))
         self.actionVerify.setToolTip(_translate("MainWindow", "Verify capacity constraints", None))
@@ -282,5 +295,6 @@ class Ui_MainWindow(object):
         self.actionSave_as.setText(_translate("MainWindow", "Save as", None))
         self.actionEstimate_Response_Times.setText(_translate("MainWindow", "estimate_response_times", None))
         self.actionOptions.setText(_translate("MainWindow", "Options", None))
+        self.actionRemove_all_virtual_links.setText(_translate("MainWindow", "Remove all virtual links", None))
 
 import resources_rc

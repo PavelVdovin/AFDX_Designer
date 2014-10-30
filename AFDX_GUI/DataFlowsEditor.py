@@ -133,7 +133,7 @@ class DataFlowsEditor:
         
         msgSize = 0 if df == None else df.msgSize
         msgSizeItem = QTreeWidgetItem(dataFlowItem)
-        msgSizeItem.setText(0, "Message Size: " + str(msgSize) + " kb")
+        msgSizeItem.setText(0, "Message Size: " + str(msgSize) + " bytes")
         
         period = 1 if df == None else df.period
         periodItem = QTreeWidgetItem(dataFlowItem)
@@ -265,7 +265,7 @@ class DataFlowsEditor:
         d.exec_()
         if d.result() == QDialog.Accepted:
             d.SetResult(df)
-            item.setText(0, "Message Size: " + str(df.msgSize) + " kb")
+            item.setText(0, "Message Size: " + str(df.msgSize) + " bytes")
             
     def changePeriod(self, item):
         parent = item.parent()

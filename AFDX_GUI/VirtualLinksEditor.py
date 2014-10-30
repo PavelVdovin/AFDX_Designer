@@ -82,7 +82,7 @@ class VirtualLinksEditor:
 
         lmax = 1518 if vl == None else vl.lmax
         lmaxItem = QTreeWidgetItem(vlItem)
-        lmaxItem.setText(0, "Lmax: " + str(lmax) + " kb")
+        lmaxItem.setText(0, "Lmax: " + str(lmax) + " bytes")
         
         responseTime = 0 if vl == None else vl.responseTime
         responseTimeItem = QTreeWidgetItem(vlItem)
@@ -183,7 +183,7 @@ class VirtualLinksEditor:
         d.exec_()
         if d.result() == QDialog.Accepted:
             d.SetResult(vl)
-            item.setText(0, "Lmax: " + str(vl.lmax) + " kb")
+            item.setText(0, "Lmax: " + str(vl.lmax) + " bytes")
                 
     def removeSelected(self):
         if ( self.selectedItem != None) and self.selectedItem in self.virtualLinks.keys():
@@ -245,4 +245,21 @@ class VirtualLinksEditor:
     def updateAllVirtualLinks(self, deletedElem = None):
         for item, vl in self.virtualLinks.iteritems():
             self.updateVirtualLink(vl, item, deletedElem)
+            
+    def removeAll(self):
+        vls = []
+            
+        self.treeWidget.setFocus()
+        
+        for vl in self.project.virtualLinks:
+            vls.append(vl)
+            
+        self.selectedItem = None
+        self.virtualLinks.clear()
+        self.virtualLinksCount = 0
+        self.paths.clear()
+            
+        del self.project.virtualLinks[:]
+        self.treeWidget.clear()
+        return vls
         

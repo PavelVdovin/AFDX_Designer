@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './TmaxDialog.ui'
+# Form implementation generated from reading ui file 'TmaxDialog.ui'
 #
-# Created: Sat Jul  5 11:51:33 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Oct 30 15:32:02 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -30,7 +30,7 @@ class Ui_TmaxDialog(object):
         TmaxDialog.setMinimumSize(QtCore.QSize(219, 117))
         TmaxDialog.setMaximumSize(QtCore.QSize(262, 117))
         self.layoutWidget = QtGui.QWidget(TmaxDialog)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 5, 241, 101))
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 5, 251, 101))
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setSizeConstraint(QtGui.QLayout.SetNoConstraint)
@@ -69,7 +69,7 @@ class Ui_TmaxDialog(object):
 
     def retranslateUi(self, TmaxDialog):
         TmaxDialog.setWindowTitle(_translate("TmaxDialog", "Dialog", None))
-        self.tmaxlabel.setText(_translate("TmaxDialog", "Max transmition time:", None))
+        self.tmaxlabel.setText(_translate("TmaxDialog", "Max transmition time (ms):", None))
         self.OK.setText(_translate("TmaxDialog", "OK", None))
         self.Cancel.setText(_translate("TmaxDialog", "Cancel", None))
 

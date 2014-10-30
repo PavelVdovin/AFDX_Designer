@@ -169,7 +169,19 @@
     </property>
     <addaction name="actionOptions"/>
    </widget>
+   <widget class="QMenu" name="menuActions">
+    <property name="title">
+     <string>Actions</string>
+    </property>
+    <addaction name="actionVirtualLink"/>
+    <addaction name="actionRemoveVirtualLink"/>
+    <addaction name="actionRemove_all_virtual_links"/>
+    <addaction name="separator"/>
+    <addaction name="actionDataFlow"/>
+    <addaction name="actionRemoveDataFlow"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuActions"/>
    <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -329,7 +341,7 @@
      <normaloff>:/pics/pics/topology.png</normaloff>:/pics/pics/topology.png</iconset>
    </property>
    <property name="text">
-    <string>virtualLink</string>
+    <string>Add virtual link</string>
    </property>
    <property name="toolTip">
     <string>Add new virtual link</string>
@@ -341,7 +353,7 @@
      <normaloff>:/pics/pics/delete.png</normaloff>:/pics/pics/delete.png</iconset>
    </property>
    <property name="text">
-    <string>removeVirtualLink</string>
+    <string>Remove virtual link</string>
    </property>
    <property name="toolTip">
     <string>Remove virtual link</string>
@@ -353,7 +365,7 @@
      <normaloff>:/pics/pics/add.png</normaloff>:/pics/pics/add.png</iconset>
    </property>
    <property name="text">
-    <string>dataFlow</string>
+    <string>Add data flow</string>
    </property>
    <property name="toolTip">
     <string>Add new data flow</string>
@@ -365,7 +377,7 @@
      <normaloff>:/pics/pics/delete.png</normaloff>:/pics/pics/delete.png</iconset>
    </property>
    <property name="text">
-    <string>removeDataFlow</string>
+    <string>Remove data flow</string>
    </property>
    <property name="toolTip">
     <string>Remove data flow</string>
@@ -400,6 +412,11 @@
   <action name="actionOptions">
    <property name="text">
     <string>Options</string>
+   </property>
+  </action>
+  <action name="actionRemove_all_virtual_links">
+   <property name="text">
+    <string>Remove all virtual links</string>
    </property>
   </action>
  </widget>
@@ -759,6 +776,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionRemove_all_virtual_links</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>RemoveAllVirtualLinks()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>330</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggleEndSystem()</slot>
@@ -782,5 +815,6 @@
   <slot>estimateResponseTimes()</slot>
   <slot>SaveAs()</slot>
   <slot>Options()</slot>
+  <slot>RemoveAllVirtualLinks()</slot>
  </slots>
 </ui>

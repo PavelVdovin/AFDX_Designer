@@ -47,7 +47,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Message size:</string>
+       <string>Message size (bytes):</string>
       </property>
      </widget>
     </item>

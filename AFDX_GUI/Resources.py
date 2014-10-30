@@ -73,7 +73,7 @@ class Connection:
         self.e2 = e2
         
 class Link:
-    def __init__(self, port1, port2, capacity = 100000):
+    def __init__(self, port1, port2, capacity = 12500):
         self.e1 = port1.parent
         self.e2 = port2.parent
         port1.link = self

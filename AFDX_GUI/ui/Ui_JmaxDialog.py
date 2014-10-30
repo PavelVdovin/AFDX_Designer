@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './JmaxDialog.ui'
+# Form implementation generated from reading ui file 'JmaxDialog.ui'
 #
-# Created: Wed Jul  9 13:11:58 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Oct 30 15:30:04 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -69,7 +69,7 @@ class Ui_JmaxDialog(object):
 
     def retranslateUi(self, JmaxDialog):
         JmaxDialog.setWindowTitle(_translate("JmaxDialog", "Dialog", None))
-        self.jmaxlabel.setText(_translate("JmaxDialog", "Max message jitter:", None))
+        self.jmaxlabel.setText(_translate("JmaxDialog", "Max message jitter (ms):", None))
         self.OK.setText(_translate("JmaxDialog", "OK", None))
         self.Cancel.setText(_translate("JmaxDialog", "Cancel", None))
 

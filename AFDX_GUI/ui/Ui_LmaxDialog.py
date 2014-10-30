@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './LmaxDialog.ui'
+# Form implementation generated from reading ui file 'LmaxDialog.ui'
 #
-# Created: Sun May 11 00:00:43 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Oct 30 15:30:34 2014
+#      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -69,7 +69,7 @@ class Ui_LmaxDialog(object):
 
     def retranslateUi(self, LmaxDialog):
         LmaxDialog.setWindowTitle(_translate("LmaxDialog", "Dialog", None))
-        self.lmaxlabel.setText(_translate("LmaxDialog", "Lmax:", None))
+        self.lmaxlabel.setText(_translate("LmaxDialog", "Lmax (bytes):", None))
         self.OK.setText(_translate("LmaxDialog", "OK", None))
         self.Cancel.setText(_translate("LmaxDialog", "Cancel", None))
 

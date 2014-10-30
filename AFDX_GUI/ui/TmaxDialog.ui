@@ -30,7 +30,7 @@
     <rect>
      <x>10</x>
      <y>5</y>
-     <width>241</width>
+     <width>251</width>
      <height>101</height>
     </rect>
    </property>
@@ -47,7 +47,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Max transmition time:</string>
+       <string>Max transmition time (ms):</string>
       </property>
      </widget>
     </item>

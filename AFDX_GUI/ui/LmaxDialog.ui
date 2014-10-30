@@ -47,7 +47,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Lmax:</string>
+       <string>Lmax (bytes):</string>
       </property>
      </widget>
     </item>
