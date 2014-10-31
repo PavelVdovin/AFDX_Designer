@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionsDialog.ui'
 #
-# Created: Thu Oct 30 16:08:13 2014
+# Created: Fri Oct 31 11:22:30 2014
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         OptionsDialog.setObjectName(_fromUtf8("OptionsDialog"))
-        OptionsDialog.resize(392, 116)
+        OptionsDialog.resize(457, 250)
         self.gridLayout = QtGui.QGridLayout(OptionsDialog)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.verticalLayout = QtGui.QVBoxLayout()
@@ -38,6 +38,46 @@ class Ui_OptionsDialog(object):
         self.allowMultipleLinks = QtGui.QCheckBox(OptionsDialog)
         self.allowMultipleLinks.setObjectName(_fromUtf8("allowMultipleLinks"))
         self.verticalLayout.addWidget(self.allowMultipleLinks)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.verticalLayout.addItem(spacerItem)
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        self.esDelayEdit = QtGui.QLineEdit(OptionsDialog)
+        self.esDelayEdit.setMinimumSize(QtCore.QSize(124, 0))
+        self.esDelayEdit.setMaximumSize(QtCore.QSize(124, 28))
+        self.esDelayEdit.setObjectName(_fromUtf8("esDelayEdit"))
+        self.horizontalLayout_2.addWidget(self.esDelayEdit)
+        self.label = QtGui.QLabel(OptionsDialog)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(5)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.horizontalLayout_2.addWidget(self.label)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
+        self.switchDelayEdit = QtGui.QLineEdit(OptionsDialog)
+        self.switchDelayEdit.setMinimumSize(QtCore.QSize(124, 0))
+        self.switchDelayEdit.setMaximumSize(QtCore.QSize(124, 16777215))
+        self.switchDelayEdit.setObjectName(_fromUtf8("switchDelayEdit"))
+        self.horizontalLayout_3.addWidget(self.switchDelayEdit)
+        self.label_2 = QtGui.QLabel(OptionsDialog)
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.horizontalLayout_3.addWidget(self.label_2)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.ifgEdit = QtGui.QLineEdit(OptionsDialog)
+        self.ifgEdit.setMinimumSize(QtCore.QSize(124, 0))
+        self.ifgEdit.setMaximumSize(QtCore.QSize(124, 16777215))
+        self.ifgEdit.setObjectName(_fromUtf8("ifgEdit"))
+        self.horizontalLayout_4.addWidget(self.ifgEdit)
+        self.label_3 = QtGui.QLabel(OptionsDialog)
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+        self.horizontalLayout_4.addWidget(self.label_3)
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.OK = QtGui.QPushButton(OptionsDialog)
@@ -58,6 +98,9 @@ class Ui_OptionsDialog(object):
         OptionsDialog.setWindowTitle(_translate("OptionsDialog", "Dialog", None))
         self.limitJitter.setText(_translate("OptionsDialog", "Limit jitter to 500 microseconds", None))
         self.allowMultipleLinks.setText(_translate("OptionsDialog", "Allow multiple links from end systems", None))
+        self.label.setText(_translate("OptionsDialog", "End-system delay (microseconds)", None))
+        self.label_2.setText(_translate("OptionsDialog", "Switch delay (microseconds)", None))
+        self.label_3.setText(_translate("OptionsDialog", "Iterframe gap (microseconds)", None))
         self.OK.setText(_translate("OptionsDialog", "OK", None))
         self.Cancel.setText(_translate("OptionsDialog", "Cancel", None))
 

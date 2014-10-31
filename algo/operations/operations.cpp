@@ -3,6 +3,7 @@
 #include "link.h"
 #include "virtualLink.h"
 #include "partition.h"
+#include "responseTimeEstimator.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -116,7 +117,9 @@ long Operations::countMaxJitter(Port* port, VirtualLink* vl) {
             size += (*it)->getLMax();
     }
 
-    float jMax = (float)size / ((float)maxCapacity / 1000); // multiply by 1000 to get microseconds
+    float jMax = (float)size / ((float)maxCapacity / 1000)
+            + (assigned.size() - 1) * ResponseTimeEstimator::getInterframeGap(); // multiply by 1000 to get microseconds
+
     return (long) jMax;
 }
 

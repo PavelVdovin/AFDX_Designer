@@ -3,6 +3,11 @@
 #include "verifier.h"
 #include <stdio.h>
 
+
+long ResponseTimeEstimator::esFabricDelay = 0;
+long ResponseTimeEstimator::interFrameDelay = 0;
+long ResponseTimeEstimator::switchFabricDelay = 16;
+
 void ResponseTimeEstimator::estimateWorstCaseResponseTime() {
 	std::string status = Verifier::verify(network, virtualLinks);
 	if ( status.find("Verification failed") != std::string::npos ) {

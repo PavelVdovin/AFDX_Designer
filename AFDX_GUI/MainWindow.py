@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QMainWindow, QFileDialog, QMessageBox, QDialog
+from PyQt4.QtGui import QMainWindow, QFileDialog, QMessageBox, QDialog, QIntValidator
 from ui.Ui_MainWindow import Ui_MainWindow
 from NetworkCanvas import NetworkCanvas, State
 from Project import Project
@@ -7,6 +7,7 @@ from DataFlowsEditor import DataFlowsEditor
 from PyQt4.QtCore import Qt
 import os, sys
 from ui.Ui_OptionsDialog import Ui_OptionsDialog
+import ConfigParser
 
 
 class OptionsDialog(QDialog):
@@ -14,14 +15,24 @@ class OptionsDialog(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_OptionsDialog()
         self.ui.setupUi(self)
+        self.valid = QIntValidator(0, 10000, self)
+        self.ui.esDelayEdit.setValidator(self.valid)
+        self.ui.switchDelayEdit.setValidator(self.valid)
+        self.ui.ifgEdit.setValidator(self.valid)
         
     def Load(self, mainWindow):
         self.ui.limitJitter.setCheckState( Qt.Checked if mainWindow.limitJitter else Qt.Unchecked )
         self.ui.allowMultipleLinks.setCheckState( Qt.Checked if mainWindow.canvas.allowMultipleLinks else Qt.Unchecked )
+        self.ui.esDelayEdit.setText(str(mainWindow.esDelay))
+        self.ui.switchDelayEdit.setText(str(mainWindow.switchDelay))
+        self.ui.ifgEdit.setText(str(mainWindow.ifg))
         
     def SetResult(self, mainWindow):
         mainWindow.limitJitter = self.ui.limitJitter.isChecked()
         mainWindow.canvas.allowMultipleLinks = self.ui.allowMultipleLinks.isChecked()
+        mainWindow.esDelay = int(self.ui.esDelayEdit.text())
+        mainWindow.switchDelay = int(self.ui.switchDelayEdit.text())
+        mainWindow.ifg = int(self.ui.ifgEdit.text())
 
 class MainWindow(QMainWindow):
     project = None
@@ -41,8 +52,60 @@ class MainWindow(QMainWindow):
         self.canvas.resources = self.project.resources
         self.projFilter = self.tr("AFDX projects (*.afdxxml)")
         self.limitJitter = True
+        # time constraints
+        self.esDelay = 0
+        self.switchDelay = 16
+        self.ifg = 0
         
-
+        self.readProperties()
+        
+    # Read properties, if exists
+    def readProperties(self):
+        name = "options.cfg"
+        if os.path.isfile(name):
+           parser =  ConfigParser.ConfigParser() 
+           parser.read(name)
+           if parser.has_section("Options"):
+               
+               if parser.has_option("Options", "limitJitter"):
+                   limitJitter = parser.getboolean("Options", "limitJitter")
+                   self.limitJitter = limitJitter
+                   
+               if parser.has_option("Options", "allowMultipleLinks"):
+                   allowMultipleLinks = parser.getboolean("Options", "allowMultipleLinks")
+                   self.canvas.allowMultipleLinks = allowMultipleLinks
+                   
+               if parser.has_option("Options", "esDelay"):
+                   esDelay = parser.getint("Options", "esDelay")
+                   self.esDelay = esDelay 
+                   
+               if parser.has_option("Options", "switchDelay"):
+                   switchDelay = parser.getint("Options", "switchDelay")
+                   self.switchDelay = switchDelay 
+                   
+               if parser.has_option("Options", "ifg"):
+                   ifg = parser.getint("Options", "ifg")
+                   self.ifg = ifg
+                   
+    def saveProperties(self):
+        name = "options.cfg"
+        if not os.path.isfile(name):
+           open(name, 'a').close()
+           
+        parser =  ConfigParser.ConfigParser() 
+        parser.read(name)
+        if not parser.has_section("Options"):
+            parser.add_section("Options")
+        
+        fileObj = open(name, "w")
+        parser.set("Options", "limitJitter", self.limitJitter)
+        parser.set("Options", "allowMultipleLinks", self.canvas.allowMultipleLinks)
+        parser.set("Options", "esDelay", self.esDelay)
+        parser.set("Options", "switchDelay", self.switchDelay)
+        parser.set("Options", "ifg", self.ifg)
+        parser.write(fileObj)
+        fileObj.close()
+           
     def toggleSelect(self):
         self.ui.actionSelect.setChecked(True)
         self.ui.actionEndSystem.setChecked(False)
@@ -245,8 +308,12 @@ class MainWindow(QMainWindow):
         if not os.path.isfile(name):
             QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
         else:
-            limitJitter = "t" if self.limitJitter else "f"
-            result = os.popen(name + " \"" + os.path.relpath(file) + "\" a" + " --limit-jitter=" + limitJitter).read()
+            limitJitter = " --limit-jitter="
+            limitJitter += "t" if self.limitJitter else "f"
+            esDelayText = " --es-fabric-delay=" + str(self.esDelay)
+            switchDelayText = " --switch-fabric-delay=" + str(self.switchDelay)
+            ifgText = " --interframe-gap=" + str(self.ifg)
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" a" + limitJitter + esDelayText + switchDelayText + ifgText).read()
             print result
             results = result.split('\n')
             if "Not all parameters are specified, some elements are omitted." in results:
@@ -270,7 +337,10 @@ class MainWindow(QMainWindow):
         if not os.path.isfile(name):
             QMessageBox.critical(self, self.tr("An error occured"), self.tr("Please build algorithm and put it into algo file"))
         else:
-            result = os.popen(name + " \"" + os.path.relpath(file) + "\" r").read()
+            esDelayText = " --es-fabric-delay=" + str(self.esDelay)
+            switchDelayText = " --switch-fabric-delay=" + str(self.switchDelay)
+            ifgText = " --interframe-gap=" + str(self.ifg)
+            result = os.popen(name + " \"" + os.path.relpath(file) + "\" r" + esDelayText + switchDelayText + ifgText).read()
             print result
             results = result.split('\n')
             if "Not all parameters are specified, some elements are omitted." in results:
@@ -299,4 +369,5 @@ class MainWindow(QMainWindow):
         d.exec_()
         if d.result() == QDialog.Accepted:
             d.SetResult(self)
+            self.saveProperties()
         
