@@ -1,4 +1,6 @@
 AFDX designer project.
 This repo includes the following components:
 - AFDX GUI based on python qt
-- ... (other components are in progress)
+- Verifier of network configuration
+- Response time analyzer based on Trajectory Approach (modified a bit to get faster calculations)
+- Algorithm of designing virtual links configurations by given data flows with all constraints satisfaction
