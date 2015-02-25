@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <algorithm>
 
-#define LIMITED_SEARCH_DEPTH 2
-
 Designer::~Designer() {
     delete responseTimeEstimator;
 
@@ -88,9 +86,11 @@ void Designer::checkOutgoingVirtualLinks(NetElement* endSystem, bool checkCapaci
     Ports::iterator it = endSystem->getPorts().begin();
     for ( ; it != endSystem->getPorts().end(); ++it ) {
         Verifier::FailedConstraint failed = Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
-        while ( failed != Verifier::NONE ) {
-            redesignOutgoingVirtualLinks(*it, failed);
-            failed= Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
+        if ( !disableAggregationOnSource ) {
+            while ( failed != Verifier::NONE ) {
+               redesignOutgoingVirtualLinks(*it, failed);
+               failed= Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
+            }
         }
     }
 }
@@ -223,12 +223,14 @@ void Designer::routeVirtualLinks() {
             continue;
         }
 
-        // trying limited search
-        found = limitedSearch(*it, assigned);
-        if ( found ) {
-            printf("Limited search succeed\n");
-            assigned.insert(*it);
-            continue;
+        if ( !disableLimitedSearch ) {
+           // trying limited search
+           found = limitedSearch(*it, assigned);
+           if ( found ) {
+               printf("Limited search succeed\n");
+               assigned.insert(*it);
+               continue;
+           }
         }
 
         removeVirtualLink(*it);
@@ -241,7 +243,7 @@ bool comparatorBandwidth(VirtualLink* vl1, VirtualLink* vl2) {
 }
 
 bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
-    LimitedSearcher searcher(LIMITED_SEARCH_DEPTH, network);
+    LimitedSearcher searcher(limitedSearchDepth, network);
     searcher.start(assigned, comparatorBandwidth);
     printf("Starting limited search\n");
     VirtualLinks vls = searcher.getNextSet();
@@ -291,7 +293,6 @@ bool Designer::calculateAndCheckResponseTimeouts(VirtualLinks& vlsToCheck, bool 
         for ( ; it != vlsToCheck.end(); ++it ) {
             float estimation = responseTimeEstimator->estimateWorstCaseResponseTime(*it);
             long estimationLong = (long)(estimation - EPS) < (long)estimation ? (long)estimation : (long)estimation + 1;
-            printf("Resp time: %d\n", estimationLong);
             (*it)->setResponseTimeEstimation(estimationLong);
 
             DataFlow* failedDataFlow = Operations::setAndCheckResponseTimes(*it);
@@ -302,7 +303,7 @@ bool Designer::calculateAndCheckResponseTimeouts(VirtualLinks& vlsToCheck, bool 
 
                 printf("Trying to redesign vl.\n");
                 bool success = redesignVirtualLink(failedDataFlow, *it);
-                if ( !success ) {
+                if ( !success && !disableAggregationOnResponseTime ) {
                     success = limitedSearchAggregation(failedDataFlow, *it);
                 }
 

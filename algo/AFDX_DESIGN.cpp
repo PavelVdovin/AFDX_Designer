@@ -10,6 +10,8 @@
 void printUsage(char** argv) {
     printf("Usage: %s <input file> [<output file>] v|a|r [--limit-jitter=t|f]", *argv);
     printf(" [--es-fabric-delay=num] [--switch-fabric-delay=num] [--interframe-gap=num]\n");
+    printf(" [--limited-search-depth=num] [--disable-aggr-on-source]\n");
+    printf(" [--disable-aggr-on-resp-time] [--disable-limited-search]\n");
     printf("\tv: verify and exit\n");
     printf("\ta: run designer\n");
     printf("\tr: estimate end-to-end response times\n");
@@ -20,7 +22,7 @@ void printUsage(char** argv) {
 }
 
 int main(int argc, char** argv) {
-    if ( argc < 3 || argc > 8 )
+    if ( argc < 3 || argc > 12 )
     {
         printUsage(argv);
         return 1;
@@ -54,6 +56,10 @@ int main(int argc, char** argv) {
 
     bool limitJitter = true;
     int esDelay = 0, switchDelay = 16, ifg = 0;
+    bool disableAggrOnSource = false,
+         disableAggrOnRespTime = false,
+         disableLimitedSearch = false;
+    int limitedSearchDepth = 2;
 
     while ( argc > 3 && std::string(argv[argc-1]).size() > 1 ) {
         // Checking whether there is "limit-jitter" string
@@ -95,6 +101,24 @@ int main(int argc, char** argv) {
             }
             ifg = num;
             printf("Ifg = %d\n", ifg);
+        } else if (std::string(argv[argc-1]).find("--limited-search-depth=") != std::string::npos ) {
+            std::string str = std::string(argv[argc-1]).substr(23);
+            int num = atoi(str.c_str());
+            if ( num < 0 ) {
+                printUsage(argv);
+                return 1;
+            }
+            limitedSearchDepth = num;
+            printf("Limited Search Depth = %d\n", limitedSearchDepth);
+        } else if ( std::string(argv[argc-1]) == "--disable-aggr-on-source" ) {
+            disableAggrOnSource = true;
+            printf("Disabling aggregation on source\n");
+        } else if ( std::string(argv[argc-1]) == "--disable-aggr-on-resp-time" ) {
+            disableAggrOnRespTime = true;
+            printf("Disabling aggregation on response time failure\n");
+        } else if ( std::string(argv[argc-1]) == "--disable-limited-search" ) {
+            disableLimitedSearch = true;
+            printf("Disabling limitedSearch\n");
         } else {
             printUsage(argv);
             return 1;
@@ -120,7 +144,9 @@ int main(int argc, char** argv) {
         delete estimator;
     } else if (std::string(argv[argc-1]) == "a" ) {
         Designer designer(network, xmlReader.getPartitions(), xmlReader.getDataFlows(), xmlReader.getVirtualLinks(),
-                esDelay, switchDelay, ifg);
+                esDelay, switchDelay, ifg,
+                disableAggrOnSource, disableAggrOnRespTime,
+                disableLimitedSearch, limitedSearchDepth);
         designer.design();
 
         VirtualLinks newVls = designer.getDesignedVirtualLinks();

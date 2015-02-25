@@ -9,11 +9,19 @@
 class Designer {
 public:
     Designer(Network* network, Partitions& partitions, DataFlows& dataFlows, VirtualLinks& existingVirtualLinks,
-            int esDelay = 0, int switchDelay = 16, int ifg = 0):
+            int esDelay = 0, int switchDelay = 16, int ifg = 0,
+            bool disableAggregationOnSource = false,
+            bool disableAggregationOnResponseTime = false,
+            bool disableLimitedSearch = false,
+            int limitedSearchDepth = 2):
         network(network),
         partitions(partitions),
         dataFlows(dataFlows),
-        existingVirtualLinks(existingVirtualLinks) {
+        existingVirtualLinks(existingVirtualLinks),
+        disableAggregationOnSource(disableAggregationOnSource),
+        disableAggregationOnResponseTime(disableAggregationOnResponseTime),
+        disableLimitedSearch(disableLimitedSearch),
+        limitedSearchDepth(limitedSearchDepth) {
 
         responseTimeEstimator = new TrajectoryApproachBasedEstimator(network, esDelay, ifg, switchDelay);
     }
@@ -100,6 +108,11 @@ private:
 
     // Estimator of the worst case e2e response time of frames
     ResponseTimeEstimator* responseTimeEstimator;
+
+    bool disableAggregationOnSource;
+    bool disableAggregationOnResponseTime;
+    bool disableLimitedSearch;
+    int limitedSearchDepth;
 };
 
 #endif
