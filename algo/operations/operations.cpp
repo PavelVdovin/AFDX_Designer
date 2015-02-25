@@ -162,20 +162,14 @@ DataFlow* Operations::setAndCheckResponseTimes(VirtualLink* vl) {
         //    theMostConstrainedDF = *it;
     }
 
-    //float e2eResponseTime = (float)vl->getResponseTimeEstimation() / 1000 + (float)(numberOfFrames - 1) * vl->getBag();
-    //printf("Response time: %f\n", e2eResponseTime);
-    // Starting from the most constrained - if constraints are satisfied - then it is true for every data flow
-
     it = vl->getAssignments().begin();
     for ( ; it != vl->getAssignments().end(); ++it ) {
         //assert((*it)->getTMax() == 0 || (float)(*it)->getTMax() >= e2eResponseTime - EPS);
         float e2eResponseTime = calculateResponseTime(vl, numberOfFrames, *it);
         (*it)->setResponseTime((long)(e2eResponseTime + EPS));
-        printf("Response time: %d\n", (*it)->getResponseTime());
 
         float tMax = (float)((*it)->getTMax() * 1000); // getting microseconds
         if ( tMax != 0 && tMax < e2eResponseTime - EPS ) {
-            printf("Time constraints are not satisfaied\n");
             if ( theMostConstrainedDF == 0 || diff < e2eResponseTime - tMax ) {
                 theMostConstrainedDF = *it;
                 diff = e2eResponseTime - tMax;

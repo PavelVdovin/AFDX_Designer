@@ -41,9 +41,25 @@ void TrajectoryApproachBasedEstimator::initialize() {
         jit[source] = (float)(vl->getJMax());
         vlJitters[vl] = jit;
     }
+
+    recalculate = true;
 }
 
 float TrajectoryApproachBasedEstimator::estimateWorstCaseResponseTime(VirtualLink* vl) {
+    while(recalculate) {
+       recalculate = false;
+       VirtualLinks::iterator it = virtualLinks.begin();
+       for ( ; it != virtualLinks.end(); ++it ) {
+           float estimation = estimateForOneVl(*it);
+           long estimationLong = (long)(estimation - EPS) < (long)estimation ? (long)estimation : (long)estimation + 1;
+           (*it)->setResponseTimeEstimation(estimationLong);
+       }
+    }
+
+    return vl->getResponseTimeEstimation();
+}
+float TrajectoryApproachBasedEstimator::estimateForOneVl(VirtualLink* vl) {
+
     Route& route = vl->getRoute();
     Paths& paths = route.getPaths();
     NetElements::iterator it = vl->getDestinations().begin();
@@ -101,11 +117,29 @@ NetElement* findPreviousNetElement(NetElement* netElement, Route& route) {
     return 0;
 }
 
-Port* findOutgoingPort(VirtualLink* vl, NetElement* netElement) {
+Port* findOutgoingPort(VirtualLink* vl, NetElement* netElement, Path* path) {
     assert(netElement->isSwitch());
+    // Searching for the next element
+    std::list<PathNode>& nodes = path->getPath();
+    std::list<PathNode>::iterator nit = nodes.begin();
+    bool isFound = false;
+    NetElement* next = 0;
+    for ( ; nit != nodes.end(); ++nit ) {
+        if ( isFound ) {
+            next = nit->first;
+            break;
+        }
+        if ( nit->first == netElement ) {
+            isFound = true;
+        }
+    }
+
+    assert(next != 0);
+
     Ports::iterator it = netElement->getPorts().begin();
     for ( ; it != netElement->getPorts().end(); ++it ) {
-        if ( (*it)->isAssigned(vl) )
+        if ( (*it)->isAssigned(vl) 
+              && (*it)->getAssosiatedLink()->getPortByParent(next) != 0 )
             return *it;
     }
 
@@ -115,6 +149,11 @@ Port* findOutgoingPort(VirtualLink* vl, NetElement* netElement) {
 }
 
 float TrajectoryApproachBasedEstimator::estimateJitterAtNetElement(VirtualLink* vl, NetElement* netElement) {
+    /*
+    if ( vlJitters[vl].find(netElement) != vlJitters[vl].end() ) {
+        return vlJitters[vl][netElement];
+    }*/
+
     Paths::iterator pit = vl->getRoute().getPaths().begin();
     for ( ; pit != vl->getRoute().getPaths().end(); ++pit ) {
 
@@ -132,21 +171,26 @@ float TrajectoryApproachBasedEstimator::estimateJitterAtNetElement(VirtualLink* 
 }
 
 float TrajectoryApproachBasedEstimator::estimateJitterAtNetElement(VirtualLink* vl, NetElement* netElement, Path* path) {
+    if ( netElement == vl->getSource() ) {
+       assert(vlJitters[vl].find(netElement) != vlJitters[vl].end());
+       return vlJitters[vl][netElement];
+    }
+    /*
     if ( vlJitters[vl].find(netElement) != vlJitters[vl].end() ) {
         return vlJitters[vl][netElement];
-    }
+    }*/
 
     // Searching for the previous element
     NetElement* prevElement = findPreviousNetElement(netElement, path);
     //assert(prevElement != 0);
     if ( prevElement == 0 ) {
-    	printf("Virtual link's route is not fully connected\n");
-    	return 0;
+      	printf("Virtual link's route is not fully connected\n");
+      	return 0;
     }
     float jitter = estimateJitterAtNetElement(vl, prevElement, path);
 
     if ( netElement->isSwitch() ) {
-        Port* outgoingPort = findOutgoingPort(vl, netElement);
+        Port* outgoingPort = findOutgoingPort(vl, netElement, path);
         float delayOnThis = estimateWorstCaseDelay(vl, netElement, outgoingPort);
         jitter += delayOnThis;
         vlJitters[vl][netElement] = jitter; // keeping result
@@ -232,8 +276,17 @@ public:
                 prevNetElement = prev;
             }
 
-            // We need to know all jitters!
-            jitters[*it] = estimator->estimateJitterAtNetElement(*it, prev);
+            // We need to know all jitters, but this may lead to infinite cycle
+            // of jitter calculation. 
+            // So we just take the jitter if it is already calculated,
+            // otherwise we estimate the number of frames as 1 and later
+            // this value is rechecked.
+
+            if ( estimator->getJitterAtNetElement(*it, prev) >= -EPS )
+               jitters[*it] = estimator->getJitterAtNetElement(*it, prev);
+            else {
+               estimator->setRecalculate(true);
+            }
         }
     }
 
@@ -319,7 +372,11 @@ private:
                 bp +=  lmax * numberOfFrames[*it] + ifg;
 
                 // jitter is in microseconds, converting to milliseconds
-                float vlFramesDelay = (float)(numberOfFrames[*it] - 1) * (*it)->getBag() - jitters[*it] / 1000;
+                float jitterVal = 0.0;
+                if ( jitters.find(*it) != jitters.end() )
+                    jitterVal = jitters[*it] / 1000;
+
+                float vlFramesDelay = (float)(numberOfFrames[*it] - 1) * (*it)->getBag() - jitterVal;
                 vlFramesDelay *= capacity; // getting bytes
                 vlFramesDelay +=  + lmax + ifg;
                 if (  vlFramesDelay > maxVlFramesDelay )
@@ -368,12 +425,29 @@ private:
             // capacity is in bytes/milliseconds,
             // bag is in milliseconds
             // jitter is in microseconds, so transmitting to milliseconds
-            int newNum  = 1 + (int)(((bp + (*it)->getLMax() + ifg) / capacity + jitters[*it] / 1000) / (float)(*it)->getBag());
 
-            if ( newNum > numberOfFrames[*it] ) {
-                numberOfFrames[*it] = newNum;
-                changed = true;
-                printf("Number of frames changed! There are %d frames.\n", newNum);
+            if ( jitters.find(*it) != jitters.end() ) {
+               int newNum  = 1 + (int)(((bp + (*it)->getLMax() + ifg) / capacity + jitters[*it] / 1000) / (float)(*it)->getBag());
+
+               if ( newNum > numberOfFrames[*it] ) {
+                   numberOfFrames[*it] = newNum;
+                   changed = true;
+               }
+
+               // Check that this newNum didn't change, otherwise we need to
+               // recalculate all e2e estimates later
+               if ( newNum > estimator->getVlsNumberOfFrames(*it, outgoingPort->getParent()) ) {
+                  estimator->setRecalculate(true);
+                  estimator->setVlsNumberOfFrames(*it, outgoingPort->getParent(), newNum);
+               }
+            } else {
+               // We still didn't count jitter for the virtual link,
+               // so we estimate number of frames as estimated
+               int newNum = estimator->getVlsNumberOfFrames(*it, outgoingPort->getParent());
+               if ( newNum > numberOfFrames[*it] ) {
+                   numberOfFrames[*it] = newNum;
+                   changed = true;
+               }
             }
         }
         return changed;
@@ -397,6 +471,7 @@ float TrajectoryApproachBasedEstimator::estimateWorstCaseDelay(VirtualLink* vl, 
     estimator.prevNetElement = 0;
     estimator.outgoingPort = outgoingPort;
     estimator.isHighPriority = (highPriority.find(vl) != highPriority.end());
+    estimator.virtualLinks.clear();
     estimator.virtualLinks.insert(virtualLinks.begin(), virtualLinks.end());
     estimator.highPriority = highPriority;
     estimator.capacity = outgoingPort->getAssosiatedLink()->getMaxCapacity();
