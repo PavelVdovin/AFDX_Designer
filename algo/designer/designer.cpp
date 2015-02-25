@@ -86,11 +86,9 @@ void Designer::checkOutgoingVirtualLinks(NetElement* endSystem, bool checkCapaci
     Ports::iterator it = endSystem->getPorts().begin();
     for ( ; it != endSystem->getPorts().end(); ++it ) {
         Verifier::FailedConstraint failed = Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
-        if ( !disableAggregationOnSource ) {
-            while ( failed != Verifier::NONE ) {
-               redesignOutgoingVirtualLinks(*it, failed);
-               failed= Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
-            }
+        while ( failed != Verifier::NONE ) {
+           redesignOutgoingVirtualLinks(*it, failed);
+           failed= Verifier::verifyOutgoingVirtualLinks(*it, checkCapacity);
         }
     }
 }
@@ -116,6 +114,14 @@ void filterVls(VirtualLinks& vls) {
 void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint failed) {
     assert(failed != Verifier::NONE);
     VirtualLinks vls = VirtualLinks(port->getAssignedLowPriority().begin(), port->getAssignedLowPriority().end());
+
+    if ( disableAggregationOnSource ) {
+       VirtualLink* vlToDrop = *std::min_element(vls.begin(), vls.end(),
+            failed == Verifier::CAPACITY ? comparerCapacity : comparerLMax);
+
+       removeMostConstrainedVirtualLink(port, vlToDrop, failed);
+       return;
+    }
 
     // do not remove already existing vls
     filterVls(vls);
