@@ -171,6 +171,10 @@ void Designer::redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstrai
 
 }
 
+bool compareVlParams(VirtualLink* vl1, VirtualLink* vl2) {
+    return vl1->getBag() == vl2->getBag() && vl1->getLMax() == vl2->getLMax();
+}
+
 void Designer::removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDrop, Verifier::FailedConstraint failed) {
     // Trying to redesign without failedDataFlow
     bool success = false;
@@ -195,8 +199,27 @@ void Designer::removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDro
             return;
         }
 
-        DataFlow* df = *(vlToDrop->getAssignments().begin());
-        success = redesignVirtualLink(df, vlToDrop);
+        //DataFlow* df = *(vlToDrop->getAssignments().begin());
+        //VirtualLink* result = VirtualLinkConfigurator::generateAggregatedVirtualLink(vlToDrop->getAssignments());
+        VirtualLink * newVl = VirtualLinkConfigurator::generateAggregatedVirtualLink(vlToDrop->getAssignments());
+        newVl->setSource(vlToDrop->getSource());
+        if ( newVl == 0 ) {
+            // if there are more then one data flows, removing just dataflow
+            success = false;
+            continue;
+        }
+
+        // Checking whether params has changed
+        if ( compareVlParams(newVl, vlToDrop) ) {
+            delete newVl;
+            success = false;
+            continue;
+        }
+
+        if ( !replaceVirtualLinks(newVl, vlToDrop) )
+            success = false;
+
+        //success = redesignVirtualLink(df, vlToDrop);
     }
 }
 
@@ -340,10 +363,6 @@ bool Designer::calculateAndCheckResponseTimeouts(VirtualLinks& vlsToCheck, bool 
     return true;
 }
 
-bool compareVlParams(VirtualLink* vl1, VirtualLink* vl2) {
-    return vl1->getBag() == vl2->getBag() && vl1->getLMax() == vl2->getLMax();
-}
-
 bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, VirtualLink* oldVl2) {
     DataFlows flowsFromVl1, flowsFromVl2;
     cutVirtualLink(network, oldVl1, flowsFromVl1);
@@ -376,6 +395,9 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
             return false;
         }
     }
+
+    if ( oldVl1->getRoute().getPaths().size() == 0 )
+        return true; // no need to find route
 
     // Trying to route
     bool found = Routing::findRoute(network, newVl);
@@ -467,6 +489,8 @@ void Designer::restoreVirtualLink(Network* network, VirtualLink* vl, DataFlows& 
     DataFlows::iterator it = dfs.begin();
     for ( ; it != dfs.end(); ++it )
         setDataFlowVL(vl, *it);
-    Operations::assignVirtualLink(network, vl);
+    if ( vl->getRoute().getPaths().size() == vl->getDestinations().size() )
+        Operations::assignVirtualLink(network, vl);
     designedVirtualLinks.insert(vl);
+
 }
