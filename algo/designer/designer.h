@@ -13,6 +13,7 @@ public:
             bool disableAggregationOnSource = false,
             bool disableAggregationOnResponseTime = false,
             bool disableLimitedSearch = false,
+            bool disableRedesign = false,
             int limitedSearchDepth = 2):
         network(network),
         partitions(partitions),
@@ -75,7 +76,7 @@ private:
 
     // Calculate and check response e2e time for the specified virtual links and their data flows.
     // If the second parameter is true, then redesigning procedure is performed for failed virtual links
-    bool calculateAndCheckResponseTimeouts(VirtualLinks& virtualLinks, bool redesignIfFail = true);
+    bool calculateAndCheckResponseTimeouts(VirtualLinks virtualLinks, bool redesignIfFail = true);
 
     // Try to replace old vls with new virtual link. If operation fails, the
     // configuration is returned.
@@ -112,6 +113,7 @@ private:
     bool disableAggregationOnSource;
     bool disableAggregationOnResponseTime;
     bool disableLimitedSearch;
+    bool disableRedesign;
     int limitedSearchDepth;
 };
 

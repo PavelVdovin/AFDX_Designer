@@ -98,8 +98,8 @@ bool Operations::assignVirtualLink(Network* network, VirtualLink* virtualLink) {
 }
 
 void Operations::removeVirtualLink(Network* network, VirtualLink* virtualLink) {
-	if ( virtualLink->getRoute().getPaths().size() == 0 )
-		return; // No route exists
+    //if ( virtualLink->getRoute().getPaths().size() == 0 )
+	//	return; // No route exists
     Links& links = network->getLinks();
     Links::iterator it = links.begin();
     for ( ; it != links.end(); ++it )

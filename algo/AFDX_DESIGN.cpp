@@ -12,6 +12,7 @@ void printUsage(char** argv) {
     printf(" [--es-fabric-delay=num] [--switch-fabric-delay=num] [--interframe-gap=num]\n");
     printf(" [--limited-search-depth=num] [--disable-aggr-on-source]\n");
     printf(" [--disable-aggr-on-resp-time] [--disable-limited-search]\n");
+    printf(" [--disable-redesign]\n");
     printf("\tv: verify and exit\n");
     printf("\ta: run designer\n");
     printf("\tr: estimate end-to-end response times\n");
@@ -58,7 +59,8 @@ int main(int argc, char** argv) {
     int esDelay = 0, switchDelay = 16, ifg = 0;
     bool disableAggrOnSource = false,
          disableAggrOnRespTime = false,
-         disableLimitedSearch = false;
+         disableLimitedSearch = false,
+         disableRedesign = false;
     int limitedSearchDepth = 2;
 
     while ( argc > 3 && std::string(argv[argc-1]).size() > 1 ) {
@@ -119,6 +121,9 @@ int main(int argc, char** argv) {
         } else if ( std::string(argv[argc-1]) == "--disable-limited-search" ) {
             disableLimitedSearch = true;
             printf("Disabling limitedSearch\n");
+        } else if ( std::string(argv[argc-1]) == "--disable-redesign" ) {
+            disableRedesign = true;
+            printf("Disabling redesign\n");
         } else {
             printUsage(argv);
             return 1;
@@ -146,7 +151,7 @@ int main(int argc, char** argv) {
         Designer designer(network, xmlReader.getPartitions(), xmlReader.getDataFlows(), xmlReader.getVirtualLinks(),
                 esDelay, switchDelay, ifg,
                 disableAggrOnSource, disableAggrOnRespTime,
-                disableLimitedSearch, limitedSearchDepth);
+                disableLimitedSearch, disableRedesign, limitedSearchDepth);
         designer.design();
 
         VirtualLinks newVls = designer.getDesignedVirtualLinks();
