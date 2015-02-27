@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<afdxxml name="test project">
+	<resources>
+		<endSystem name="endSystem1" number="1" ports="1" x="177.5" y="160.5"/>
+		<endSystem name="endSystem2" number="2" ports="2" x="172.5" y="359.5"/>
+		<endSystem name="endSystem3" number="3" ports="3" x="172.5" y="502.5"/>
+		<endSystem name="endSystem4" number="4" ports="4" x="180.5" y="604.5"/>
+		<endSystem name="endSystem5" number="5" ports="5" x="735.5" y="137.5"/>
+		<endSystem name="endSystem6" number="6" ports="6" x="769.5" y="282.5"/>
+		<endSystem name="endSystem7" number="7" ports="7" x="743.5" y="443.5"/>
+		<endSystem name="endSystem8" number="8" ports="8" x="704.5" y="561.5"/>
+		<partition connectedTo="1" name="partition1" number="9" x="139.5" y="97.5"/>
+		<partition connectedTo="1" name="partition2" number="10" x="114.5" y="145.5"/>
+		<partition connectedTo="2" name="partition3" number="11" x="99.5" y="308.5"/>
+		<partition connectedTo="2" name="partition4" number="12" x="106.5" y="369.5"/>
+		<partition connectedTo="3" name="partition5" number="13" x="102.5" y="475.5"/>
+		<partition connectedTo="3" name="partition6" number="14" x="109.5" y="505.5"/>
+		<partition connectedTo="3" name="partition7" number="15" x="114.5" y="541.5"/>
+		<partition connectedTo="4" name="partition8" number="16" x="133.5" y="654.5"/>
+		<partition connectedTo="5" name="partition9" number="17" x="797.5" y="59.5"/>
+		<partition connectedTo="5" name="partition10" number="18" x="815.5" y="97.5"/>
+		<partition connectedTo="6" name="partition11" number="19" x="828.5" y="247.5"/>
+		<partition connectedTo="6" name="partition12" number="20" x="826.5" y="291.5"/>
+		<partition connectedTo="7" name="partition13" number="21" x="816.5" y="437.5"/>
+		<partition connectedTo="7" name="partition14" number="22" x="808.5" y="485.5"/>
+		<partition connectedTo="8" name="partition15" number="23" x="745.5" y="587.5"/>
+		<partition connectedTo="8" name="partition16" number="24" x="710.5" y="617.5"/>
+		<switch name="switch1" number="25" ports="9,10,11" x="305.5" y="233.5"/>
+		<switch name="switch2" number="26" ports="12,13,14" x="656.5" y="215.5"/>
+		<switch name="switch3" number="27" ports="15,16,17" x="637.5" y="461.5"/>
+		<switch name="switch4" number="28" ports="18,19,20" x="300.5" y="523.5"/>
+		<switch name="switch5" number="29" ports="21,22,23" x="424.5" y="310.5"/>
+		<switch name="switch6" number="30" ports="24,25,26" x="550.5" y="300.5"/>
+		<switch name="switch7" number="31" ports="27,28,29" x="555.5" y="399.5"/>
+		<switch name="switch8" number="32" ports="30,31,32" x="399.5" y="420.5"/>
+		<link capacity="12500" from="1" fromType="0" to="9" toType="0"/>
+		<link capacity="12500" from="10" fromType="0" to="21" toType="0"/>
+		<link capacity="12500" from="22" fromType="0" to="24" toType="0"/>
+		<link capacity="12500" from="25" fromType="0" to="27" toType="0"/>
+		<link capacity="12500" from="28" fromType="0" to="30" toType="0"/>
+		<link capacity="12500" from="31" fromType="0" to="23" toType="0"/>
+		<link capacity="12500" from="2" fromType="0" to="11" toType="0"/>
+		<link capacity="12500" from="32" fromType="0" to="18" toType="0"/>
+		<link capacity="12500" from="19" fromType="0" to="3" toType="0"/>
+		<link capacity="12500" from="20" fromType="0" to="4" toType="0"/>
+		<link capacity="12500" from="26" fromType="0" to="12" toType="0"/>
+		<link capacity="12500" from="13" fromType="0" to="5" toType="0"/>
+		<link capacity="12500" from="14" fromType="0" to="6" toType="0"/>
+		<link capacity="12500" from="7" fromType="0" to="15" toType="0"/>
+		<link capacity="12500" from="16" fromType="0" to="29" toType="0"/>
+		<link capacity="12500" from="17" fromType="0" to="8" toType="0"/>
+	</resources>
+	<virtualLinks/>
+	<dataFlows>
+	</dataFlows>
+</afdxxml>
