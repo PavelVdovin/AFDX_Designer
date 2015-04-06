@@ -12,6 +12,8 @@
 #define BW_RATION 0.5
 #define costVl costPeriods
 
+typedef std::pair<VirtualLink*, VirtualLink*> VLSPair;
+
 bool VirtualLinksAggregator::selectVLsForAggregation(NetElement* endSystem, VirtualLink** firstVl,
         VirtualLink** secondVl, Verifier::FailedConstraint constraint, DeprecatedVLPairs& deprecated) {
     Partitions partitions = endSystem->toEndSystem()->getPartitions();
@@ -118,12 +120,37 @@ VirtualLink* VirtualLinksAggregator::performAggregation(VirtualLink* firstVl, Vi
     return result;
 }
 
-bool sortVl(VirtualLink* vl1, VirtualLink* vl2) {
-    return costVl(vl1) > costVl(vl2);
+// Get number of different destinations for the specified virtual links
+inline int getNumberOfDiffDests(VirtualLink* vl1, VirtualLink* vl2) {
+    NetElements& dests1 = vl1->getDestinations(), &dests2 = vl2->getDestinations();
+    int numberOfEqElems = 0;
+    for ( NetElements::iterator it = dests1.begin(); it != dests1.end(); ++it ) {
+        if ( dests2.find(*it) != dests2.end() ) {
+            ++numberOfEqElems;
+        }
+    }
+
+    return dests1.size() + dests2.size() - 2 * numberOfEqElems;
 }
 
-bool sortLMax(VirtualLink* vl1, VirtualLink* vl2) {
-    return costLMax(vl1) > costLMax(vl2);
+inline float costVlPair(VirtualLink* vl1, VirtualLink* vl2) {
+    return costVl(vl1) * costVl(vl2) / ( 1 + getNumberOfDiffDests(vl1, vl2));
+}
+
+inline float costLMaxPair(VirtualLink* vl1, VirtualLink* vl2) {
+    return costLMax(vl1) * costLMax(vl2) / ( 1 + getNumberOfDiffDests(vl1, vl2));
+}
+
+bool sortVl(VLSPair& pair1, VLSPair& pair2) {
+    float val1 = costVlPair(pair1.first, pair1.second),
+          val2 = costVlPair(pair2.first, pair2.second);
+    return val1 > val2;
+}
+
+bool sortLMax(VLSPair& pair1, VLSPair& pair2) {
+    float val1 = costLMaxPair(pair1.first, pair1.second),
+          val2 = costLMaxPair(pair2.first, pair2.second);
+    return val1 > val2;
 }
 
 float VirtualLinksAggregator::findVLsMaxCost(Partition* partition, VirtualLink** first,
@@ -139,26 +166,36 @@ float VirtualLinksAggregator::findVLsMaxCost(Partition* partition, VirtualLink**
 // Select vls from partition to aggregate, only specified virtual links are allowed
 float VirtualLinksAggregator::findVLsMaxCost(VirtualLinks& vlsOfPartition, VirtualLink** first,
             VirtualLink** second, Verifier::FailedConstraint constraint, DeprecatedVLPairs& deprecated) {
-    std::vector<VirtualLink*>sortedVls(vlsOfPartition.begin(), vlsOfPartition.end());
+    // vector of all virtual link pairs
+    int n = vlsOfPartition.size();
+    if ( n < 2 )
+        return 0.0;
+    std::vector<VLSPair> sortedVls;
+    sortedVls.reserve( n * (n - 1) / 2 );
+    VirtualLinks::iterator it = vlsOfPartition.begin();
+    for ( ; it != vlsOfPartition.end(); ++it ) {
+        VirtualLinks::iterator jt = it;
+        for ( ++jt; jt != vlsOfPartition.end(); ++jt ) {
+            sortedVls.push_back(std::pair<VirtualLink*, VirtualLink*>(*it, *jt));
+        }
+    }
+
     if ( constraint == Verifier::CAPACITY)
         std::sort(sortedVls.begin(), sortedVls.end(), sortVl);
     else
         std::sort(sortedVls.begin(), sortedVls.end(), sortLMax);
 
-    // This is considered to be rather fast, as any but first results are returned very seldom
-    for ( int indexMax = 0; indexMax < (sortedVls.size() - 1) ; ++indexMax ) {
-        VirtualLink* max = sortedVls[indexMax];
-        for ( int i = indexMax + 1; i < sortedVls.size(); ++i ) {
-            VirtualLink* vl = sortedVls[i];;
-            std::pair<VirtualLink*, VirtualLink*> vls(max, vl);
-            if ( deprecated.find(vls) == deprecated.end() ) {
-                *first = max;
-                *second = vl;
-                if ( constraint == Verifier::CAPACITY )
-                    return costVl(max) * costVl(vl);
-                else
-                    return costLMax(max) * costLMax(vl);
-            }
+    for ( int i = 0; i < sortedVls.size(); ++i ) {
+        if ( deprecated.find(sortedVls[i]) == deprecated.end() ) {
+            *first = sortedVls[i].first;
+            *second = sortedVls[i].second;
+
+            // Divide by (1 + "number of different destinations") so that
+            // to encourage vls with the same destinations
+            if ( constraint == Verifier::CAPACITY )
+                return costVlPair(sortedVls[i].first, sortedVls[i].second);
+            else
+                return costLMaxPair(sortedVls[i].first, sortedVls[i].second);;
         }
     }
     return 0.0;
