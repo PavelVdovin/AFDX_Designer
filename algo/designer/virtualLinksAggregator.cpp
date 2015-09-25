@@ -141,13 +141,13 @@ inline float costLMaxPair(VirtualLink* vl1, VirtualLink* vl2) {
     return costLMax(vl1) * costLMax(vl2) / ( 1 + getNumberOfDiffDests(vl1, vl2));
 }
 
-bool sortVl(VLSPair& pair1, VLSPair& pair2) {
+bool sortVl(const VLSPair& pair1, const VLSPair& pair2) {
     float val1 = costVlPair(pair1.first, pair1.second),
           val2 = costVlPair(pair2.first, pair2.second);
     return val1 > val2;
 }
 
-bool sortLMax(VLSPair& pair1, VLSPair& pair2) {
+bool sortLMax(const VLSPair& pair1, const VLSPair& pair2) {
     float val1 = costLMaxPair(pair1.first, pair1.second),
           val2 = costLMaxPair(pair2.first, pair2.second);
     return val1 > val2;
