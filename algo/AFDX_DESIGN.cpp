@@ -4,6 +4,7 @@
 #include "responseTimeEstimator.h"
 #include "trajectoryApproachBasedEstimator.h"
 #include "designer.h"
+#include "routing.h"
 #include <string>
 #include <iostream>
 
@@ -13,6 +14,7 @@ void printUsage(char** argv) {
     printf(" [--limited-search-depth=num] [--disable-aggr-on-source]\n");
     printf(" [--disable-aggr-on-resp-time] [--disable-limited-search]\n");
     printf(" [--disable-redesign]\n");
+    printf(" [--routing=d|k]\n");
     printf("\tv: verify and exit\n");
     printf("\ta: run designer\n");
     printf("\tr: estimate end-to-end response times\n");
@@ -20,6 +22,7 @@ void printUsage(char** argv) {
     printf("es-fabric-delay - delay for sending-receiving one message in end-system only (microseconds, default 0)\n");
     printf("switch-fabric-delay - delay for parsing one frame in switch (microseconds, default 16)\n");
     printf("interframe-gap - minimum gap between two consecutive frames (microseconds, default 0)\n");
+    printf("routing: d - use dejkstra algorithm, k - use k-shortest-paths algorithm (two criteria, default value)\n");
 }
 
 int main(int argc, char** argv) {
@@ -124,6 +127,20 @@ int main(int argc, char** argv) {
         } else if ( std::string(argv[argc-1]) == "--disable-redesign" ) {
             disableRedesign = true;
             printf("Disabling redesign\n");
+        } else if ( std::string(argv[argc-1]).find("--routing=") != std::string::npos ) {
+            std::string str = std::string(argv[argc-1]);
+            if ( str.size() != 11 || (str[10] != 'd' && str[10] != 'k' ) ) {
+                printUsage(argv);
+                return 1;
+            }
+
+            if ( str[10] == 'd' ) {
+                Routing::setMode(Routing::DEJKSTRA_MAX_REMAINING_BW);
+                printf("Using dejkstra algorithm\n");
+            } else {
+                Routing::setMode(Routing::K_PATH);
+                printf("Using k-path algorithm\n");
+            }
         } else {
             printUsage(argv);
             return 1;

@@ -9,7 +9,7 @@ public:
     static Link* getLinkByNetElements(Network* network, NetElement* elem1, NetElement* elem2);
     static NetElements getEndSystems(Network* network);
     static NetElements getSwitches(Network* network);
-    static Links getLinksOfElement(NetElement* element);
+    static Links getLinksOfElement(Network* network, NetElement* element);
 
     // Get virtual links associated with data flows of partition
     static VirtualLinks getLinksFromPartition(Partition* element);

@@ -41,11 +41,13 @@ NetElements Operations::getSwitches(Network* network) {
     return result;
 }
 
-Links Operations::getLinksOfElement(NetElement* element) {
+Links Operations::getLinksOfElement(Network* network, NetElement* element) {
     Links result;
     Ports::iterator it = element->getPorts().begin();
     for ( ; it != element->getPorts().end(); ++it ) {
-        result.insert((*it)->getAssosiatedLink());
+        if ( (*it)->getAssosiatedLink() != 0 && network->getLinks().find((*it)->getAssosiatedLink()) != network->getLinks().end() ) {
+            result.insert((*it)->getAssosiatedLink());
+        }
     }
     return result;
 }
