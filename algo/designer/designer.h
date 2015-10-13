@@ -22,8 +22,9 @@ public:
         disableAggregationOnSource(disableAggregationOnSource),
         disableAggregationOnResponseTime(disableAggregationOnResponseTime),
         disableLimitedSearch(disableLimitedSearch),
-        limitedSearchDepth(limitedSearchDepth) {
-
+        disableRedesign(disableRedesign),
+        limitedSearchDepth(limitedSearchDepth)
+         {
         responseTimeEstimator = new TrajectoryApproachBasedEstimator(network, esDelay, ifg, switchDelay);
     }
 
