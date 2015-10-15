@@ -307,6 +307,10 @@ int VirtualLinkConfigurator::calculateGreedyLMax(DataFlows& dataFlows, int opt_n
 VirtualLink* VirtualLinkConfigurator::redesignVirtualLink(DataFlow* df, VirtualLink* vl) {
     assert(vl != 0);
     float frameResponseTimeEstimate = (float)vl->getResponseTimeEstimation() / 1000;
+    if ( frameResponseTimeEstimate < FRAME_TRANSMITION_APPROXIMATION ) {
+        frameResponseTimeEstimate = FRAME_TRANSMITION_APPROXIMATION;
+    }
+
     if ( vl->getAssignments().size() > 1 )
         return generateAggregatedVirtualLink(vl->getAssignments(), frameResponseTimeEstimate);
 

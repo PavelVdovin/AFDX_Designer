@@ -14,7 +14,8 @@ public:
             bool disableAggregationOnResponseTime = false,
             bool disableLimitedSearch = false,
             bool disableRedesign = false,
-            int limitedSearchDepth = 2):
+            int limitedSearchDepth = 2,
+            int numberOfIterations = 5):
         network(network),
         partitions(partitions),
         dataFlows(dataFlows),
@@ -23,7 +24,8 @@ public:
         disableAggregationOnResponseTime(disableAggregationOnResponseTime),
         disableLimitedSearch(disableLimitedSearch),
         disableRedesign(disableRedesign),
-        limitedSearchDepth(limitedSearchDepth)
+        limitedSearchDepth(limitedSearchDepth),
+        numOfIterationsOnRedesign(numberOfIterations)
          {
         responseTimeEstimator = new TrajectoryApproachBasedEstimator(network, esDelay, ifg, switchDelay);
     }
@@ -58,7 +60,7 @@ private:
      */
     void redesignOutgoingVirtualLinks(Port* port, Verifier::FailedConstraint);
     void removeVirtualLink(Port* port, VirtualLink*);
-    void removeVirtualLink(VirtualLink*);
+    void removeVirtualLink(VirtualLink*, bool freeMemory = true);
 
     /*
      * Remove only the most constrained data flow instead of removing the whole virtual link
@@ -81,10 +83,10 @@ private:
 
     // Try to replace old vls with new virtual link. If operation fails, the
     // configuration is returned.
-    bool replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, VirtualLink* oldVl2 = 0);
+    bool replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, VirtualLink* oldVl2 = 0, bool removeVirtualLink = true);
 
     // Try to redesign virtual link in case some constraints are not satisfied (response time out).
-    bool redesignVirtualLink(DataFlow* df, VirtualLink* vl);
+    bool redesignVirtualLink(DataFlow* df, VirtualLink* vl, unsigned int numberOfIterations = 1);
 
     // Try to aggregate some other virtual links so that constraints for data
     // flow are satisfied.
@@ -116,6 +118,7 @@ private:
     bool disableLimitedSearch;
     bool disableRedesign;
     int limitedSearchDepth;
+    int numOfIterationsOnRedesign;
 };
 
 #endif

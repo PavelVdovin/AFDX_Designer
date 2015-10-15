@@ -15,6 +15,7 @@ void printUsage(char** argv) {
     printf(" [--disable-aggr-on-resp-time] [--disable-limited-search]\n");
     printf(" [--disable-redesign]\n");
     printf(" [--routing=d|k]\n");
+    printf(" [--iterations-on-redesign=n]\n");
     printf("\tv: verify and exit\n");
     printf("\ta: run designer\n");
     printf("\tr: estimate end-to-end response times\n");
@@ -23,6 +24,7 @@ void printUsage(char** argv) {
     printf("switch-fabric-delay - delay for parsing one frame in switch (microseconds, default 16)\n");
     printf("interframe-gap - minimum gap between two consecutive frames (microseconds, default 0)\n");
     printf("routing: d - use dejkstra algorithm, k - use k-shortest-paths algorithm (two criteria, default value)\n");
+    printf("iterations-on-redesign specifies number of iterations to redesign the virtual link (in case redesign is allowed)\n");
 }
 
 int main(int argc, char** argv) {
@@ -65,6 +67,7 @@ int main(int argc, char** argv) {
          disableLimitedSearch = false,
          disableRedesign = false;
     int limitedSearchDepth = 2;
+    int numOfIterations = 5;
 
     while ( argc > 3 && std::string(argv[argc-1]).size() > 1 ) {
         // Checking whether there is "limit-jitter" string
@@ -141,6 +144,20 @@ int main(int argc, char** argv) {
                 Routing::setMode(Routing::K_PATH);
                 printf("Using k-path algorithm\n");
             }
+        } else if ( std::string(argv[argc-1]).find("--iterations-on-redesign=") != std::string::npos ) {
+                std::string str = std::string(argv[argc-1]);
+                if ( str.size() < 26 ) {
+                    printUsage(argv);
+                    return 1;
+                }
+
+                numOfIterations = std::atoi(str.substr(25, str.size() - 25).c_str());
+                if ( numOfIterations < 0 ) {
+                    printUsage(argv);
+                    return 1;
+                } else {
+                    printf("Number of iterations: %d\n", numOfIterations);
+                }
         } else {
             printUsage(argv);
             return 1;

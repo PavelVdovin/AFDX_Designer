@@ -205,8 +205,6 @@ void Designer::removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDro
             return;
         }
 
-        //DataFlow* df = *(vlToDrop->getAssignments().begin());
-        //VirtualLink* result = VirtualLinkConfigurator::generateAggregatedVirtualLink(vlToDrop->getAssignments());
         VirtualLink * newVl = VirtualLinkConfigurator::generateAggregatedVirtualLink(vlToDrop->getAssignments());
         newVl->setSource(vlToDrop->getSource());
         if ( newVl == 0 ) {
@@ -224,8 +222,6 @@ void Designer::removeMostConstrainedVirtualLink(Port* port, VirtualLink* vlToDro
 
         if ( !replaceVirtualLinks(newVl, vlToDrop) )
             success = false;
-
-        //success = redesignVirtualLink(df, vlToDrop);
     }
 }
 
@@ -236,13 +232,15 @@ void Designer::removeVirtualLink(Port* port, VirtualLink* vlToDrop) {
     delete vlToDrop;
 }
 
-void Designer::removeVirtualLink(VirtualLink* vl) {
+void Designer::removeVirtualLink(VirtualLink* vl, bool freeMemory) {
     Port* port = *(vl->getSource()->getPorts().begin());
     port->getParent()->removeOutgoingVirtualLink(vl, port);
     vl->removeAllAssignments();
     designedVirtualLinks.erase(vl);
     Operations::removeVirtualLink(network, vl);
-    delete vl;
+
+    if ( freeMemory )
+        delete vl;
 }
 
 void Designer::routeVirtualLinks() {
@@ -319,21 +317,31 @@ bool Designer::limitedSearch(VirtualLink* virtualLink, VirtualLinks& assigned) {
 
 bool decreasingDurationConstraints(VirtualLink* vl1, VirtualLink* vl2) {
     // decreased by bwth
-    long maxConstr1 = 0, maxConstr2 = 0;
+    long sumDur1 = 0, sumDur2 = 0;
     for ( DataFlows::iterator it = vl1->getAssignments().begin(); it != vl1->getAssignments().end(); ++it ) {
-        if ( maxConstr1 == 0 || ((*it)->getTMax() != 0 && (*it)->getTMax() < maxConstr1) )
-            maxConstr1 = (*it)->getTMax();
+        sumDur1 += (*it)->getTMax();
     }
 
     for ( DataFlows::iterator it = vl2->getAssignments().begin(); it != vl2->getAssignments().end(); ++it ) {
-        if ( maxConstr2 == 0 || ((*it)->getTMax() != 0 && (*it)->getTMax() < maxConstr2) )
-            maxConstr2 = (*it)->getTMax();
+        sumDur2 += (*it)->getTMax();
     }
 
-    return maxConstr1 < maxConstr2;
+    return sumDur1 < sumDur2;
 }
 
 VirtualLinks fullyAssignedVLs;
+
+void assertVirtualLinks(VirtualLinks& virtualLinks) {
+    VirtualLinks::iterator it = virtualLinks.begin();
+    for (; it != virtualLinks.end(); ++it ) {
+        assert ((*it)->getBag() > 0 && (*it)->getBag() < 129 );
+        assert ((*it)->getLMax() < 1519 &&  (*it)->getLMax() > 0);
+        if (! ((*it)->getJMax() <= 500 && (*it)->getJMax() >= 0) ) {
+            printf("JMax is %d\n", (*it)->getJMax());
+            assert(0);
+        }
+    }
+}
 
 bool Designer::calculateAndCheckResponseTimeouts(VirtualLinks vlsToCheck, bool redesignIfFail) {
     VirtualLinks virtualLinks;
@@ -344,6 +352,8 @@ bool Designer::calculateAndCheckResponseTimeouts(VirtualLinks vlsToCheck, bool r
         recheck = false;
         virtualLinks = VirtualLinks(designedVirtualLinks.begin(), designedVirtualLinks.end());
         virtualLinks.insert(existingVirtualLinks.begin(), existingVirtualLinks.end());
+
+        assertVirtualLinks(virtualLinks);
         responseTimeEstimator->setVirtualLinks(virtualLinks);
         responseTimeEstimator->initialize();
 
@@ -351,65 +361,64 @@ bool Designer::calculateAndCheckResponseTimeouts(VirtualLinks vlsToCheck, bool r
         for ( ; it != vlsToCheckSorted.end(); ++it ) {
         //VirtualLinks::iterator it = vlsToCheck.begin();
         //for ( ; it != vlsToCheck.end(); ++it ) {
+            bool success = false;
+
+
             if ( designedVirtualLinks.find(*it) == designedVirtualLinks.end() )
                 continue;
             float estimation = responseTimeEstimator->estimateWorstCaseResponseTime(*it);
             long estimationLong = (long)(estimation - EPS) < (long)estimation ? (long)estimation : (long)estimation + 1;
             (*it)->setResponseTimeEstimation(estimationLong);
 
-            DataFlow* failedDataFlow = Operations::setAndCheckResponseTimes(*it);
-            if ( failedDataFlow != 0 ) {
-                bool success = false;
-                printf("Constraints are failed for data flow.\n");
-                if ( !redesignIfFail )
-                    return false;
+            while ( !success && (*it)->getAssignments().size() > 0 ) {
+                DataFlow* failedDataFlow = Operations::setAndCheckResponseTimes(*it);
+                if ( failedDataFlow != 0 ) {
+                    success = false;
+                    printf("Constraints are failed for data flow.\n");
+                    if ( !redesignIfFail )
+                        return false;
 
-                if ( !disableRedesign ) {
+                    if ( !disableRedesign ) {
 
-                    printf("Trying to redesign vl.\n");
-                    success = redesignVirtualLink(failedDataFlow, *it);
-                    if ( !success && !disableAggregationOnResponseTime ) {
-                        success = limitedSearchAggregation(failedDataFlow, *it);
-                    }
-                }
-
-                if ( !success ) {
-                    printf("Removing assignment for vl with %d dataFlows\n", (*it)->getAssignments().size());
-
-                    // Removing data flow
-                    if ( (*it)->getAssignments().find(failedDataFlow) != (*it)->getAssignments().end() )
-                        (*it)->removeAssignment(failedDataFlow);
-
-                    // Trying to redesign without failedDataFlow
-                    while ( !success && (*it)->getAssignments().size() > 0 ) {
-                        failedDataFlow = *((*it)->getAssignments().begin());
-                        success = redesignVirtualLink(failedDataFlow, *it);
-                        if ( !success ) {
-                            printf("Removing assignment\n");
-                            (*it)->removeAssignment(failedDataFlow);
+                        printf("Trying to redesign vl.\n");
+                        success = redesignVirtualLink(failedDataFlow, *it, numOfIterationsOnRedesign);
+                        if ( !success && !disableAggregationOnResponseTime ) {
+                            success = limitedSearchAggregation(failedDataFlow, *it);
                         }
                     }
 
-                    if ( (*it)->getAssignments().size() == 0 && designedVirtualLinks.find(*it) != designedVirtualLinks.end() )
-                        removeVirtualLink(*it);
+                    if ( !success ) {
+                        printf("Removing assignment for vl with %d dataFlows\n", (*it)->getAssignments().size());
 
-                    printf("Failed to redesign virtual link.\n");
-                }
-                else
-                    printf("Virtual link redesigned successfully! Rechecking response time.\n");
-                recheck = true;
-                break; // recheck again
+                        // Removing data flow
+                        if ( (*it)->getAssignments().find(failedDataFlow) != (*it)->getAssignments().end() )
+                            (*it)->removeAssignment(failedDataFlow);
+
+                    } else {
+                        printf("Virtual link redesigned successfully! Rechecking response time.\n");
+                        recheck = true;
+                        break; // recheck again
+                    }
+
                 // removeVirtualLink(*it);
-            } else {
-                fullyAssignedVLs.insert(*it);
+                } else {
+                    success = true;
+                    fullyAssignedVLs.insert(*it);
+                }
             }
+
+            if ( recheck )
+                break; // recheck again as we redesigned virtual link
+
+            if ( (*it)->getAssignments().size() == 0 && designedVirtualLinks.find(*it) != designedVirtualLinks.end() )
+                removeVirtualLink(*it);
         }
     }
 
     return true;
 }
 
-bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, VirtualLink* oldVl2) {
+bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, VirtualLink* oldVl2, bool removeIfFail) {
     DataFlows flowsFromVl1, flowsFromVl2;
     cutVirtualLink(network, oldVl1, flowsFromVl1);
 
@@ -429,12 +438,13 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
     Verifier::FailedConstraint failed = Verifier::NONE;
     Ports::iterator pit = newVl->getSource()->getPorts().begin();
     for ( ; pit != newVl->getSource()->getPorts().end(); ++pit ) {
-        failed = Verifier::verifyOutgoingVirtualLinks(*pit);
+        printf("JChecking jmax\n");
+        failed = Verifier::verifyOutgoingVirtualLinks(*pit, newVl);
 
         if ( failed != Verifier::NONE ) {
             printf("Failed to redesign virtual link(s) as jitter/capacity constraints are not satisfied.\n");
             // Fail, redesigning without df
-            removeVirtualLink(newVl);
+            removeVirtualLink(newVl, removeIfFail);
             restoreVirtualLink(network, oldVl1, flowsFromVl1);
             if ( oldVl2 != 0 )
                 restoreVirtualLink(network, oldVl2, flowsFromVl2);
@@ -452,7 +462,7 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
     if ( !found ) {
         printf("Failed to redesign virtual link(s) as route cannot be found.\n");
         // Fail, redesigning without df
-        removeVirtualLink(newVl);
+        removeVirtualLink(newVl, removeIfFail);
         restoreVirtualLink(network, oldVl1, flowsFromVl1);
         if ( oldVl2 != 0 )
             restoreVirtualLink(network, oldVl2, flowsFromVl2);
@@ -464,11 +474,13 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
     // Now checking response time estimations for newly created virtual link
     VirtualLinks vls;
     vls.insert(newVl);
+
+    printf("JMax is %d\n", newVl->getJMax());
     bool satisfied = calculateAndCheckResponseTimeouts(vls, false);
     if ( !satisfied ) {
         printf("Failed to redesign virtual link(s) as the e2e response time constraints are not satisfied.\n");
         // Fail, redesigning without df
-        removeVirtualLink(newVl);
+        removeVirtualLink(newVl, removeIfFail);
         restoreVirtualLink(network, oldVl1, flowsFromVl1);
         if ( oldVl2 != 0 )
             restoreVirtualLink(network, oldVl2, flowsFromVl2);
@@ -484,26 +496,69 @@ bool Designer::replaceVirtualLinks(VirtualLink* newVl, VirtualLink* oldVl1, Virt
     return true;
 }
 
-bool Designer::redesignVirtualLink(DataFlow* df, VirtualLink* vl) {
-    VirtualLink * newVl = VirtualLinkConfigurator::redesignVirtualLink(df, vl);
-    if ( newVl == 0 ) {
-        // if there are more then one data flows, removing just dataflow
-        return false;
+bool Designer::redesignVirtualLink(DataFlow* df, VirtualLink* vl, unsigned int numberOfIterations) {
+    long respTimeEstimation = vl->getResponseTimeEstimation();
+
+    VirtualLink* currentVl = vl, *newVl = 0;
+    while ( numberOfIterations-- >= 1) {
+        newVl = VirtualLinkConfigurator::redesignVirtualLink(df, currentVl);
+        assert(currentVl != newVl);
+        if ( newVl == 0 ) {
+            // if there are more then one data flows, removing just dataflow
+            if ( currentVl != vl )
+                delete currentVl;
+            return false;
+        }
+
+        newVl->setSource(currentVl->getSource());
+
+        // Checking whether params has changed
+        if ( compareVlParams(newVl, currentVl) ) {
+            printf("Params did not changed!\n");
+            delete newVl;
+            if ( currentVl != vl )
+                delete currentVl;
+            return false;
+        }
+
+        if ( replaceVirtualLinks(newVl, vl, 0, false) ) {
+            //return false;
+            if ( currentVl != vl )
+                delete currentVl;
+            assert(currentVl != newVl);
+            printf("Redesign succeed!\n");
+            return true;
+        }
+
+
+        if ( numberOfIterations > 0 ) {
+            // if we can estimate the response time and it is changed - try again
+            long newRespTimeEstimation = newVl->getResponseTimeEstimation();
+            if ( newRespTimeEstimation == 0  ) {
+                printf("Resp time is zero after redesign\n");
+                break;
+            }
+
+            if ( newRespTimeEstimation == respTimeEstimation ) {
+                printf("Resp time did not changed after redesign\n");
+                break;
+            }
+
+            if ( newRespTimeEstimation > respTimeEstimation ) {
+                printf("Resp time is longer after redesign\n");
+            }
+
+            printf("Trying to redesign again\n");
+            if ( currentVl != vl )
+                delete currentVl;
+
+            currentVl = newVl;
+            newVl = 0;
+        }
     }
 
-    newVl->setSource(vl->getSource());
-
-    // Checking whether params has changed
-    if ( compareVlParams(newVl, vl) ) {
-        delete newVl;
-        return false;
-    }
-
-    if ( !replaceVirtualLinks(newVl, vl) ) {
-        return false;
-    }
-
-    return true;
+    delete newVl;
+    return false;
 }
 
 // Performing limited search only for fullyAssignedVLs
@@ -530,14 +585,16 @@ bool Designer::limitedSearchAggregation(DataFlow* df, VirtualLink* vl) {
                std::pair<VirtualLink*, VirtualLink*>vls(first, second);
                deprecated.insert(vls);
                delete newVl;
-           } else if ( newVl != 0 && replaceVirtualLinks(newVl, first, second) ) {
+           } else if ( newVl != 0 && replaceVirtualLinks(newVl, first, second, false) ) {
                printf("Aggregation finished\n");
                return true;
            } else {
                std::pair<VirtualLink*, VirtualLink*>vls(first, second);
                deprecated.insert(vls);
-               if ( newVl != 0 )
+               if ( newVl != 0 ) {
                    delete newVl;
+                   newVl = 0;
+               }
            }
        } else fail = true; // failed
     }
